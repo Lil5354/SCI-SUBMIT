@@ -1,0 +1,294 @@
+@{
+    ViewData["Title"] = "Nộp bài đầy đủ";
+    var submissionId = ViewData["SubmissionId"] ?? 0;
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="mb-4">
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Tóm tắt đã được chấp nhận!</strong> Bạn có thể nộp bài đầy đủ (Full Paper) bây giờ.
+                </div>
+                <h2 class="text-gradient mb-2">
+                    <i class="fas fa-file-pdf me-2"></i>Nộp bài đầy đủ
+                </h2>
+                <p class="text-muted">Upload file bài báo đầy đủ của bạn (PDF hoặc DOCX)</p>
+            </div>
+
+            <!-- Deadline Countdown -->
+            <div class="card mb-4 border-warning">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="mb-1">
+                                <i class="fas fa-clock me-2 text-warning"></i>Deadline nộp bài đầy đủ
+                            </h6>
+                            <p class="mb-0 text-muted">Hạn cuối: <strong id="deadlineDate">30/01/2025 23:59</strong></p>
+                        </div>
+                        <div class="text-end">
+                            <div class="h4 mb-0 text-primary" id="countdown">
+                                <i class="fas fa-hourglass-half me-2"></i>
+                                <span id="countdownDays">0</span> ngày
+                                <span id="countdownHours">0</span> giờ
+                                <span id="countdownMinutes">0</span> phút
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Upload file bài báo</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form id="fullPaperForm" asp-action="UploadFullPaper" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="submissionId" value="@submissionId" />
+
+                        <!-- Current Version (if exists) -->
+                        <div id="currentVersionSection" class="mb-4" style="display: none;">
+                            <h6 class="mb-3">
+                                <i class="fas fa-file-alt me-2 text-primary"></i>Phiên bản hiện tại
+                            </h6>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="fas fa-file-pdf text-danger me-2"></i>
+                                            <strong id="currentFileName">paper_v1.pdf</strong>
+                                            <span class="text-muted ms-2">(2.5 MB)</span>
+                                            <br>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                Upload lúc: <span id="currentFileDate">15/01/2025 10:30</span>
+                                            </small>
+                                        </div>
+                                        <div>
+                                            <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                                                <i class="fas fa-download me-1"></i>Tải xuống
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upload New Version -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">
+                                <i class="fas fa-cloud-upload-alt me-2 text-primary"></i>
+                                @if (ViewData["HasCurrentVersion"] != null && (bool)(ViewData["HasCurrentVersion"] ?? false))
+                                {
+                                    <text>Upload phiên bản mới</text>
+                                }
+                                else
+                                {
+                                    <text>Upload file bài báo</text>
+                                }
+                            </h6>
+                            <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
+                                <div class="text-center py-5">
+                                    <i class="fas fa-cloud-upload-alt fa-4x text-primary mb-3"></i>
+                                    <h5>Kéo thả file vào đây hoặc click để chọn</h5>
+                                    <p class="text-muted mb-0">PDF, DOCX (Tối đa 10MB)</p>
+                                </div>
+                            </div>
+                            <input type="file" id="fileInput" name="File" class="d-none" 
+                                   accept=".pdf,.docx" required />
+                            <div id="filePreview" class="mt-3"></div>
+                        </div>
+
+                        <!-- Version History -->
+                        <div id="versionHistorySection" class="mb-4" style="display: none;">
+                            <h6 class="mb-3">
+                                <i class="fas fa-history me-2 text-primary"></i>Lịch sử phiên bản
+                            </h6>
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-success"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Phiên bản 2</h6>
+                                        <p class="text-muted mb-1 small">paper_v2.pdf (2.5 MB)</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>20/01/2025 14:30
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-primary"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Phiên bản 1</h6>
+                                        <p class="text-muted mb-1 small">paper_v1.pdf (2.3 MB)</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>15/01/2025 10:30
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="/Submission/Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Hủy
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-upload me-2"></i>
+                                @if (ViewData["HasCurrentVersion"] != null && (bool)(ViewData["HasCurrentVersion"] ?? false))
+                                {
+                                    <text>Cập nhật phiên bản</text>
+                                }
+                                else
+                                {
+                                    <text>Nộp bài đầy đủ</text>
+                                }
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Hướng dẫn</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li>File phải là PDF hoặc DOCX</li>
+                        <li>Kích thước tối đa: 10MB</li>
+                        <li>Bạn có thể upload lại nhiều lần trước deadline</li>
+                        <li>Hệ thống sẽ chỉ lấy phiên bản cuối cùng để đưa vào phản biện</li>
+                        <li>Sau khi nộp, trạng thái sẽ chuyển thành "Đã nộp bài đầy đủ"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Countdown timer
+        function updateCountdown() {
+            const deadline = new Date('2025-01-30T23:59:59');
+            const now = new Date();
+            const diff = deadline - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdown').innerHTML = '<span class="text-danger">Đã hết hạn</span>';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            document.getElementById('countdownDays').textContent = days;
+            document.getElementById('countdownHours').textContent = hours;
+            document.getElementById('countdownMinutes').textContent = minutes;
+        }
+
+        setInterval(updateCountdown, 60000); // Update every minute
+        updateCountdown();
+
+        // File upload handling
+        document.getElementById('fileInput')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File không được vượt quá 10MB');
+                this.value = '';
+                document.getElementById('filePreview').innerHTML = '';
+                return;
+            }
+
+            const preview = document.getElementById('filePreview');
+            preview.innerHTML = `
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-file-pdf text-danger fa-2x me-3"></i>
+                                <div class="d-inline-block">
+                                    <strong>${file.name}</strong>
+                                    <br>
+                                    <small class="text-muted">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        function removeFile() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('filePreview').innerHTML = '';
+        }
+
+        // Form submission
+        document.getElementById('fullPaperForm')?.addEventListener('submit', function(e) {
+            const file = document.getElementById('fileInput').files[0];
+            if (!file) {
+                e.preventDefault();
+                alert('Vui lòng chọn file để upload');
+                return false;
+            }
+        });
+    </script>
+
+    <style>
+        .file-upload-area {
+            border: 2px dashed var(--color-gray-300);
+            border-radius: var(--radius-lg);
+            background: var(--color-gray-50);
+            transition: all var(--transition-base);
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--color-primary);
+            background: rgba(30, 64, 175, 0.05);
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -2rem;
+            top: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--color-white);
+            box-shadow: 0 0 0 2px var(--color-gray-300);
+        }
+
+        .timeline-item:not(:last-child)::before {
+            content: '';
+            position: absolute;
+            left: -1.75rem;
+            top: 0.75rem;
+            width: 2px;
+            height: calc(100% - 0.5rem);
+            background: var(--color-gray-300);
+        }
+    </style>
+}

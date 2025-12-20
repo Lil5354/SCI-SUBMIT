@@ -1,0 +1,146 @@
+@{
+    ViewData["Title"] = "Lịch sử phản biện";
+}
+
+<div class="container my-5">
+    <!-- Header -->
+    <div class="mb-4">
+        <h2 class="text-gradient mb-2">
+            <i class="fas fa-history me-2"></i>Lịch sử phản biện
+        </h2>
+        <p class="text-muted">Xem lại tất cả các bài báo bạn đã phản biện</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Tìm kiếm</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Tiêu đề bài báo..." id="searchInput">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Khuyến nghị</label>
+                    <select class="form-select" id="recommendationFilter">
+                        <option value="">Tất cả</option>
+                        <option value="Accept">Chấp nhận</option>
+                        <option value="Minor">Chỉnh sửa nhỏ</option>
+                        <option value="Major">Chỉnh sửa lớn</option>
+                        <option value="Reject">Từ chối</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Năm</label>
+                    <select class="form-select" id="yearFilter">
+                        <option value="">Tất cả</option>
+                        <option value="2025" selected>2025</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" onclick="applyFilters()">
+                        <i class="fas fa-filter me-2"></i>Lọc
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews List -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="table-layout: fixed; width: 100%;">
+                    <colgroup>
+                        <col style="width: 5%; min-width: 50px; max-width: 60px;">
+                        <col style="width: 40%;">
+                        <col style="width: 15%;">
+                        <col style="width: 12%;">
+                        <col style="width: 15%;">
+                        <col style="width: 13%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th style="width: 5%; min-width: 50px; max-width: 60px; padding: 12px; text-align: center; vertical-align: middle; display: table-cell !important; box-sizing: border-box;">#</th>
+                            <th style="width: 40%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Tiêu đề bài báo</th>
+                            <th style="width: 15%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Khuyến nghị</th>
+                            <th style="width: 12%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Điểm số</th>
+                            <th style="width: 15%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Ngày nộp</th>
+                            <th style="width: 13%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="width: 5%; min-width: 50px; max-width: 60px; padding: 12px; text-align: center; vertical-align: middle; display: table-cell !important; box-sizing: border-box; overflow: hidden;">1</td>
+                            <td style="width: 40%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                <div style="max-width: 100%; overflow: hidden; word-wrap: break-word;">
+                                    <strong class="d-block mb-1" style="word-wrap: break-word; overflow-wrap: break-word;">Nghiên cứu về ứng dụng AI trong quản lý tài chính</strong>
+                                    <small class="text-muted d-block" style="word-wrap: break-word; overflow-wrap: break-word;">Chủ đề: Tài chính & Kế toán</small>
+                                </div>
+                            </td>
+                            <td style="width: 15%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <span class="badge bg-success">Chấp nhận</span>
+                            </td>
+                            <td style="width: 12%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <span class="badge bg-primary">4.3/5</span>
+                            </td>
+                            <td style="width: 15%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">25/01/2025</td>
+                            <td style="width: 13%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <a href="/Review/Details/1" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 5%; min-width: 50px; max-width: 60px; padding: 12px; text-align: center; vertical-align: middle; display: table-cell !important; box-sizing: border-box; overflow: hidden;">2</td>
+                            <td style="width: 40%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                <div style="max-width: 100%; overflow: hidden; word-wrap: break-word;">
+                                    <strong class="d-block mb-1" style="word-wrap: break-word; overflow-wrap: break-word;">Phân tích xu hướng thương mại điện tử tại Việt Nam</strong>
+                                    <small class="text-muted d-block" style="word-wrap: break-word; overflow-wrap: break-word;">Chủ đề: Thương mại</small>
+                                </div>
+                            </td>
+                            <td style="width: 15%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <span class="badge bg-warning">Chỉnh sửa nhỏ</span>
+                            </td>
+                            <td style="width: 12%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <span class="badge bg-primary">3.8/5</span>
+                            </td>
+                            <td style="width: 15%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">20/01/2025</td>
+                            <td style="width: 13%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <a href="/Review/Details/2" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Trước</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function applyFilters() {
+            // TODO: Implement filter logic
+            console.log('Applying filters...');
+        }
+    </script>
+}

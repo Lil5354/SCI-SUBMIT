@@ -1,0 +1,199 @@
+@{
+    ViewData["Title"] = "Thanh toán";
+    var submissionId = ViewData["SubmissionId"] ?? 0;
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="mb-4 text-center">
+                <h2 class="text-gradient mb-2">
+                    <i class="fas fa-credit-card me-2"></i>Thanh toán phí tham dự
+                </h2>
+                <p class="text-muted">Chọn phương thức thanh toán phù hợp với bạn</p>
+            </div>
+
+            <!-- Payment Info Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin thanh toán</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Bài báo</label>
+                            <p class="mb-0">Nghiên cứu về ứng dụng AI trong quản lý tài chính</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Mã bài nộp</label>
+                            <p class="mb-0">#@submissionId</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Loại tham dự</label>
+                            <select id="participantType" class="form-select" onchange="updateFee()">
+                                <option value="author">Tác giả</option>
+                                <option value="student">Sinh viên</option>
+                                <option value="attendee">Người tham dự</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Tổng tiền</label>
+                            <h4 class="text-primary mb-0" id="totalAmount">2,000,000 VNĐ</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-wallet me-2"></i>Phương thức thanh toán</h5>
+                </div>
+                <div class="card-body">
+                    <form id="paymentForm" asp-action="ProcessPayment" method="post">
+                        <input type="hidden" name="submissionId" value="@submissionId" />
+                        <input type="hidden" name="gateway" id="selectedGateway" value="" />
+
+                        <div class="row g-3">
+                            <!-- Momo -->
+                            <div class="col-md-4">
+                                <div class="payment-method-card" onclick="selectPaymentMethod('momo')">
+                                    <input type="radio" name="paymentMethod" id="momo" value="momo" class="d-none">
+                                    <label for="momo" class="payment-method-label">
+                                        <div class="text-center p-4">
+                                            <i class="fab fa-cc-mastercard fa-3x text-danger mb-3"></i>
+                                            <h6 class="mb-0">Ví Momo</h6>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- VNPAY -->
+                            <div class="col-md-4">
+                                <div class="payment-method-card" onclick="selectPaymentMethod('vnpay')">
+                                    <input type="radio" name="paymentMethod" id="vnpay" value="vnpay" class="d-none">
+                                    <label for="vnpay" class="payment-method-label">
+                                        <div class="text-center p-4">
+                                            <i class="fas fa-credit-card fa-3x text-primary mb-3"></i>
+                                            <h6 class="mb-0">VNPAY</h6>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Bank Card -->
+                            <div class="col-md-4">
+                                <div class="payment-method-card" onclick="selectPaymentMethod('bank')">
+                                    <input type="radio" name="paymentMethod" id="bank" value="bank" class="d-none">
+                                    <label for="bank" class="payment-method-label">
+                                        <div class="text-center p-4">
+                                            <i class="fas fa-university fa-3x text-success mb-3"></i>
+                                            <h6 class="mb-0">Thẻ ngân hàng</h6>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-center">
+                            <button type="submit" class="btn btn-primary btn-lg" id="btnPay" disabled>
+                                <i class="fas fa-lock me-2"></i>Thanh toán
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Payment Info -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="mb-3"><i class="fas fa-info-circle me-2 text-primary"></i>Lưu ý</h6>
+                    <ul class="mb-0 small text-muted">
+                        <li>Sau khi thanh toán thành công, hệ thống sẽ tự động gửi biên lai/hóa đơn qua email</li>
+                        <li>Nếu gặp vấn đề trong quá trình thanh toán, vui lòng liên hệ ban tổ chức</li>
+                        <li>Thời gian xử lý thanh toán: 1-2 phút</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const fees = {
+            author: 2000000,
+            student: 1000000,
+            attendee: 1500000
+        };
+
+        function updateFee() {
+            const type = document.getElementById('participantType').value;
+            const amount = fees[type];
+            document.getElementById('totalAmount').textContent = formatCurrency(amount);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
+
+        function selectPaymentMethod(gateway) {
+            // Uncheck all
+            document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+                radio.checked = false;
+                radio.closest('.payment-method-card').classList.remove('selected');
+            });
+
+            // Check selected
+            const radio = document.getElementById(gateway);
+            radio.checked = true;
+            radio.closest('.payment-method-card').classList.add('selected');
+            document.getElementById('selectedGateway').value = gateway;
+            document.getElementById('btnPay').disabled = false;
+        }
+
+        // Form submission
+        document.getElementById('paymentForm')?.addEventListener('submit', function(e) {
+            const selected = document.querySelector('input[name="paymentMethod"]:checked');
+            if (!selected) {
+                e.preventDefault();
+                alert('Vui lòng chọn phương thức thanh toán');
+                return false;
+            }
+        });
+    </script>
+
+    <style>
+        .payment-method-card {
+            border: 2px solid var(--color-gray-300);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            background: var(--color-white);
+        }
+
+        .payment-method-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .payment-method-card.selected {
+            border-color: var(--color-primary);
+            background: rgba(30, 64, 175, 0.05);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
+        }
+
+        .payment-method-label {
+            cursor: pointer;
+            margin: 0;
+        }
+    </style>
+}

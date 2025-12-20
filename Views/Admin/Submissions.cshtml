@@ -1,0 +1,182 @@
+@{
+    ViewData["Title"] = "Quản lý bài nộp";
+}
+
+<div class="container-fluid my-4">
+    <!-- Header -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="text-gradient mb-2">
+                    <i class="fas fa-list me-2"></i>Quản lý bài nộp
+                </h2>
+                <p class="text-muted mb-0">Danh sách tất cả bài báo đã nộp</p>
+            </div>
+            <div>
+                <button class="btn btn-outline-primary" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel me-2"></i>Xuất Excel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Tìm kiếm</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Tên bài, tác giả..." id="searchInput">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Trạng thái</label>
+                    <select class="form-select" id="statusFilter">
+                        <option value="">Tất cả</option>
+                        <option value="draft">Bản nháp</option>
+                        <option value="pending">Chờ duyệt tóm tắt</option>
+                        <option value="approved">Đã duyệt tóm tắt</option>
+                        <option value="rejected">Tóm tắt bị từ chối</option>
+                        <option value="fullpaper">Đã nộp bài đầy đủ</option>
+                        <option value="reviewing">Đang phản biện</option>
+                        <option value="accepted">Đã chấp nhận</option>
+                        <option value="revision">Yêu cầu chỉnh sửa</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Chủ đề</label>
+                    <select class="form-select" id="topicFilter">
+                        <option value="">Tất cả</option>
+                        <option>Kinh tế</option>
+                        <option>Tài chính & Kế toán</option>
+                        <option>Thương mại</option>
+                        <option>Quản trị kinh doanh</option>
+                        <option>Marketing</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Từ khóa</label>
+                    <input type="text" class="form-control" placeholder="Từ khóa..." id="keywordFilter">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" onclick="applyFilters()">
+                        <i class="fas fa-filter me-2"></i>Lọc
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submissions Table -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="table-layout: fixed; width: 100%;">
+                    <colgroup>
+                        <col style="width: 5%; min-width: 50px; max-width: 60px;">
+                        <col style="width: 35%;">
+                        <col style="width: 12%;">
+                        <col style="width: 10%;">
+                        <col style="width: 12%;">
+                        <col style="width: 10%;">
+                        <col style="width: 16%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th style="width: 5%; min-width: 50px; max-width: 60px; padding: 12px; text-align: center; vertical-align: middle; display: table-cell !important; box-sizing: border-box;">#</th>
+                            <th style="width: 35%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Tiêu đề</th>
+                            <th style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Tác giả</th>
+                            <th style="width: 10%; min-width: 90px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Chủ đề</th>
+                            <th style="width: 12%; min-width: 110px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Trạng thái</th>
+                            <th style="width: 10%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Ngày nộp</th>
+                            <th style="width: 16%; min-width: 140px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="width: 5%; min-width: 50px; max-width: 60px; padding: 12px; text-align: center; vertical-align: middle; display: table-cell !important; box-sizing: border-box; overflow: hidden;">1</td>
+                            <td style="width: 35%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                <div style="max-width: 100%; overflow: hidden; word-wrap: break-word;">
+                                    <strong class="d-block mb-1" style="word-wrap: break-word; overflow-wrap: break-word;">Nghiên cứu về ứng dụng AI trong quản lý tài chính</strong>
+                                    <small class="text-muted d-block" style="word-wrap: break-word; overflow-wrap: break-word;">Keywords: AI, Machine Learning, Tài chính</small>
+                                </div>
+                            </td>
+                            <td style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">Nguyễn Văn A</td>
+                            <td style="width: 10%; min-width: 90px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">Tài chính</td>
+                            <td style="width: 12%; min-width: 110px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <span class="badge bg-warning">Chờ duyệt</span>
+                            </td>
+                            <td style="width: 10%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">15/01/2025</td>
+                            <td style="width: 16%; min-width: 140px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a href="/Admin/SubmissionDetails/1" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="/Admin/ReviewSubmission/1" class="btn btn-sm btn-outline-success" title="Duyệt tóm tắt">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 5%; min-width: 50px; max-width: 60px; padding: 12px; text-align: center; vertical-align: middle; display: table-cell !important; box-sizing: border-box; overflow: hidden;">2</td>
+                            <td style="width: 35%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                <div style="max-width: 100%; overflow: hidden; word-wrap: break-word;">
+                                    <strong class="d-block mb-1" style="word-wrap: break-word; overflow-wrap: break-word;">Phân tích xu hướng thương mại điện tử tại Việt Nam</strong>
+                                    <small class="text-muted d-block" style="word-wrap: break-word; overflow-wrap: break-word;">Keywords: E-commerce, Thương mại, Việt Nam</small>
+                                </div>
+                            </td>
+                            <td style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">Trần Thị B</td>
+                            <td style="width: 10%; min-width: 90px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">Thương mại</td>
+                            <td style="width: 12%; min-width: 110px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <span class="badge bg-success">Đã duyệt</span>
+                            </td>
+                            <td style="width: 10%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">10/01/2025</td>
+                            <td style="width: 16%; min-width: 140px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a href="/Admin/SubmissionDetails/2" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="/Admin/Assignments" class="btn btn-sm btn-outline-info" title="Phân công phản biện">
+                                        <i class="fas fa-user-tie"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Trước</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function applyFilters() {
+            // TODO: Implement filter logic
+            console.log('Applying filters...');
+        }
+
+        function exportToExcel() {
+            // TODO: Implement Excel export
+            alert('Tính năng xuất Excel đang được phát triển');
+        }
+    </script>
+}
