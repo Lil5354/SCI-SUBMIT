@@ -1,8 +1,482 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Hero Section -->
+<section class="hero-section">
+    <!-- Decorative floating circles -->
+    <div class="decorative-circle"></div>
+    <div class="decorative-circle"></div>
+    <div class="decorative-circle"></div>
+    
+    <div class="container">
+        <div class="hero-content text-center text-white animate-fade-in-up">
+            <h1 class="hero-title">
+                <i class="fas fa-graduation-cap me-3"></i>
+                Chào mừng đến với Hệ Thống Hội Thảo Khoa Học
+            </h1>
+            <p class="hero-subtitle">
+                Nền tảng chuyên nghiệp cho việc quản lý, nộp bài và đánh giá các công trình nghiên cứu khoa học.
+                Kết nối các nhà nghiên cứu và tạo điều kiện cho sự hợp tác học thuật xuất sắc.
+            </p>
+            <div class="mt-4">
+                <a href="/Submission/Create" class="btn btn-light btn-lg me-3 shadow-lg">
+                    <i class="fas fa-plus-circle me-2"></i>Nộp bài mới
+                </a>
+                <a href="/Submission/Index" class="btn btn-outline-light btn-lg shadow-lg">
+                    <i class="fas fa-file-alt me-2"></i>Xem bài đã nộp
+                </a>
+            </div>
+            <!-- Countdown Timer -->
+            <div class="countdown-container mb-4">
+                <h5 class="text-white mb-3">
+                    <i class="fas fa-clock me-2"></i>Thời gian còn lại đến hội thảo
+                </h5>
+                <div class="countdown-timer">
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="countdownDays">0</div>
+                        <div class="countdown-label">Ngày</div>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="countdownHours">0</div>
+                        <div class="countdown-label">Giờ</div>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="countdownMinutes">0</div>
+                        <div class="countdown-label">Phút</div>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="countdownSeconds">0</div>
+                        <div class="countdown-label">Giây</div>
+                    </div>
+                </div>
+                <p class="text-white-50 mt-3 mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>Ngày diễn ra: <strong>18/04/2025</strong>
+                </p>
+            </div>
+
+            <div class="hero-info justify-content-center">
+                <div class="hero-info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <div class="fw-bold">TP. Hồ Chí Minh</div>
+                        <small class="opacity-75">Địa điểm</small>
+                    </div>
+                </div>
+                <div class="hero-info-item">
+                    <i class="fas fa-users"></i>
+                    <div>
+                        <div class="fw-bold">Học thuật</div>
+                        <small class="opacity-75">Cộng đồng</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Progress Steps Section (4 Steps) -->
+<section class="section bg-light position-relative">
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="section-title">
+            <h2>Tiến trình nộp bài</h2>
+            <p>Theo dõi tiến độ bài báo của bạn qua 4 bước</p>
+        </div>
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="progress-steps" id="progressSteps">
+                    <div class="progress-line" id="progressLine" style="width: 0%;"></div>
+                    
+                    <div class="progress-step active" data-step="1">
+                        <div class="progress-step-circle">
+                            <i class="fas fa-file-alt progress-step-icon"></i>
+                        </div>
+                        <div class="progress-step-label">Tóm tắt</div>
+                    </div>
+                    
+                    <div class="progress-step" data-step="2">
+                        <div class="progress-step-circle">
+                            <i class="fas fa-file-pdf progress-step-icon"></i>
+                        </div>
+                        <div class="progress-step-label">Bài đầy đủ</div>
+                    </div>
+                    
+                    <div class="progress-step" data-step="3">
+                        <div class="progress-step-circle">
+                            <i class="fas fa-clipboard-check progress-step-icon"></i>
+                        </div>
+                        <div class="progress-step-label">Phản biện</div>
+                    </div>
+                    
+                    <div class="progress-step" data-step="4">
+                        <div class="progress-step-circle">
+                            <i class="fas fa-credit-card progress-step-icon"></i>
+                        </div>
+                        <div class="progress-step-label">Thanh toán</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="section position-relative">
+    <!-- Decorative background elements -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="overflow: hidden; pointer-events: none; z-index: 0;">
+        <svg class="position-absolute" style="top: -10%; right: -5%; width: 400px; height: 400px; opacity: 0.05;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M40.8,-57.2C52.2,-46.9,60.1,-32.6,63.5,-17.8C66.9,-3,65.8,12.3,60.9,26.1C56,39.9,47.3,52.2,36.1,60.3C24.9,68.4,11.1,72.3,-2.6,75.9C-16.3,79.5,-32.6,82.8,-45.3,77.2C-58,71.6,-67.1,57.1,-73.2,41.2C-79.3,25.3,-82.4,8,-79.4,-8.4C-76.4,-24.8,-67.3,-40.4,-55.2,-50.7C-43.1,-61,-28,-66,-13.5,-63.5C1,-61,2,-51,14.1,-42.6Z" transform="translate(100 100)" fill="#2563eb"/>
+        </svg>
+        <svg class="position-absolute" style="bottom: -10%; left: -5%; width: 300px; height: 300px; opacity: 0.05;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M31.4,-41.5C42.8,-32.6,55.4,-26.9,63.1,-17.6C70.8,-8.3,73.6,4.6,70.1,16.2C66.6,27.8,56.8,38.1,45.6,45.3C34.4,52.5,21.8,56.6,8.9,59.8C-4,63,-17.2,65.3,-28.4,61.5C-39.6,57.7,-48.8,47.8,-55.5,36.1C-62.2,24.4,-66.4,10.9,-65.1,-2C-63.8,-14.9,-57,-27.2,-48.2,-36.8C-39.4,-46.4,-28.6,-53.3,-17.5,-58.8C-6.4,-64.3,5,-68.4,16.2,-67.2Z" transform="translate(100 100)" fill="#10b981"/>
+        </svg>
+    </div>
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-card-icon bg-primary text-white">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <div class="stat-card-value text-primary">24</div>
+                    <div class="stat-card-label">Bài đã nộp</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);">
+                        <i class="fas fa-clock text-white"></i>
+                    </div>
+                    <div class="stat-card-value" style="color: #f59e0b;">12</div>
+                    <div class="stat-card-label">Đang xét duyệt</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">
+                        <i class="fas fa-check-circle text-white"></i>
+                    </div>
+                    <div class="stat-card-value" style="color: #10b981;">8</div>
+                    <div class="stat-card-label">Đã chấp nhận</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);">
+                        <i class="fas fa-times-circle text-white"></i>
+                    </div>
+                    <div class="stat-card-value" style="color: #ef4444;">4</div>
+                    <div class="stat-card-label">Đã từ chối</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Actions Section -->
+<section class="section bg-light position-relative" style="background: linear-gradient(to bottom, #f9fafb 0%, #ffffff 100%);">
+    <!-- Decorative pattern -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%232563eb&quot; fill-opacity=&quot;0.02&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); opacity: 0.5; pointer-events: none;"></div>
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="section-title">
+            <h2>Thao tác nhanh</h2>
+            <p>Chọn một trong các thao tác dưới đây để bắt đầu</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body p-5 position-relative">
+                        <!-- Decorative corner accent -->
+                        <div class="position-absolute top-0 end-0" style="width: 80px; height: 80px; background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, transparent 70%); border-radius: 0 var(--radius-lg) 0 var(--radius-xl);"></div>
+                        <div class="mb-4 position-relative">
+                            <div class="stat-card-icon bg-primary text-white mx-auto" style="box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                        </div>
+                        <h4 class="card-title">Nộp bài mới</h4>
+                        <p class="card-text text-muted">
+                            Gửi công trình nghiên cứu mới của bạn đến hội thảo. Hệ thống hỗ trợ upload file và quản lý thông tin bài báo.
+                        </p>
+                        <a href="/Submission/Create" class="btn btn-primary">
+                            <i class="fas fa-arrow-right me-2"></i>Bắt đầu
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body p-5 position-relative">
+                        <!-- Decorative corner accent -->
+                        <div class="position-absolute top-0 end-0" style="width: 80px; height: 80px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, transparent 70%); border-radius: 0 var(--radius-lg) 0 var(--radius-xl);"></div>
+                        <div class="mb-4 position-relative">
+                            <div class="stat-card-icon mx-auto" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);">
+                                <i class="fas fa-clipboard-list text-white"></i>
+                            </div>
+                        </div>
+                        <h4 class="card-title">Xem bài đã nộp</h4>
+                        <p class="card-text text-muted">
+                            Theo dõi trạng thái các bài báo đã nộp, xem phản hồi từ ban biên tập và thực hiện chỉnh sửa khi cần.
+                        </p>
+                        <a href="/Submission/Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-right me-2"></i>Xem danh sách
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body p-5 position-relative">
+                        <!-- Decorative corner accent -->
+                        <div class="position-absolute top-0 end-0" style="width: 80px; height: 80px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, transparent 70%); border-radius: 0 var(--radius-lg) 0 var(--radius-xl);"></div>
+                        <div class="mb-4 position-relative">
+                            <div class="stat-card-icon mx-auto" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);">
+                                <i class="fas fa-star text-white"></i>
+                            </div>
+                        </div>
+                        <h4 class="card-title">Phản biện</h4>
+                        <p class="card-text text-muted">
+                            Nếu bạn là phản biện, hãy truy cập để xem các bài báo được phân công và thực hiện đánh giá.
+                        </p>
+                        <a href="/Review/Index" class="btn" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; border: none;">
+                            <i class="fas fa-arrow-right me-2"></i>Xem phân công
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Submissions Section -->
+<section class="section position-relative">
+    <!-- Subtle background decoration -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at 90% 10%, rgba(37, 99, 235, 0.03) 0%, transparent 50%); pointer-events: none;"></div>
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="section-title">
+            <h2>Bài nộp gần đây</h2>
+            <p>Danh sách các bài báo bạn đã gửi gần nhất</p>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle" style="table-layout: fixed; width: 100%;">
+                        <colgroup>
+                            <col style="width: 45%;">
+                            <col style="width: 18%;">
+                            <col style="width: 12%;">
+                            <col style="width: 25%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th style="width: 45%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Tiêu đề</th>
+                                <th style="width: 18%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Trạng thái</th>
+                                <th style="width: 12%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Ngày nộp</th>
+                                <th style="width: 25%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="width: 45%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                    <div style="max-width: 100%; overflow: hidden; word-wrap: break-word;">
+                                        <strong class="d-block mb-1" style="word-wrap: break-word; overflow-wrap: break-word;">Nghiên cứu về ứng dụng AI trong quản lý tài chính</strong>
+                                        <small class="text-muted d-block" style="word-wrap: break-word; overflow-wrap: break-word;">Đồng tác giả: Nguyễn Văn A, Trần Thị B</small>
+                                    </div>
+                                </td>
+                                <td style="width: 18%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                    <span class="badge bg-warning">Đang xét duyệt</span>
+                                </td>
+                                <td style="width: 12%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">15/01/2025</td>
+                                <td style="width: 25%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" title="Tải xuống">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 45%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                    <div style="max-width: 100%; overflow: hidden; word-wrap: break-word;">
+                                        <strong class="d-block mb-1" style="word-wrap: break-word; overflow-wrap: break-word;">Phân tích xu hướng thương mại điện tử tại Việt Nam</strong>
+                                        <small class="text-muted d-block" style="word-wrap: break-word; overflow-wrap: break-word;">Tác giả: Nguyễn Văn C</small>
+                                    </div>
+                                </td>
+                                <td style="width: 18%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                    <span class="badge bg-success">Đã chấp nhận</span>
+                                </td>
+                                <td style="width: 12%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">10/01/2025</td>
+                                <td style="width: 25%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" title="Tải xuống">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 45%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                    <div style="max-width: 100%; overflow: hidden; word-wrap: break-word;">
+                                        <strong class="d-block mb-1" style="word-wrap: break-word; overflow-wrap: break-word;">Đánh giá tác động của chuyển đổi số lên doanh nghiệp vừa và nhỏ</strong>
+                                        <small class="text-muted d-block" style="word-wrap: break-word; overflow-wrap: break-word;">Đồng tác giả: Lê Văn D, Phạm Thị E</small>
+                                    </div>
+                                </td>
+                                <td style="width: 18%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                    <span class="badge bg-primary">Yêu cầu chỉnh sửa</span>
+                                </td>
+                                <td style="width: 12%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">05/01/2025</td>
+                                <td style="width: 25%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="/Submission/Index" class="btn btn-outline-primary">
+                        <i class="fas fa-list me-2"></i>Xem tất cả bài nộp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Countdown Timer
+        function updateCountdown() {
+            const conferenceDate = new Date('2025-04-18T08:00:00');
+            const now = new Date();
+            const diff = conferenceDate - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdownDays').textContent = '0';
+                document.getElementById('countdownHours').textContent = '0';
+                document.getElementById('countdownMinutes').textContent = '0';
+                document.getElementById('countdownSeconds').textContent = '0';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('countdownDays').textContent = days.toString().padStart(2, '0');
+            document.getElementById('countdownHours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('countdownMinutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('countdownSeconds').textContent = seconds.toString().padStart(2, '0');
+        }
+
+        // Update countdown every second
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Progress Steps Animation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize progress bar based on submission status
+            // This should be set based on actual submission data
+            const currentStep = 1; // 1: Abstract, 2: Full Paper, 3: Review, 4: Payment
+            updateProgressBar(currentStep);
+        });
+
+        function updateProgressBar(currentStep) {
+            const steps = document.querySelectorAll('.progress-step');
+            const progressLine = document.getElementById('progressLine');
+            
+            steps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                step.classList.remove('active', 'completed');
+                
+                if (stepNumber < currentStep) {
+                    step.classList.add('completed');
+                    step.querySelector('.progress-step-circle').innerHTML = '<i class="fas fa-check"></i>';
+                } else if (stepNumber === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+            
+            // Update progress line
+            if (currentStep > 1) {
+                const progressPercent = ((currentStep - 1) / 3) * 100;
+                progressLine.style.width = progressPercent + '%';
+            }
+        }
+
+        // Enhanced animations on scroll
+        document.addEventListener('DOMContentLoaded', function() {
+            // Intersection Observer for fade-in animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                        }, index * 100); // Stagger animation
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+            
+            // Add fade-in-on-scroll class to elements
+            document.querySelectorAll('.stat-card, .card:not(.hero-section .card)').forEach((el, index) => {
+                el.classList.add('fade-in-on-scroll');
+                observer.observe(el);
+            });
+            
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    if (href !== '#' && href.length > 1) {
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    }
+                });
+            });
+            
+            // Add loading state to buttons
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.classList.add('btn-loading');
+                    }
+                });
+            });
+        });
+        
+        // Add hover effects with animation
+        document.querySelectorAll('.btn, .card, .stat-card').forEach(el => {
+            el.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.3s ease';
+            });
+        });
+    </script>
+}

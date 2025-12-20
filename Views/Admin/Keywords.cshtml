@@ -1,0 +1,204 @@
+@{
+    ViewData["Title"] = "Quản lý từ khóa";
+}
+
+<div class="container-fluid my-4">
+    <!-- Header -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="text-gradient mb-2">
+                    <i class="fas fa-tags me-2"></i>Quản lý từ khóa
+                </h2>
+                <p class="text-muted mb-0">Duyệt và quản lý từ khóa chuyên môn trong hệ thống</p>
+            </div>
+            <div>
+                <button class="btn btn-primary" onclick="showAddKeywordModal()">
+                    <i class="fas fa-plus me-2"></i>Thêm từ khóa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button">
+                <i class="fas fa-check-circle me-2"></i>Đã duyệt (<span id="approvedCount">45</span>)
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button">
+                <i class="fas fa-clock me-2"></i>Chờ duyệt (<span id="pendingCount">8</span>)
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- Approved Keywords -->
+        <div class="tab-pane fade show active" id="approved" role="tabpanel">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                            AI
+                            <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword('AI', 'approved')"></button>
+                        </span>
+                        <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                            Machine Learning
+                            <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword('Machine Learning', 'approved')"></button>
+                        </span>
+                        <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                            Tài chính
+                            <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword('Tài chính', 'approved')"></button>
+                        </span>
+                        <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                            Quản lý
+                            <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword('Quản lý', 'approved')"></button>
+                        </span>
+                        <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                            Kinh tế
+                            <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword('Kinh tế', 'approved')"></button>
+                        </span>
+                        <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                            Marketing
+                            <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword('Marketing', 'approved')"></button>
+                        </span>
+                        <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                            Thương mại điện tử
+                            <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword('Thương mại điện tử', 'approved')"></button>
+                        </span>
+                        <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                            Blockchain
+                            <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword('Blockchain', 'approved')"></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Keywords -->
+        <div class="tab-pane fade" id="pending" role="tabpanel">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" style="table-layout: fixed; width: 100%;">
+                            <colgroup>
+                                <col style="width: 30%;">
+                                <col style="width: 25%;">
+                                <col style="width: 20%;">
+                                <col style="width: 25%;">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th style="width: 30%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Từ khóa</th>
+                                    <th style="width: 25%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Người đề xuất</th>
+                                    <th style="width: 20%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Ngày đề xuất</th>
+                                    <th style="width: 25%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="width: 30%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                        <strong style="word-wrap: break-word; overflow-wrap: break-word;">Deep Learning</strong>
+                                    </td>
+                                    <td style="width: 25%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">Nguyễn Văn A</td>
+                                    <td style="width: 20%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">20/01/2025</td>
+                                    <td style="width: 25%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                        <div class="d-flex justify-content-center gap-1">
+                                            <button class="btn btn-sm btn-success" onclick="approveKeyword('Deep Learning', 1)" title="Duyệt">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" onclick="rejectKeyword(1)" title="Từ chối">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 30%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                        <strong style="word-wrap: break-word; overflow-wrap: break-word;">FinTech</strong>
+                                    </td>
+                                    <td style="width: 25%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">Trần Thị B</td>
+                                    <td style="width: 20%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">18/01/2025</td>
+                                    <td style="width: 25%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                        <div class="d-flex justify-content-center gap-1">
+                                            <button class="btn btn-sm btn-success" onclick="approveKeyword('FinTech', 2)" title="Duyệt">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" onclick="rejectKeyword(2)" title="Từ chối">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Keyword Modal -->
+<div class="modal fade" id="keywordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Thêm từ khóa mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="keywordForm">
+                    <div class="mb-3">
+                        <label class="form-label">Từ khóa <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="Keyword" required />
+                        <small class="form-text text-muted">Từ khóa sẽ được thêm vào danh sách chuẩn ngay lập tức</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="saveKeyword()">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showAddKeywordModal() {
+            document.getElementById('keywordForm').reset();
+            new bootstrap.Modal(document.getElementById('keywordModal')).show();
+        }
+
+        function approveKeyword(keyword, id) {
+            if (confirm(`Duyệt từ khóa "${keyword}"?`)) {
+                // TODO: Implement approve
+                alert('Đã duyệt từ khóa thành công!');
+                // Remove from pending, add to approved
+            }
+        }
+
+        function rejectKeyword(id) {
+            if (confirm('Từ chối từ khóa này?')) {
+                // TODO: Implement reject
+                alert('Đã từ chối từ khóa!');
+            }
+        }
+
+        function deleteKeyword(keyword, status) {
+            if (confirm(`Xóa từ khóa "${keyword}"?`)) {
+                // TODO: Implement delete
+                alert('Đã xóa từ khóa thành công!');
+            }
+        }
+
+        function saveKeyword() {
+            // TODO: Implement save
+            alert('Đã thêm từ khóa thành công!');
+            bootstrap.Modal.getInstance(document.getElementById('keywordModal')).hide();
+        }
+    </script>
+}

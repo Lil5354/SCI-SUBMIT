@@ -1,0 +1,191 @@
+@{
+    ViewData["Title"] = "Lời mời phản biện";
+    var assignmentId = ViewData["AssignmentId"] ?? 0;
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="mb-4 text-center">
+                <h2 class="text-gradient mb-2">
+                    <i class="fas fa-envelope me-2"></i>Lời mời phản biện
+                </h2>
+                <p class="text-muted">Bạn đã được mời phản biện bài báo sau</p>
+            </div>
+
+            <!-- Paper Info (Blind) -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Thông tin bài báo</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-user-secret me-2"></i>
+                        <strong>Blind Review:</strong> Thông tin tác giả đã được ẩn danh
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted">Tiêu đề</label>
+                        <h5 class="mb-0">Nghiên cứu về ứng dụng AI trong quản lý tài chính</h5>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted">Tóm tắt (Abstract)</label>
+                        <div class="bg-light p-3 rounded" style="max-height: 200px; overflow-y: auto;">
+                            <p class="mb-0">Đây là tóm tắt bài báo về nghiên cứu ứng dụng AI trong quản lý tài chính. Nghiên cứu này tập trung vào việc phân tích các phương pháp và công nghệ AI hiện đại được áp dụng trong lĩnh vực tài chính...</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Chủ đề</label>
+                            <p class="mb-0"><span class="badge bg-info">Tài chính & Kế toán</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Từ khóa</label>
+                            <div>
+                                <span class="badge bg-primary me-1">AI</span>
+                                <span class="badge bg-primary me-1">Machine Learning</span>
+                                <span class="badge bg-primary me-1">Tài chính</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deadline Info -->
+            <div class="card shadow-sm border-0 mb-4 border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Thông tin deadline</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">Deadline phản biện</h6>
+                            <p class="mb-0 text-muted">30/01/2025 23:59</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="h5 mb-0 text-warning">
+                                <i class="fas fa-hourglass-half me-2"></i>
+                                <span id="countdownDays">10</span> ngày
+                                <span id="countdownHours">12</span> giờ
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decision Form -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Quyết định của bạn</h5>
+                </div>
+                <div class="card-body">
+                    <form id="invitationForm">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-success btn-lg w-100" onclick="acceptInvitation()">
+                                    <i class="fas fa-check-circle me-2"></i>Chấp nhận
+                                </button>
+                                <small class="form-text text-muted d-block mt-2 text-center">
+                                    Bạn sẽ nhận bài báo để phản biện
+                                </small>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-danger btn-lg w-100" onclick="showRejectForm()">
+                                    <i class="fas fa-times-circle me-2"></i>Từ chối
+                                </button>
+                                <small class="form-text text-muted d-block mt-2 text-center">
+                                    Bạn sẽ không nhận bài này
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Reject Reason (hidden by default) -->
+                        <div id="rejectForm" style="display: none;">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Vui lòng nhập lý do từ chối (tùy chọn)
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Lý do từ chối</label>
+                                <textarea id="rejectReason" class="form-control" rows="3" 
+                                          placeholder="Nhập lý do từ chối (nếu có)"></textarea>
+                            </div>
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-outline-secondary" onclick="hideRejectForm()">
+                                    Hủy
+                                </button>
+                                <button type="button" class="btn btn-danger" onclick="rejectInvitation()">
+                                    <i class="fas fa-times me-2"></i>Xác nhận từ chối
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function acceptInvitation() {
+            if (confirm('Bạn có chắc chắn muốn chấp nhận lời mời phản biện này không?')) {
+                // TODO: Submit to server
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/Review/AcceptInvitation/@assignmentId';
+                form.innerHTML = '@Html.AntiForgeryToken()';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function showRejectForm() {
+            document.getElementById('rejectForm').style.display = 'block';
+        }
+
+        function hideRejectForm() {
+            document.getElementById('rejectForm').style.display = 'none';
+            document.getElementById('rejectReason').value = '';
+        }
+
+        function rejectInvitation() {
+            const reason = document.getElementById('rejectReason').value.trim();
+            if (confirm('Bạn có chắc chắn muốn từ chối lời mời này không?')) {
+                // TODO: Submit to server
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/Review/RejectInvitation/@assignmentId';
+                form.innerHTML = '@Html.AntiForgeryToken()' +
+                    '<input type="hidden" name="reason" value="' + reason + '">';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        // Countdown timer
+        function updateCountdown() {
+            const deadline = new Date('2025-01-30T23:59:59');
+            const now = new Date();
+            const diff = deadline - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdownDays').textContent = '0';
+                document.getElementById('countdownHours').textContent = '0';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+            document.getElementById('countdownDays').textContent = days;
+            document.getElementById('countdownHours').textContent = hours;
+        }
+
+        setInterval(updateCountdown, 3600000); // Update every hour
+        updateCountdown();
+    </script>
+}

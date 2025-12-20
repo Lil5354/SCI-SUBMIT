@@ -1,0 +1,241 @@
+@{
+    ViewData["Title"] = "Kết quả phản biện";
+    var submissionId = ViewData["SubmissionId"] ?? 0;
+}
+
+<div class="container my-5">
+    <!-- Header -->
+    <div class="mb-4">
+        <h2 class="text-gradient mb-2">
+            <i class="fas fa-clipboard-check me-2"></i>Kết quả phản biện
+        </h2>
+        <p class="text-muted">Xem kết quả và nhận xét từ ban phản biện</p>
+    </div>
+
+    <!-- Decision Result -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                <h3 class="text-success mb-2">Bài báo đã được chấp nhận!</h3>
+                <p class="text-muted">Chúc mừng! Bài báo của bạn đã được chấp nhận để trình bày tại hội thảo.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Comments (Anonymous) -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Nhận xét từ phản biện (Ẩn danh)</h5>
+        </div>
+        <div class="card-body">
+            <!-- Reviewer 1 -->
+            <div class="mb-4 pb-4 border-bottom">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="mb-1">
+                            <i class="fas fa-user-secret me-2 text-primary"></i>Phản biện 1
+                        </h6>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>Nộp lúc: 25/01/2025 16:30
+                        </small>
+                    </div>
+                    <div>
+                        <span class="badge bg-success">Chấp nhận</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Điểm số</label>
+                    <div class="d-flex gap-3">
+                        <div>
+                            <small class="text-muted d-block">Tính mới</small>
+                            <span class="badge bg-primary">4/5</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Độ sâu</small>
+                            <span class="badge bg-primary">5/5</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Trình bày</small>
+                            <span class="badge bg-primary">4/5</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Tổng điểm</small>
+                            <span class="badge bg-success">4.3/5</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label fw-semibold text-muted">Nhận xét cho tác giả</label>
+                    <div class="bg-light p-3 rounded">
+                        <p class="mb-0">Bài báo có chất lượng tốt, phương pháp nghiên cứu rõ ràng. Tuy nhiên, phần kết luận cần được mở rộng thêm để làm rõ đóng góp của nghiên cứu.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviewer 2 -->
+            <div class="mb-4 pb-4 border-bottom">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="mb-1">
+                            <i class="fas fa-user-secret me-2 text-primary"></i>Phản biện 2
+                        </h6>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>Nộp lúc: 26/01/2025 10:15
+                        </small>
+                    </div>
+                    <div>
+                        <span class="badge bg-success">Chấp nhận</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Điểm số</label>
+                    <div class="d-flex gap-3">
+                        <div>
+                            <small class="text-muted d-block">Tính mới</small>
+                            <span class="badge bg-primary">5/5</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Độ sâu</small>
+                            <span class="badge bg-primary">4/5</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Trình bày</small>
+                            <span class="badge bg-primary">5/5</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Tổng điểm</small>
+                            <span class="badge bg-success">4.7/5</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label fw-semibold text-muted">Nhận xét cho tác giả</label>
+                    <div class="bg-light p-3 rounded">
+                        <p class="mb-0">Nghiên cứu có đóng góp quan trọng trong lĩnh vực. Phương pháp nghiên cứu phù hợp và kết quả thuyết phục. Khuyến nghị chấp nhận.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revision Deadline (if needed) -->
+    <div class="card shadow-sm border-0 mb-4 border-warning" id="revisionSection" style="display: none;">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Yêu cầu chỉnh sửa</h5>
+        </div>
+        <div class="card-body">
+            <p class="mb-3">Bài báo của bạn cần chỉnh sửa trước khi được chấp nhận. Vui lòng xem nhận xét chi tiết ở trên và nộp bản chỉnh sửa trước deadline.</p>
+            <div class="alert alert-info">
+                <i class="fas fa-clock me-2"></i>
+                <strong>Deadline nộp bản sửa:</strong> <span id="revisionDeadline">10/02/2025 23:59</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Version Upload -->
+    <div class="card shadow-sm border-0 mb-4" id="finalVersionSection">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-file-upload me-2"></i>Nộp bản cuối cùng</h5>
+        </div>
+        <div class="card-body">
+            <form id="finalVersionForm" asp-action="UploadFinalVersion" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="id" value="@submissionId" />
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Upload file bản cuối cùng</label>
+                    <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
+                        <div class="text-center py-4">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                            <h6>Kéo thả file vào đây hoặc click để chọn</h6>
+                            <p class="text-muted mb-0">PDF, DOCX (Tối đa 10MB)</p>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" name="File" class="d-none" 
+                           accept=".pdf,.docx" />
+                    <div id="filePreview" class="mt-3"></div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="/Submission/Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Hủy
+                    </a>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-upload me-2"></i>Nộp bản cuối cùng
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Link (if accepted) -->
+    <div class="card shadow-sm border-0 border-success" id="paymentSection">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-credit-card me-2"></i>Thanh toán</h5>
+        </div>
+        <div class="card-body">
+            <p class="mb-3">Bài báo của bạn đã được chấp nhận. Vui lòng thanh toán phí tham dự để hoàn tất quá trình đăng ký.</p>
+            <a href="/Payment/Index/@submissionId" class="btn btn-primary btn-lg">
+                <i class="fas fa-credit-card me-2"></i>Thanh toán ngay
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // File upload handling
+        document.getElementById('fileInput')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File không được vượt quá 10MB');
+                this.value = '';
+                document.getElementById('filePreview').innerHTML = '';
+                return;
+            }
+
+            const preview = document.getElementById('filePreview');
+            preview.innerHTML = `
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-file-pdf text-danger fa-2x me-3"></i>
+                                <div class="d-inline-block">
+                                    <strong>${file.name}</strong>
+                                    <br>
+                                    <small class="text-muted">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        function removeFile() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('filePreview').innerHTML = '';
+        }
+    </script>
+
+    <style>
+        .file-upload-area {
+            border: 2px dashed var(--color-gray-300);
+            border-radius: var(--radius-lg);
+            background: var(--color-gray-50);
+            transition: all var(--transition-base);
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--color-primary);
+            background: rgba(30, 64, 175, 0.05);
+        }
+    </style>
+}

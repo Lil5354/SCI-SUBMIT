@@ -1,0 +1,270 @@
+@{
+    ViewData["Title"] = "Cấu hình hội thảo";
+}
+
+<div class="container-fluid my-4">
+    <!-- Header -->
+    <div class="mb-4">
+        <h2 class="text-gradient mb-2">
+            <i class="fas fa-cog me-2"></i>Cấu hình hội thảo
+        </h2>
+        <p class="text-muted">Thiết lập timeline và thông tin hội thảo</p>
+    </div>
+
+    <!-- Conference Info -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin hội thảo</h5>
+        </div>
+        <div class="card-body">
+            <form id="conferenceForm" asp-action="EditConference" method="post">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Tên hội thảo <span class="text-danger">*</span></label>
+                        <input type="text" name="Name" class="form-control" value="Hội thảo Khoa học Quốc tế 2025" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Địa điểm <span class="text-danger">*</span></label>
+                        <input type="text" name="Location" class="form-control" value="TP. Hồ Chí Minh" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Ngày diễn ra <span class="text-danger">*</span></label>
+                        <input type="date" name="ConferenceDate" class="form-control" value="2025-04-18" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Mô tả</label>
+                        <textarea name="Description" class="form-control" rows="3">Hội thảo khoa học quốc tế về các lĩnh vực kinh tế, tài chính và quản trị kinh doanh</textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Timeline Configuration -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Timeline hội thảo</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Hệ thống sẽ tự động đóng/mở form nộp và gửi thông báo nhắc nhở dựa trên các mốc thời gian này.
+            </div>
+
+            <form id="timelineForm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar-check me-2 text-primary"></i>Ngày mở nộp <span class="text-danger">*</span>
+                        </label>
+                        <input type="datetime-local" name="OpenSubmissionDate" class="form-control" 
+                               value="2025-01-01T00:00" required />
+                        <small class="form-text text-muted">Thời điểm bắt đầu nhận bài nộp</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar-times me-2 text-danger"></i>Deadline nộp tóm tắt <span class="text-danger">*</span>
+                        </label>
+                        <input type="datetime-local" name="AbstractDeadline" class="form-control" 
+                               value="2025-01-30T23:59" required />
+                        <small class="form-text text-muted">Hạn cuối nộp tóm tắt (Abstract)</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar-times me-2 text-danger"></i>Deadline nộp Full-text <span class="text-danger">*</span>
+                        </label>
+                        <input type="datetime-local" name="FullPaperDeadline" class="form-control" 
+                               value="2025-02-15T23:59" required />
+                        <small class="form-text text-muted">Hạn cuối nộp bài đầy đủ</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-bullhorn me-2 text-warning"></i>Ngày công bố kết quả <span class="text-danger">*</span>
+                        </label>
+                        <input type="datetime-local" name="ResultAnnouncementDate" class="form-control" 
+                               value="2025-03-01T00:00" required />
+                        <small class="form-text text-muted">Ngày công bố kết quả phản biện</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar-day me-2 text-success"></i>Ngày hội nghị <span class="text-danger">*</span>
+                        </label>
+                        <input type="datetime-local" name="ConferenceDate" class="form-control" 
+                               value="2025-04-18T08:00" required />
+                        <small class="form-text text-muted">Ngày và giờ bắt đầu hội nghị</small>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h6 class="mb-3">Tự động hóa</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="autoCloseAbstract" checked>
+                        <label class="form-check-label" for="autoCloseAbstract">
+                            Tự động đóng form nộp tóm tắt sau deadline
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="autoCloseFullPaper" checked>
+                        <label class="form-check-label" for="autoCloseFullPaper">
+                            Tự động đóng form nộp bài đầy đủ sau deadline
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="autoRemind" checked>
+                        <label class="form-check-label" for="autoRemind">
+                            Tự động gửi email nhắc nhở (trước 3 ngày deadline)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-2"></i>Lưu cấu hình
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Current Timeline Display -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="fas fa-timeline me-2"></i>Timeline hiện tại</h5>
+        </div>
+        <div class="card-body">
+            <div class="timeline-vertical">
+                <div class="timeline-item-completed">
+                    <div class="timeline-marker bg-success">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">Mở nộp bài</h6>
+                        <p class="text-muted mb-0 small">01/01/2025 00:00</p>
+                        <span class="badge bg-success">Đã qua</span>
+                    </div>
+                </div>
+                <div class="timeline-item-active">
+                    <div class="timeline-marker bg-primary">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">Deadline nộp tóm tắt</h6>
+                        <p class="text-muted mb-0 small">30/01/2025 23:59</p>
+                        <span class="badge bg-warning">Còn 12 ngày</span>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-gray">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">Deadline nộp Full-text</h6>
+                        <p class="text-muted mb-0 small">15/02/2025 23:59</p>
+                        <span class="badge bg-secondary">Chưa đến</span>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-gray">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">Công bố kết quả</h6>
+                        <p class="text-muted mb-0 small">01/03/2025 00:00</p>
+                        <span class="badge bg-secondary">Chưa đến</span>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-gray">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">Ngày hội nghị</h6>
+                        <p class="text-muted mb-0 small">18/04/2025 08:00</p>
+                        <span class="badge bg-secondary">Chưa đến</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('timelineForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // TODO: Submit to server
+            alert('Đã lưu cấu hình timeline thành công!');
+        });
+    </script>
+
+    <style>
+        .timeline-vertical {
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .timeline-item-completed,
+        .timeline-item-active,
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+        }
+
+        .timeline-item-completed:not(:last-child)::before,
+        .timeline-item-active:not(:last-child)::before,
+        .timeline-item:not(:last-child)::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 2rem;
+            width: 2px;
+            height: calc(100% - 0.5rem);
+            background: var(--color-gray-300);
+        }
+
+        .timeline-item-completed:not(:last-child)::before {
+            background: var(--color-success);
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -3rem;
+            top: 0;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            border: 3px solid var(--color-white);
+            box-shadow: 0 0 0 2px var(--color-gray-300);
+        }
+
+        .timeline-item-completed .timeline-marker {
+            background: var(--color-success);
+            box-shadow: 0 0 0 2px var(--color-success);
+        }
+
+        .timeline-item-active .timeline-marker {
+            background: var(--color-primary);
+            box-shadow: 0 0 0 2px var(--color-primary);
+            animation: pulse 2s infinite;
+        }
+
+        .timeline-item .timeline-marker.bg-gray {
+            background: var(--color-gray-400);
+            box-shadow: 0 0 0 2px var(--color-gray-400);
+        }
+
+        @@keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    </style>
+}

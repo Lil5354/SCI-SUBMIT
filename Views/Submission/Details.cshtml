@@ -1,0 +1,289 @@
+@{
+    ViewData["Title"] = "Chi tiết bài nộp";
+    var submissionId = ViewData["SubmissionId"] ?? 0;
+}
+
+<div class="container my-5">
+    <!-- Header -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="text-gradient mb-2">
+                    <i class="fas fa-file-alt me-2"></i>Chi tiết bài nộp
+                </h2>
+                <p class="text-muted mb-0">Thông tin chi tiết và trạng thái bài báo của bạn</p>
+            </div>
+            <div>
+                <a href="/Submission/Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Submission Info Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin bài báo</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted">Tiêu đề</label>
+                        <h5 class="mb-0">Nghiên cứu về ứng dụng AI trong quản lý tài chính</h5>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted">Tóm tắt (Abstract)</label>
+                        <p class="mb-0">Đây là tóm tắt bài báo về nghiên cứu ứng dụng AI trong quản lý tài chính. Nghiên cứu này tập trung vào việc phân tích các phương pháp và công nghệ AI hiện đại được áp dụng trong lĩnh vực tài chính...</p>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Chủ đề</label>
+                            <p class="mb-0"><span class="badge bg-info">Tài chính & Kế toán</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Từ khóa</label>
+                            <div>
+                                <span class="badge bg-primary me-1">AI</span>
+                                <span class="badge bg-primary me-1">Machine Learning</span>
+                                <span class="badge bg-primary me-1">Tài chính</span>
+                                <span class="badge bg-primary me-1">Quản lý</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted">Tác giả</label>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-user me-2 text-primary"></i>
+                                <strong>Nguyễn Văn A</strong>
+                                <span class="badge bg-success ms-2">Tác giả chính</span>
+                                <br>
+                                <small class="text-muted ms-4">nguyenvana@example.com | Đại học ABC</small>
+                            </li>
+                            <li>
+                                <i class="fas fa-user me-2 text-primary"></i>
+                                <strong>Trần Thị B</strong>
+                                <br>
+                                <small class="text-muted ms-4">tranthib@example.com | Đại học XYZ</small>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Lịch sử và trạng thái</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item completed">
+                            <div class="timeline-marker bg-success">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Đã nộp tóm tắt</h6>
+                                <p class="text-muted mb-1 small">15/01/2025 10:30</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item completed">
+                            <div class="timeline-marker bg-success">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Tóm tắt đã được duyệt</h6>
+                                <p class="text-muted mb-1 small">18/01/2025 14:20</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item active">
+                            <div class="timeline-marker bg-primary">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Đang chờ nộp bài đầy đủ</h6>
+                                <p class="text-muted mb-1 small">Trạng thái hiện tại</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-gray">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Đang phản biện</h6>
+                                <p class="text-muted mb-1 small">Chưa bắt đầu</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-gray">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Thanh toán</h6>
+                                <p class="text-muted mb-1 small">Chưa bắt đầu</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Files Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-file me-2"></i>File đã upload</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-file-pdf text-danger me-2"></i>
+                                    <strong>abstract_v1.pdf</strong>
+                                    <br>
+                                    <small class="text-muted">Upload lúc: 15/01/2025 10:30</small>
+                                </div>
+                                <a href="#" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-download me-1"></i>Tải xuống
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Status Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Trạng thái</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <span class="badge bg-success fs-6 px-4 py-2">Tóm tắt đã được duyệt</span>
+                    </div>
+                    <p class="text-muted small mb-0">Bài báo đã vượt qua bước 1. Bạn có thể nộp bài đầy đủ.</p>
+                </div>
+            </div>
+
+            <!-- Actions Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Thao tác</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="/Submission/FullPaper/@submissionId" class="btn btn-primary">
+                            <i class="fas fa-file-pdf me-2"></i>Nộp bài đầy đủ
+                        </a>
+                        <button class="btn btn-outline-secondary" onclick="downloadSubmission()">
+                            <i class="fas fa-download me-2"></i>Tải xuống
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="withdrawSubmission()">
+                            <i class="fas fa-times me-2"></i>Rút bài
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-question-circle me-2"></i>Thông tin</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-2">
+                        <i class="fas fa-calendar me-2"></i>
+                        <strong>Ngày nộp:</strong> 15/01/2025
+                    </p>
+                    <p class="small text-muted mb-0">
+                        <i class="fas fa-id-badge me-2"></i>
+                        <strong>Mã bài nộp:</strong> #@submissionId
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function downloadSubmission() {
+            // TODO: Implement download
+            alert('Tính năng tải xuống đang được phát triển');
+        }
+
+        function withdrawSubmission() {
+            if (confirm('Bạn có chắc chắn muốn rút bài nộp này không?')) {
+                // TODO: Implement withdraw
+                alert('Tính năng rút bài đang được phát triển');
+            }
+        }
+    </script>
+
+    <style>
+        .timeline {
+            position: relative;
+            padding-left: 2.5rem;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .timeline-item:not(:last-child)::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 2rem;
+            width: 2px;
+            height: calc(100% - 0.5rem);
+            background: var(--color-gray-300);
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -2.5rem;
+            top: 0;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            border: 3px solid var(--color-white);
+            box-shadow: 0 0 0 2px var(--color-gray-300);
+        }
+
+        .timeline-item.completed .timeline-marker {
+            background: var(--color-success);
+            box-shadow: 0 0 0 2px var(--color-success);
+        }
+
+        .timeline-item.active .timeline-marker {
+            background: var(--color-primary);
+            box-shadow: 0 0 0 2px var(--color-primary);
+            animation: pulse 2s infinite;
+        }
+
+        .timeline-item .timeline-marker.bg-gray {
+            background: var(--color-gray-400);
+            box-shadow: 0 0 0 2px var(--color-gray-400);
+        }
+
+        @@keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    </style>
+}

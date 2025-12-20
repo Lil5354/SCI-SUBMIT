@@ -1,0 +1,311 @@
+@{
+    ViewData["Title"] = "Chi tiết bài phản biện";
+    var reviewId = ViewData["ReviewId"] ?? 0;
+}
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="mb-4">
+                <div class="alert alert-info">
+                    <i class="fas fa-user-secret me-2"></i>
+                    <strong>Blind Review:</strong> Thông tin tác giả đã được ẩn danh để đảm bảo tính khách quan.
+                </div>
+                <h2 class="text-gradient mb-2">
+                    <i class="fas fa-clipboard-check me-2"></i>Chi tiết bài phản biện
+                </h2>
+                <p class="text-muted">Đánh giá bài báo một cách công bằng và khách quan</p>
+            </div>
+
+            <!-- Paper Info (Blind) -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Thông tin bài báo</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted">Tiêu đề</label>
+                        <h5 class="mb-0">Nghiên cứu về ứng dụng AI trong quản lý tài chính</h5>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted">Tóm tắt (Abstract)</label>
+                        <p class="mb-0">Đây là tóm tắt bài báo về nghiên cứu ứng dụng AI trong quản lý tài chính. Nghiên cứu này tập trung vào việc phân tích các phương pháp và công nghệ AI hiện đại được áp dụng trong lĩnh vực tài chính...</p>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Chủ đề</label>
+                            <p class="mb-0"><span class="badge bg-info">Tài chính & Kế toán</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Từ khóa</label>
+                            <div>
+                                <span class="badge bg-primary me-1">AI</span>
+                                <span class="badge bg-primary me-1">Machine Learning</span>
+                                <span class="badge bg-primary me-1">Tài chính</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted">File bài báo</label>
+                        <div>
+                            <a href="#" class="btn btn-outline-primary">
+                                <i class="fas fa-download me-2"></i>Tải xuống file bài báo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deadline Countdown -->
+            <div class="card shadow-sm border-0 mb-4 border-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">
+                                <i class="fas fa-clock me-2 text-warning"></i>Deadline phản biện
+                            </h6>
+                            <p class="mb-0 text-muted">Hạn cuối: <strong>30/01/2025 23:59</strong></p>
+                        </div>
+                        <div class="text-end">
+                            <div class="h5 mb-0 text-warning">
+                                <i class="fas fa-hourglass-half me-2"></i>
+                                <span id="countdownDays">5</span> ngày
+                                <span id="countdownHours">12</span> giờ
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Form -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Form đánh giá</h5>
+                </div>
+                <div class="card-body">
+                    <form id="reviewForm" asp-action="SubmitReview" method="post">
+                        <input type="hidden" name="id" value="@reviewId" />
+
+                        <!-- Scoring Criteria -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">Tiêu chí chấm điểm (1-5 điểm)</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Tính mới và đóng góp <span class="text-danger">*</span>
+                                </label>
+                                <div class="d-flex gap-2">
+                                    <input type="radio" name="Scores[Novelty]" id="novelty1" value="1" class="btn-check" required>
+                                    <label for="novelty1" class="btn btn-outline-primary">1</label>
+                                    <input type="radio" name="Scores[Novelty]" id="novelty2" value="2" class="btn-check">
+                                    <label for="novelty2" class="btn btn-outline-primary">2</label>
+                                    <input type="radio" name="Scores[Novelty]" id="novelty3" value="3" class="btn-check">
+                                    <label for="novelty3" class="btn btn-outline-primary">3</label>
+                                    <input type="radio" name="Scores[Novelty]" id="novelty4" value="4" class="btn-check">
+                                    <label for="novelty4" class="btn btn-outline-primary">4</label>
+                                    <input type="radio" name="Scores[Novelty]" id="novelty5" value="5" class="btn-check">
+                                    <label for="novelty5" class="btn btn-outline-primary">5</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Độ sâu nghiên cứu <span class="text-danger">*</span>
+                                </label>
+                                <div class="d-flex gap-2">
+                                    <input type="radio" name="Scores[Depth]" id="depth1" value="1" class="btn-check" required>
+                                    <label for="depth1" class="btn btn-outline-primary">1</label>
+                                    <input type="radio" name="Scores[Depth]" id="depth2" value="2" class="btn-check">
+                                    <label for="depth2" class="btn btn-outline-primary">2</label>
+                                    <input type="radio" name="Scores[Depth]" id="depth3" value="3" class="btn-check">
+                                    <label for="depth3" class="btn btn-outline-primary">3</label>
+                                    <input type="radio" name="Scores[Depth]" id="depth4" value="4" class="btn-check">
+                                    <label for="depth4" class="btn btn-outline-primary">4</label>
+                                    <input type="radio" name="Scores[Depth]" id="depth5" value="5" class="btn-check">
+                                    <label for="depth5" class="btn btn-outline-primary">5</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Phương pháp nghiên cứu <span class="text-danger">*</span>
+                                </label>
+                                <div class="d-flex gap-2">
+                                    <input type="radio" name="Scores[Methodology]" id="method1" value="1" class="btn-check" required>
+                                    <label for="method1" class="btn btn-outline-primary">1</label>
+                                    <input type="radio" name="Scores[Methodology]" id="method2" value="2" class="btn-check">
+                                    <label for="method2" class="btn btn-outline-primary">2</label>
+                                    <input type="radio" name="Scores[Methodology]" id="method3" value="3" class="btn-check">
+                                    <label for="method3" class="btn btn-outline-primary">3</label>
+                                    <input type="radio" name="Scores[Methodology]" id="method4" value="4" class="btn-check">
+                                    <label for="method4" class="btn btn-outline-primary">4</label>
+                                    <input type="radio" name="Scores[Methodology]" id="method5" value="5" class="btn-check">
+                                    <label for="method5" class="btn btn-outline-primary">5</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Kết quả và thảo luận <span class="text-danger">*</span>
+                                </label>
+                                <div class="d-flex gap-2">
+                                    <input type="radio" name="Scores[Results]" id="results1" value="1" class="btn-check" required>
+                                    <label for="results1" class="btn btn-outline-primary">1</label>
+                                    <input type="radio" name="Scores[Results]" id="results2" value="2" class="btn-check">
+                                    <label for="results2" class="btn btn-outline-primary">2</label>
+                                    <input type="radio" name="Scores[Results]" id="results3" value="3" class="btn-check">
+                                    <label for="results3" class="btn btn-outline-primary">3</label>
+                                    <input type="radio" name="Scores[Results]" id="results4" value="4" class="btn-check">
+                                    <label for="results4" class="btn btn-outline-primary">4</label>
+                                    <input type="radio" name="Scores[Results]" id="results5" value="5" class="btn-check">
+                                    <label for="results5" class="btn btn-outline-primary">5</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Văn phong và trình bày <span class="text-danger">*</span>
+                                </label>
+                                <div class="d-flex gap-2">
+                                    <input type="radio" name="Scores[Presentation]" id="pres1" value="1" class="btn-check" required>
+                                    <label for="pres1" class="btn btn-outline-primary">1</label>
+                                    <input type="radio" name="Scores[Presentation]" id="pres2" value="2" class="btn-check">
+                                    <label for="pres2" class="btn btn-outline-primary">2</label>
+                                    <input type="radio" name="Scores[Presentation]" id="pres3" value="3" class="btn-check">
+                                    <label for="pres3" class="btn btn-outline-primary">3</label>
+                                    <input type="radio" name="Scores[Presentation]" id="pres4" value="4" class="btn-check">
+                                    <label for="pres4" class="btn btn-outline-primary">4</label>
+                                    <input type="radio" name="Scores[Presentation]" id="pres5" value="5" class="btn-check">
+                                    <label for="pres5" class="btn btn-outline-primary">5</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Comments for Author -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-comment me-2 text-primary"></i>Nhận xét cho tác giả <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="CommentsForAuthor" class="form-control" rows="6" 
+                                      placeholder="Nhập nhận xét chi tiết để tác giả có thể chỉnh sửa..." required></textarea>
+                            <small class="form-text text-muted">Nhận xét này sẽ được gửi cho tác giả (ẩn danh)</small>
+                        </div>
+
+                        <!-- Comments for Admin (Confidential) -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-lock me-2 text-warning"></i>Nhận xét riêng cho Admin (Bảo mật)
+                            </label>
+                            <textarea name="CommentsForAdmin" class="form-control" rows="4" 
+                                      placeholder="Nhập nhận xét bảo mật chỉ Admin mới thấy (ví dụ: nghi ngờ đạo văn...)"></textarea>
+                            <small class="form-text text-muted">Nhận xét này chỉ Admin mới thấy, tác giả không thấy</small>
+                        </div>
+
+                        <!-- Recommendation -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-gavel me-2 text-primary"></i>Khuyến nghị <span class="text-danger">*</span>
+                            </label>
+                            <select name="Recommendation" class="form-select form-select-lg" required>
+                                <option value="">-- Chọn khuyến nghị --</option>
+                                <option value="Accept">Chấp nhận (Accept)</option>
+                                <option value="Minor">Chỉnh sửa nhỏ (Minor Revision)</option>
+                                <option value="Major">Chỉnh sửa lớn (Major Revision)</option>
+                                <option value="Reject">Từ chối (Reject)</option>
+                            </select>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" onclick="saveDraft()">
+                                <i class="fas fa-save me-2"></i>Lưu nháp
+                            </button>
+                            <div>
+                                <a href="/Review/Index" class="btn btn-outline-secondary me-2">
+                                    <i class="fas fa-times me-2"></i>Hủy
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Nộp đánh giá
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Review Guidelines -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Hướng dẫn phản biện</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="small mb-0">
+                        <li>Phản biện công bằng và khách quan</li>
+                        <li>Đưa ra nhận xét cụ thể và xây dựng</li>
+                        <li>Hoàn thành đúng thời hạn</li>
+                        <li>Bảo mật thông tin bài báo</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Review Info -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-calendar me-2"></i>Thông tin</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-2">
+                        <i class="fas fa-calendar me-2"></i>
+                        <strong>Ngày nhận:</strong> 20/01/2025
+                    </p>
+                    <p class="small text-muted mb-2">
+                        <i class="fas fa-clock me-2"></i>
+                        <strong>Deadline:</strong> 30/01/2025 23:59
+                    </p>
+                    <p class="small text-muted mb-0">
+                        <i class="fas fa-id-badge me-2"></i>
+                        <strong>Mã phản biện:</strong> #@reviewId
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function saveDraft() {
+            // TODO: Implement draft save
+            alert('Đã lưu nháp thành công!');
+        }
+
+        // Countdown timer
+        function updateCountdown() {
+            const deadline = new Date('2025-01-30T23:59:59');
+            const now = new Date();
+            const diff = deadline - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdownDays').textContent = '0';
+                document.getElementById('countdownHours').textContent = '0';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+            document.getElementById('countdownDays').textContent = days;
+            document.getElementById('countdownHours').textContent = hours;
+        }
+
+        setInterval(updateCountdown, 3600000); // Update every hour
+        updateCountdown();
+    </script>
+}

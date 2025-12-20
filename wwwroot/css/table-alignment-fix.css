@@ -1,0 +1,197 @@
+/* ========================================
+   TABLE ALIGNMENT FIX - ULTIMATE SOLUTION
+   Fixes header and content row misalignment
+   Load this LAST to override everything
+   ======================================== */
+
+/* CRITICAL: Force table layout and prevent content overflow */
+html body table.table,
+html body .table,
+body table.table,
+body .table,
+table.table,
+.table {
+  table-layout: fixed !important;
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  empty-cells: show !important;
+}
+
+/* CRITICAL: Ensure ALL cells are visible and properly aligned */
+html body table.table thead th,
+html body table.table tbody td,
+html body .table thead th,
+html body .table tbody td,
+body table.table thead th,
+body table.table tbody td,
+body .table thead th,
+body .table tbody td,
+table.table thead th,
+table.table tbody td,
+.table thead th,
+.table tbody td {
+  box-sizing: border-box !important;
+  display: table-cell !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  vertical-align: middle !important;
+  padding: 12px !important;
+  line-height: 1.5 !important;
+  min-width: 0 !important;
+  position: static !important;
+  transform: none !important;
+  left: auto !important;
+  right: auto !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* CRITICAL: Respect inline width styles - these have highest priority */
+html body table.table thead th[style*="width"],
+html body table.table tbody td[style*="width"],
+body table.table thead th[style*="width"],
+body table.table tbody td[style*="width"],
+table.table thead th[style*="width"],
+table.table tbody td[style*="width"] {
+  /* Inline styles will override, just ensure box-sizing */
+  box-sizing: border-box !important;
+  display: table-cell !important;
+}
+
+/* Prevent nested content from breaking layout */
+html body table.table thead th > *,
+html body table.table tbody td > *,
+body table.table thead th > *,
+body table.table tbody td > *,
+table.table thead th > *,
+table.table tbody td > *,
+.table thead th > *,
+.table tbody td > * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure divs wrap properly */
+html body table.table tbody td div,
+body table.table tbody td div,
+table.table tbody td div,
+.table tbody td div {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Badge and button alignment */
+html body table.table tbody td .badge,
+body table.table tbody td .badge,
+table.table tbody td .badge,
+.table tbody td .badge {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  box-sizing: border-box !important;
+}
+
+html body table.table tbody td .btn,
+body table.table tbody td .btn,
+table.table tbody td .btn,
+.table tbody td .btn {
+  vertical-align: middle !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure text content wraps properly */
+html body table.table tbody td strong,
+html body table.table tbody td small,
+body table.table tbody td strong,
+body table.table tbody td small,
+table.table tbody td strong,
+table.table tbody td small,
+.table tbody td strong,
+.table tbody td small {
+  display: block !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Fix for first column (STT/#) - ensure it's always visible and has proper width */
+html body table.table thead th:first-child,
+html body table.table tbody td:first-child,
+body table.table thead th:first-child,
+body table.table tbody td:first-child,
+table.table thead th:first-child,
+table.table tbody td:first-child,
+.table thead th:first-child,
+.table tbody td:first-child {
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  display: table-cell !important;
+  box-sizing: border-box !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  /* CRITICAL: Ensure first column is never hidden or collapsed */
+  width: auto !important;
+  min-width: 50px !important;
+  max-width: none !important;
+  /* Only apply if inline style doesn't specify width */
+}
+
+/* If inline style specifies width for first column, respect it */
+html body table.table thead th:first-child[style*="width"],
+html body table.table tbody td:first-child[style*="width"],
+body table.table thead th:first-child[style*="width"],
+body table.table tbody td:first-child[style*="width"],
+table.table thead th:first-child[style*="width"],
+table.table tbody td:first-child[style*="width"] {
+  /* Respect inline width but ensure visibility */
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: table-cell !important;
+  box-sizing: border-box !important;
+}
+
+/* CRITICAL: Ensure table rows don't break */
+html body table.table tbody tr,
+body table.table tbody tr,
+table.table tbody tr,
+.table tbody tr {
+  display: table-row !important;
+}
+
+/* Ensure table-responsive doesn't break alignment */
+.table-responsive {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  width: 100% !important;
+}
+
+.table-responsive table {
+  margin-bottom: 0 !important;
+  width: 100% !important;
+}
+
+/* CRITICAL: Force colgroup to work with table-layout: fixed */
+html body table.table colgroup col,
+body table.table colgroup col,
+table.table colgroup col {
+  /* Let inline styles in colgroup work */
+  width: auto !important;
+}

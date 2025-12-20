@@ -1,0 +1,247 @@
+@{
+    ViewData["Title"] = "Quản lý người dùng";
+}
+
+<div class="container-fluid my-4">
+    <!-- Header -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="text-gradient mb-2">
+                    <i class="fas fa-users me-2"></i>Quản lý người dùng
+                </h2>
+                <p class="text-muted mb-0">Quản lý tất cả người dùng trong hệ thống</p>
+            </div>
+            <div>
+                <button class="btn btn-primary" onclick="showCreateUserModal()">
+                    <i class="fas fa-plus me-2"></i>Tạo người dùng mới
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Tìm kiếm</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Tên, email, SĐT..." id="searchInput">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Vai trò</label>
+                    <select class="form-select" id="roleFilter">
+                        <option value="">Tất cả</option>
+                        <option value="author">Tác giả</option>
+                        <option value="reviewer">Reviewer</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select class="form-select" id="statusFilter">
+                        <option value="">Tất cả</option>
+                        <option value="active">Hoạt động</option>
+                        <option value="inactive">Không hoạt động</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" onclick="applyFilters()">
+                        <i class="fas fa-filter me-2"></i>Lọc
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="table-layout: fixed; width: 100%;">
+                    <colgroup>
+                        <col style="width: 5%; min-width: 50px; max-width: 60px;">
+                        <col style="width: 25%;">
+                        <col style="width: 20%;">
+                        <col style="width: 12%;">
+                        <col style="width: 12%;">
+                        <col style="width: 10%;">
+                        <col style="width: 16%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th style="width: 5%; min-width: 50px; max-width: 60px; padding: 12px; text-align: center; vertical-align: middle; display: table-cell !important; box-sizing: border-box;">#</th>
+                            <th style="width: 25%; min-width: 180px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Họ tên</th>
+                            <th style="width: 20%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Email</th>
+                            <th style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box;">SĐT</th>
+                            <th style="width: 12%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Vai trò</th>
+                            <th style="width: 10%; min-width: 90px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Trạng thái</th>
+                            <th style="width: 16%; min-width: 140px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="width: 5%; min-width: 50px; max-width: 60px; padding: 12px; text-align: center; vertical-align: middle; display: table-cell !important; box-sizing: border-box; overflow: hidden;">1</td>
+                            <td style="width: 25%; min-width: 180px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                <div style="max-width: 100%; overflow: hidden; word-wrap: break-word;">
+                                    <strong class="d-block mb-1" style="word-wrap: break-word; overflow-wrap: break-word;">Nguyễn Văn A</strong>
+                                    <small class="text-muted d-block" style="word-wrap: break-word; overflow-wrap: break-word;">Đại học ABC</small>
+                                </div>
+                            </td>
+                            <td style="width: 20%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">nguyenvana@example.com</td>
+                            <td style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">0123456789</td>
+                            <td style="width: 12%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <span class="badge bg-info">Tác giả</span>
+                            </td>
+                            <td style="width: 10%; min-width: 90px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <span class="badge bg-success">Hoạt động</span>
+                            </td>
+                            <td style="width: 16%; min-width: 140px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a href="/Admin/UserDetails/1" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-warning" title="Chỉnh sửa" onclick="editUser(1)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" title="Xóa" onclick="deleteUser(1)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 5%; min-width: 50px; max-width: 60px; padding: 12px; text-align: center; vertical-align: middle; display: table-cell !important; box-sizing: border-box; overflow: hidden;">2</td>
+                            <td style="width: 25%; min-width: 180px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                <div style="max-width: 100%; overflow: hidden; word-wrap: break-word;">
+                                    <strong class="d-block mb-1" style="word-wrap: break-word; overflow-wrap: break-word;">GS. Trần Thị B</strong>
+                                    <small class="text-muted d-block" style="word-wrap: break-word; overflow-wrap: break-word;">Đại học XYZ</small>
+                                </div>
+                            </td>
+                            <td style="width: 20%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">tranthib@example.com</td>
+                            <td style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">0987654321</td>
+                            <td style="width: 12%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <span class="badge bg-warning">Reviewer</span>
+                            </td>
+                            <td style="width: 10%; min-width: 90px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <span class="badge bg-success">Hoạt động</span>
+                            </td>
+                            <td style="width: 16%; min-width: 140px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a href="/Admin/UserDetails/2" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-warning" title="Chỉnh sửa" onclick="editUser(2)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" title="Xóa" onclick="deleteUser(2)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Trước</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit User Modal -->
+<div class="modal fade" id="userModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="userModalTitle">Tạo người dùng mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="FullName" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" name="Email" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="tel" class="form-control" name="PhoneNumber" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Vai trò <span class="text-danger">*</span></label>
+                            <select class="form-select" name="Role" required>
+                                <option value="">-- Chọn vai trò --</option>
+                                <option value="author">Tác giả</option>
+                                <option value="reviewer">Reviewer</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Đơn vị công tác</label>
+                            <input type="text" class="form-control" name="Affiliation" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="saveUser()">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function applyFilters() {
+            // TODO: Implement filter logic
+            console.log('Applying filters...');
+        }
+
+        function showCreateUserModal() {
+            document.getElementById('userModalTitle').textContent = 'Tạo người dùng mới';
+            document.getElementById('userForm').reset();
+            new bootstrap.Modal(document.getElementById('userModal')).show();
+        }
+
+        function editUser(id) {
+            document.getElementById('userModalTitle').textContent = 'Chỉnh sửa người dùng';
+            // TODO: Load user data
+            new bootstrap.Modal(document.getElementById('userModal')).show();
+        }
+
+        function deleteUser(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa người dùng này không?')) {
+                // TODO: Implement delete
+                alert('Đã xóa người dùng thành công!');
+            }
+        }
+
+        function saveUser() {
+            // TODO: Implement save
+            alert('Đã lưu người dùng thành công!');
+            bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
+        }
+    </script>
+}
