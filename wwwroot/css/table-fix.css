@@ -13,6 +13,8 @@ body .table {
   width: 100% !important;
   border-collapse: separate !important;
   border-spacing: 0 !important;
+  /* CRITICAL: Don't hide overflow on table */
+  overflow: visible !important;
 }
 
 /* CRITICAL: Ensure STT column (#) always displays correctly - but don't override inline styles */
