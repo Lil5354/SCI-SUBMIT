@@ -1,10 +1,10 @@
 /* ========================================
-   TABLE ALIGNMENT FIX - ULTIMATE SOLUTION
-   Fixes header and content row misalignment
-   Load this LAST to override everything
+   TABLE ALIGNMENT FIX - ULTIMATE FINAL SOLUTION
+   This file MUST be loaded LAST (after all other CSS)
+   Fixes header and content row misalignment completely
    ======================================== */
 
-/* CRITICAL: Force table layout and prevent content overflow */
+/* CRITICAL: Force table layout with maximum specificity */
 html body table.table,
 html body .table,
 body table.table,
@@ -16,9 +16,12 @@ table.table,
   border-collapse: separate !important;
   border-spacing: 0 !important;
   empty-cells: show !important;
+  /* CRITICAL: Don't hide overflow on table itself */
+  overflow: visible !important;
 }
 
-/* CRITICAL: Ensure ALL cells are visible and properly aligned */
+/* CRITICAL: Ensure ALL cells are visible, properly sized, and aligned */
+/* This is the KEY fix - force display: table-cell on ALL cells */
 html body table.table thead th,
 html body table.table tbody td,
 html body .table thead th,
@@ -31,25 +34,34 @@ table.table thead th,
 table.table tbody td,
 .table thead th,
 .table tbody td {
-  box-sizing: border-box !important;
+  /* CRITICAL: Force display as table-cell - THIS IS THE KEY FIX */
   display: table-cell !important;
   visibility: visible !important;
   opacity: 1 !important;
+  
+  /* Box model */
+  box-sizing: border-box !important;
+  padding: 12px !important;
+  line-height: 1.5 !important;
+  vertical-align: middle !important;
+  
+  /* Overflow handling - only hide horizontal overflow, allow vertical */
   overflow-x: hidden !important;
   overflow-y: visible !important;
   word-wrap: break-word !important;
   word-break: break-word !important;
   overflow-wrap: break-word !important;
-  vertical-align: middle !important;
-  padding: 12px !important;
-  line-height: 1.5 !important;
-  min-width: 0 !important;
+  
+  /* Positioning - ensure no transforms or positioning that could shift content */
   position: static !important;
   transform: none !important;
   left: auto !important;
   right: auto !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
+  
+  /* Width handling - let inline styles take precedence */
+  min-width: 0 !important;
 }
 
 /* CRITICAL: Respect inline width styles - these have highest priority */
@@ -59,9 +71,58 @@ body table.table thead th[style*="width"],
 body table.table tbody td[style*="width"],
 table.table thead th[style*="width"],
 table.table tbody td[style*="width"] {
-  /* Inline styles will override, just ensure box-sizing */
+  /* Inline styles will override width, just ensure other properties */
   box-sizing: border-box !important;
   display: table-cell !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  /* CRITICAL: Don't override width from inline styles */
+}
+
+/* CRITICAL: First column (#) - ensure it's always visible and has proper width */
+html body table.table thead th:first-child,
+html body table.table tbody td:first-child,
+body table.table thead th:first-child,
+body table.table tbody td:first-child,
+table.table thead th:first-child,
+table.table tbody td:first-child,
+.table thead th:first-child,
+.table tbody td:first-child {
+  display: table-cell !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  box-sizing: border-box !important;
+  /* Don't force width if inline style specifies it */
+}
+
+/* If first column has inline width, respect it */
+html body table.table thead th:first-child[style*="width"],
+html body table.table tbody td:first-child[style*="width"],
+body table.table thead th:first-child[style*="width"],
+body table.table tbody td:first-child[style*="width"],
+table.table thead th:first-child[style*="width"],
+table.table tbody td:first-child[style*="width"] {
+  /* Respect inline width but ensure visibility */
+  display: table-cell !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  box-sizing: border-box !important;
+}
+
+/* CRITICAL: Ensure table rows don't break */
+html body table.table thead tr,
+html body table.table tbody tr,
+body table.table thead tr,
+body table.table tbody tr,
+table.table thead tr,
+table.table tbody tr,
+.table thead tr,
+.table tbody tr {
+  display: table-row !important;
 }
 
 /* Prevent nested content from breaking layout */
@@ -130,52 +191,6 @@ table.table tbody td small,
   box-sizing: border-box !important;
 }
 
-/* Fix for first column (STT/#) - ensure it's always visible and has proper width */
-html body table.table thead th:first-child,
-html body table.table tbody td:first-child,
-body table.table thead th:first-child,
-body table.table tbody td:first-child,
-table.table thead th:first-child,
-table.table tbody td:first-child,
-.table thead th:first-child,
-.table tbody td:first-child {
-  text-align: center !important;
-  white-space: nowrap !important;
-  overflow-x: visible !important;
-  overflow-y: visible !important;
-  display: table-cell !important;
-  box-sizing: border-box !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  /* CRITICAL: Ensure first column is never hidden or collapsed */
-  width: auto !important;
-  min-width: 50px !important;
-  max-width: none !important;
-  /* Only apply if inline style doesn't specify width */
-}
-
-/* If inline style specifies width for first column, respect it */
-html body table.table thead th:first-child[style*="width"],
-html body table.table tbody td:first-child[style*="width"],
-body table.table thead th:first-child[style*="width"],
-body table.table tbody td:first-child[style*="width"],
-table.table thead th:first-child[style*="width"],
-table.table tbody td:first-child[style*="width"] {
-  /* Respect inline width but ensure visibility */
-  visibility: visible !important;
-  opacity: 1 !important;
-  display: table-cell !important;
-  box-sizing: border-box !important;
-}
-
-/* CRITICAL: Ensure table rows don't break */
-html body table.table tbody tr,
-body table.table tbody tr,
-table.table tbody tr,
-.table tbody tr {
-  display: table-row !important;
-}
-
 /* Ensure table-responsive doesn't break alignment */
 .table-responsive {
   overflow-x: auto !important;
@@ -189,9 +204,37 @@ table.table tbody tr,
 }
 
 /* CRITICAL: Force colgroup to work with table-layout: fixed */
+/* Don't override colgroup widths - let inline styles work */
 html body table.table colgroup col,
 body table.table colgroup col,
 table.table colgroup col {
-  /* Let inline styles in colgroup work */
+  /* Let inline styles in colgroup work - don't override */
   width: auto !important;
+}
+
+/* CRITICAL: Override any rules that might hide table cells */
+html body table.table thead th,
+html body table.table tbody td,
+body table.table thead th,
+body table.table tbody td,
+table.table thead th,
+table.table tbody td {
+  /* Ensure no rules can hide these */
+  display: table-cell !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: auto !important; /* Let inline styles or colgroup handle width */
+}
+
+/* But if inline style specifies width, respect it */
+html body table.table thead th[style*="width"],
+html body table.table tbody td[style*="width"],
+body table.table thead th[style*="width"],
+body table.table tbody td[style*="width"],
+table.table thead th[style*="width"],
+table.table tbody td[style*="width"] {
+  display: table-cell !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  /* Width comes from inline style - don't override */
 }

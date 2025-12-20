@@ -969,7 +969,8 @@ a:hover {
 .table {
   background-color: var(--color-white) !important;
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  /* REMOVED overflow: hidden - this was causing content to be hidden */
+  /* overflow: hidden; */
 }
 
 .table-responsive {

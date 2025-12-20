@@ -41,9 +41,11 @@
   width: 100% !important;
   border-collapse: separate !important;
   border-spacing: 0 !important;
+  /* CRITICAL: Don't hide overflow on table */
+  overflow: visible !important;
 }
 
-/* CRITICAL: Force vertical alignment - Highest specificity */
+/* CRITICAL: Force vertical alignment and display - Highest specificity */
 table.table thead th,
 table.table tbody td,
 .table thead th,
@@ -52,23 +54,33 @@ table.table tbody td,
 .table.table-hover tbody td,
 .table.align-middle thead th,
 .table.align-middle tbody td {
+  /* CRITICAL: Force display as table-cell */
+  display: table-cell !important;
   vertical-align: middle !important;
   padding: 12px !important;
   box-sizing: border-box !important;
   line-height: 1.5 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Override Bootstrap completely */
 table.table thead tr th,
 table.table tbody tr td {
+  display: table-cell !important;
   vertical-align: middle !important;
   padding: 12px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Even with colgroup */
 table.table colgroup ~ thead th,
 table.table colgroup ~ tbody td {
+  display: table-cell !important;
   vertical-align: middle !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Badge and button alignment in tables */
