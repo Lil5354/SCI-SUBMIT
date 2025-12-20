@@ -6,6 +6,36 @@
 (function() {
     'use strict';
     
+    // CRITICAL: Inject CSS to completely disable tr::before immediately
+    // This MUST run before any other code
+    (function injectTrBeforeFix() {
+        // Check if style already injected
+        if (document.getElementById('table-tr-before-fix')) {
+            return;
+        }
+        
+        const style = document.createElement('style');
+        style.id = 'table-tr-before-fix';
+        style.textContent = 
+            '/* CRITICAL: Completely disable tr::before to fix column alignment */' +
+            'html body.d-flex.flex-column.min-vh-100 table.table tbody tr::before,' +
+            'html body table.table tbody tr::before,' +
+            'body.d-flex.flex-column.min-vh-100 table.table tbody tr::before,' +
+            'body table.table tbody tr::before,' +
+            'table.table.table-hover tbody tr::before,' +
+            'table.table tbody tr::before,' +
+            '.table.table-hover tbody tr::before,' +
+            '.table tbody tr::before {' +
+            'display: none !important;' +
+            'content: none !important;' +
+            'width: 0 !important;' +
+            'height: 0 !important;' +
+            'visibility: hidden !important;' +
+            'opacity: 0 !important;' +
+            '}';
+        document.head.insertBefore(style, document.head.firstChild);
+    })();
+    
     function fixTableAlignment() {
         // Find all tables
         const tables = document.querySelectorAll('table.table');
@@ -17,7 +47,7 @@
                 th.style.verticalAlign = 'middle';
                 th.style.padding = '12px';
                 
-                // CRITICAL: Fix first column (STT/#) to ensure it displays
+                // CRITICAL: Fix first column (STT) to ensure it displays
                 if (index === 0) {
                     th.style.width = '5%';
                     th.style.minWidth = '50px';
@@ -34,7 +64,7 @@
                 td.style.verticalAlign = 'middle';
                 td.style.padding = '12px';
                 
-                // CRITICAL: Fix first column (STT/#) to ensure it displays
+                // CRITICAL: Fix first column (STT) to ensure it displays
                 const row = td.parentElement;
                 const rowIndex = Array.from(row.cells).indexOf(td);
                 if (rowIndex === 0) {
@@ -53,14 +83,6 @@
                         const rowNumber = Array.from(row.parentElement.children).indexOf(row) + 1;
                         td.textContent = rowNumber.toString();
                     }
-                    
-                    // Force display
-                    td.style.display = 'table-cell';
-                    td.style.visibility = 'visible';
-                    td.style.opacity = '1';
-                    td.style.width = '5%';
-                    td.style.minWidth = '50px';
-                    td.style.maxWidth = '60px';
                 }
             });
         });
