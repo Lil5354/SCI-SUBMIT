@@ -988,25 +988,12 @@ a:hover {
   position: relative;
 }
 
-.table tbody tr::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: linear-gradient(to bottom, var(--color-primary), var(--color-secondary));
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-}
+/* REMOVED: tr::before decorative border - it was causing column misalignment */
+/* If decorative border is needed, use a different approach (e.g., border-left on tr) */
 
 .table tbody tr:hover {
   background-color: var(--color-gray-50) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-}
-
-.table tbody tr:hover::before {
-  opacity: 1;
 }
 
 /* Fix gap utility for buttons */

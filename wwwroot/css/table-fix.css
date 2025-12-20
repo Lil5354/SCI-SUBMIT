@@ -1,7 +1,6 @@
 /* ========================================
-   TABLE FIX - ULTIMATE SOLUTION
-   Load this LAST to override everything
-   Highest specificity possible
+   TABLE FIX - Basic table layout
+   Load this BEFORE table-alignment-fix.css
    ======================================== */
 
 /* Force table layout */
@@ -13,94 +12,15 @@ body .table {
   width: 100% !important;
   border-collapse: separate !important;
   border-spacing: 0 !important;
-  /* CRITICAL: Don't hide overflow on table */
   overflow: visible !important;
 }
 
-/* CRITICAL: Ensure STT column (#) always displays correctly - but don't override inline styles */
-table.table thead th:first-child:not([style*="width"]),
-table.table tbody td:first-child:not([style*="width"]),
-.table thead th:first-child:not([style*="width"]),
-.table tbody td:first-child:not([style*="width"]) {
-  width: 5% !important;
-  min-width: 50px !important;
-  max-width: 60px !important;
-  padding: 12px !important;
-  text-align: center !important;
-  vertical-align: middle !important;
-  display: table-cell !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  white-space: nowrap !important;
-  box-sizing: border-box !important;
-  overflow: visible !important;
-  position: static !important;
-}
-
-/* Force content in STT column to be visible */
-table.table tbody td:first-child::before {
-  content: '' !important;
-  display: none !important;
-}
-
-/* Ensure STT column never collapses - but respect inline styles */
-table.table colgroup col:first-child:not([style*="width"]) {
-  width: 5% !important;
-  min-width: 50px !important;
-  max-width: 60px !important;
-}
-
-/* CRITICAL: Force vertical alignment with MAXIMUM specificity - but don't override inline width styles */
-body table.table thead th:not([style*="width"]),
-body table.table tbody td:not([style*="width"]),
-body table.table.table-hover thead th:not([style*="width"]),
-body table.table.table-hover tbody td:not([style*="width"]),
-body table.table.align-middle thead th:not([style*="width"]),
-body table.table.align-middle tbody td:not([style*="width"]),
-body .table.table-hover thead th:not([style*="width"]),
-body .table.table-hover tbody td:not([style*="width"]),
-body .table.align-middle thead th:not([style*="width"]),
-body .table.align-middle tbody td:not([style*="width"]),
-table.table thead th:not([style*="width"]),
-table.table tbody td:not([style*="width"]),
-.table.table-hover thead th:not([style*="width"]),
-.table.table-hover tbody td:not([style*="width"]),
-.table.align-middle thead th:not([style*="width"]),
-.table.align-middle tbody td:not([style*="width"]) {
+/* Basic cell alignment - table-alignment-fix.css will override with more specific rules */
+table.table thead th,
+table.table tbody td,
+.table thead th,
+.table tbody td {
   vertical-align: middle !important;
   padding: 12px !important;
   box-sizing: border-box !important;
-  line-height: 1.5 !important;
-}
-
-/* Override Bootstrap's default with even higher specificity */
-body table.table thead tr th,
-body table.table tbody tr td,
-table.table thead tr th,
-table.table tbody tr td {
-  vertical-align: middle !important;
-  padding: 12px !important;
-}
-
-/* Even with colgroup - maximum specificity */
-body table.table colgroup ~ thead th,
-body table.table colgroup ~ tbody td,
-table.table colgroup ~ thead th,
-table.table colgroup ~ tbody td {
-  vertical-align: middle !important;
-}
-
-/* Badge alignment */
-body table.table tbody td .badge,
-table.table tbody td .badge {
-  display: inline-block !important;
-  vertical-align: middle !important;
-}
-
-/* Button alignment */
-body table.table tbody td .btn,
-table.table tbody td .btn {
-  vertical-align: middle !important;
-  display: inline-flex !important;
-  align-items: center !important;
 }

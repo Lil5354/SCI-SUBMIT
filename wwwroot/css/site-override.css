@@ -31,69 +31,10 @@
 }
 
 /* ========================================
-   TABLE FIXES - ULTIMATE SOLUTION
-   Xóa tất cả CSS cũ, chỉ giữ rules này
+   TABLE FIXES - REMOVED
+   All table fixes moved to table-alignment-fix.css
+   This file now only contains button and badge fixes
    ======================================== */
-
-/* Table base */
-.table {
-  table-layout: fixed !important;
-  width: 100% !important;
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
-  /* CRITICAL: Don't hide overflow on table */
-  overflow: visible !important;
-}
-
-/* CRITICAL: Force vertical alignment and display - Highest specificity */
-table.table thead th,
-table.table tbody td,
-.table thead th,
-.table tbody td,
-.table.table-hover thead th,
-.table.table-hover tbody td,
-.table.align-middle thead th,
-.table.align-middle tbody td {
-  /* CRITICAL: Force display as table-cell */
-  display: table-cell !important;
-  vertical-align: middle !important;
-  padding: 12px !important;
-  box-sizing: border-box !important;
-  line-height: 1.5 !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Override Bootstrap completely */
-table.table thead tr th,
-table.table tbody tr td {
-  display: table-cell !important;
-  vertical-align: middle !important;
-  padding: 12px !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Even with colgroup */
-table.table colgroup ~ thead th,
-table.table colgroup ~ tbody td {
-  display: table-cell !important;
-  vertical-align: middle !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Badge and button alignment in tables */
-.table tbody td .badge {
-  display: inline-block !important;
-  vertical-align: middle !important;
-}
-
-.table tbody td .btn {
-  vertical-align: middle !important;
-  display: inline-flex !important;
-  align-items: center !important;
-}
 
 /* Badge fixes */
 .badge {
