@@ -1,6 +1,9 @@
+@model List<SciSubmit.Models.Admin.TopicViewModel>
 @{
     ViewData["Title"] = "Quản lý lĩnh vực";
 }
+
+@Html.AntiForgeryToken()
 
 <div class="container-fluid my-4">
     <!-- Header -->
@@ -22,120 +25,47 @@
 
     <!-- Fields List -->
     <div class="row g-4">
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h5 class="mb-0">Kinh tế</h5>
-                        <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-warning" onclick="editField(1)" title="Chỉnh sửa">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteField(1)" title="Xóa">
-                                <i class="fas fa-trash"></i>
-                            </button>
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var topic in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="mb-0">@topic.Name</h5>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-warning" onclick="editField(@topic.Id, '@topic.Name', '@(topic.Description ?? "")', @topic.OrderIndex, @topic.IsActive.ToString().ToLower())" title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteField(@topic.Id)" title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-muted small mb-2">Số bài nộp: <strong>@topic.SubmissionCount</strong></p>
+                            @if (!string.IsNullOrEmpty(topic.Description))
+                            {
+                                <p class="text-muted small mb-0">Mô tả: @topic.Description</p>
+                            }
+                            @if (!topic.IsActive)
+                            {
+                                <span class="badge bg-secondary">Đã vô hiệu hóa</span>
+                            }
                         </div>
                     </div>
-                    <p class="text-muted small mb-2">Số bài nộp: <strong>24</strong></p>
-                    <p class="text-muted small mb-0">Mô tả: Nghiên cứu về các vấn đề kinh tế học</p>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Chưa có lĩnh vực nào. Hãy thêm lĩnh vực mới.
                 </div>
             </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h5 class="mb-0">Tài chính & Kế toán</h5>
-                        <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-warning" onclick="editField(2)" title="Chỉnh sửa">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteField(2)" title="Xóa">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <p class="text-muted small mb-2">Số bài nộp: <strong>18</strong></p>
-                    <p class="text-muted small mb-0">Mô tả: Nghiên cứu về tài chính và kế toán</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h5 class="mb-0">Thương mại</h5>
-                        <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-warning" onclick="editField(3)" title="Chỉnh sửa">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteField(3)" title="Xóa">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <p class="text-muted small mb-2">Số bài nộp: <strong>15</strong></p>
-                    <p class="text-muted small mb-0">Mô tả: Nghiên cứu về thương mại và thương mại điện tử</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h5 class="mb-0">Quản trị kinh doanh</h5>
-                        <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-warning" onclick="editField(4)" title="Chỉnh sửa">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteField(4)" title="Xóa">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <p class="text-muted small mb-2">Số bài nộp: <strong>12</strong></p>
-                    <p class="text-muted small mb-0">Mô tả: Nghiên cứu về quản trị và quản lý doanh nghiệp</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h5 class="mb-0">Marketing</h5>
-                        <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-warning" onclick="editField(5)" title="Chỉnh sửa">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteField(5)" title="Xóa">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <p class="text-muted small mb-2">Số bài nộp: <strong>10</strong></p>
-                    <p class="text-muted small mb-0">Mô tả: Nghiên cứu về marketing và truyền thông</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h5 class="mb-0">Du lịch & Môi trường</h5>
-                        <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-warning" onclick="editField(6)" title="Chỉnh sửa">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteField(6)" title="Xóa">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <p class="text-muted small mb-2">Số bài nộp: <strong>8</strong></p>
-                    <p class="text-muted small mb-0">Mô tả: Nghiên cứu về du lịch và môi trường</p>
-                </div>
-            </div>
-        </div>
+        }
     </div>
 </div>
 
@@ -149,13 +79,26 @@
             </div>
             <div class="modal-body">
                 <form id="fieldForm">
+                    <input type="hidden" id="fieldId" name="Id" />
                     <div class="mb-3">
                         <label class="form-label">Tên lĩnh vực <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="Name" required />
+                        <input type="text" class="form-control" id="fieldName" name="Name" required />
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Mô tả</label>
-                        <textarea class="form-control" rows="3" name="Description"></textarea>
+                        <textarea class="form-control" rows="3" id="fieldDescription" name="Description"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Thứ tự hiển thị</label>
+                        <input type="number" class="form-control" id="fieldOrderIndex" name="OrderIndex" value="0" min="0" />
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="fieldIsActive" name="IsActive" checked>
+                            <label class="form-check-label" for="fieldIsActive">
+                                Kích hoạt
+                            </label>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -172,26 +115,89 @@
         function showAddFieldModal() {
             document.getElementById('fieldModalTitle').textContent = 'Thêm lĩnh vực mới';
             document.getElementById('fieldForm').reset();
+            document.getElementById('fieldId').value = '';
+            document.getElementById('fieldIsActive').checked = true;
             new bootstrap.Modal(document.getElementById('fieldModal')).show();
         }
 
-        function editField(id) {
+        function editField(id, name, description, orderIndex, isActive) {
             document.getElementById('fieldModalTitle').textContent = 'Chỉnh sửa lĩnh vực';
-            // TODO: Load field data
+            document.getElementById('fieldId').value = id;
+            document.getElementById('fieldName').value = name;
+            document.getElementById('fieldDescription').value = description || '';
+            document.getElementById('fieldOrderIndex').value = orderIndex;
+            document.getElementById('fieldIsActive').checked = isActive;
             new bootstrap.Modal(document.getElementById('fieldModal')).show();
         }
 
         function deleteField(id) {
             if (confirm('Bạn có chắc chắn muốn xóa lĩnh vực này không?')) {
-                // TODO: Implement delete
-                alert('Đã xóa lĩnh vực thành công!');
+                fetch('@Url.Action("DeleteTopic", "Admin")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getToken()
+                    },
+                    body: JSON.stringify({ Id: id })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi xóa lĩnh vực.');
+                });
             }
         }
 
         function saveField() {
-            // TODO: Implement save
-            alert('Đã lưu lĩnh vực thành công!');
-            bootstrap.Modal.getInstance(document.getElementById('fieldModal')).hide();
+            const form = document.getElementById('fieldForm');
+            const formData = new FormData(form);
+            const data = {
+                Id: parseInt(document.getElementById('fieldId').value) || 0,
+                Name: document.getElementById('fieldName').value,
+                Description: document.getElementById('fieldDescription').value,
+                OrderIndex: parseInt(document.getElementById('fieldOrderIndex').value) || 0,
+                IsActive: document.getElementById('fieldIsActive').checked
+            };
+
+            if (!data.Name) {
+                alert('Vui lòng nhập tên lĩnh vực.');
+                return;
+            }
+
+            const url = data.Id > 0 
+                ? '@Url.Action("UpdateTopic", "Admin")?id=' + data.Id
+                : '@Url.Action("CreateTopic", "Admin")';
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getToken()
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert(result.message);
+                    bootstrap.Modal.getInstance(document.getElementById('fieldModal')).hide();
+                    location.reload();
+                } else {
+                    alert(result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi lưu lĩnh vực.');
+            });
         }
     </script>
 }
