@@ -432,30 +432,47 @@ namespace SciSubmit.Services
                 return new List<ReviewerViewModel>();
             }
 
-            // Get submission keyword IDs
-            var submissionKeywordIds = submission.SubmissionKeywords.Select(sk => sk.KeywordId).ToList();
+            // Get submission keyword IDs (can be empty if submission has no keywords)
+            var submissionKeywordIds = submission.SubmissionKeywords
+                .Where(sk => sk.Keyword != null)
+                .Select(sk => sk.KeywordId)
+                .ToList();
 
-            // Get all reviewers (users with Reviewer role)
+            // Get all active reviewers (users with Reviewer role and IsActive = true)
             var reviewers = await _context.Users
                 .Where(u => u.Role == Models.Enums.UserRole.Reviewer && u.IsActive)
                 .Include(u => u.UserKeywords)
                     .ThenInclude(uk => uk.Keyword)
                 .ToListAsync();
 
+            if (!reviewers.Any())
+            {
+                // No reviewers in system
+                return new List<ReviewerViewModel>();
+            }
+
             var reviewerViewModels = new List<ReviewerViewModel>();
 
             foreach (var reviewer in reviewers)
             {
-                var reviewerKeywordIds = reviewer.UserKeywords.Select(uk => uk.KeywordId).ToList();
+                var reviewerKeywordIds = reviewer.UserKeywords
+                    .Where(uk => uk.Keyword != null)
+                    .Select(uk => uk.KeywordId)
+                    .ToList();
                 
-                // Calculate match score
-                var matchingKeywords = reviewerKeywordIds.Intersect(submissionKeywordIds).Count();
-                var totalSubmissionKeywords = submissionKeywordIds.Count;
-                var matchScore = totalSubmissionKeywords > 0 
-                    ? (int)((matchingKeywords / (double)totalSubmissionKeywords) * 100) 
-                    : 0;
+                // Calculate match score based on keyword overlap
+                int matchScore = 0;
+                if (submissionKeywordIds.Any() && reviewerKeywordIds.Any())
+                {
+                    var matchingKeywords = reviewerKeywordIds.Intersect(submissionKeywordIds).Count();
+                    var totalSubmissionKeywords = submissionKeywordIds.Count;
+                    matchScore = totalSubmissionKeywords > 0 
+                        ? (int)((matchingKeywords / (double)totalSubmissionKeywords) * 100) 
+                        : 0;
+                }
+                // If submission has no keywords, match score is 0 (but reviewer is still available)
 
-                // Count active assignments
+                // Count active assignments (Accepted but not Completed)
                 var activeAssignments = await _context.ReviewAssignments
                     .CountAsync(ra => ra.ReviewerId == reviewer.Id && 
                                      ra.Status == Models.Enums.ReviewAssignmentStatus.Accepted &&
@@ -464,17 +481,23 @@ namespace SciSubmit.Services
                 reviewerViewModels.Add(new ReviewerViewModel
                 {
                     Id = reviewer.Id,
-                    FullName = reviewer.FullName,
-                    Email = reviewer.Email,
+                    FullName = reviewer.FullName ?? "N/A",
+                    Email = reviewer.Email ?? "N/A",
                     Affiliation = reviewer.Affiliation,
-                    Keywords = reviewer.UserKeywords.Select(uk => uk.Keyword.Name).ToList(),
+                    Keywords = reviewer.UserKeywords
+                        .Where(uk => uk.Keyword != null)
+                        .Select(uk => uk.Keyword!.Name)
+                        .ToList(),
                     MatchScore = matchScore,
                     ActiveAssignments = activeAssignments
                 });
             }
 
-            // Sort by match score descending
-            return reviewerViewModels.OrderByDescending(r => r.MatchScore).ToList();
+            // Sort by match score descending, then by active assignments (fewer is better)
+            return reviewerViewModels
+                .OrderByDescending(r => r.MatchScore)
+                .ThenBy(r => r.ActiveAssignments)
+                .ToList();
         }
 
         public async Task<bool> AssignReviewerAsync(int submissionId, int reviewerId, DateTime deadline, int adminId)
@@ -482,21 +505,44 @@ namespace SciSubmit.Services
             // Validate deadline is in the future
             if (deadline <= DateTime.UtcNow)
             {
-                return false;
+                return false; // Deadline must be in the future
             }
 
-            // Check if submission exists and is in valid status
+            // Check if submission exists
             var submission = await _context.Submissions.FindAsync(submissionId);
             if (submission == null)
             {
-                return false;
+                return false; // Submission not found
+            }
+
+            // Check if submission is in valid status for assignment
+            var validStatuses = new[] 
+            { 
+                Models.Enums.SubmissionStatus.AbstractApproved,
+                Models.Enums.SubmissionStatus.FullPaperSubmitted,
+                Models.Enums.SubmissionStatus.UnderReview
+            };
+            
+            if (!validStatuses.Contains(submission.Status))
+            {
+                return false; // Submission status not valid for assignment
             }
 
             // Check if reviewer exists and is active
             var reviewer = await _context.Users.FindAsync(reviewerId);
-            if (reviewer == null || reviewer.Role != Models.Enums.UserRole.Reviewer || !reviewer.IsActive)
+            if (reviewer == null)
             {
-                return false;
+                return false; // Reviewer not found
+            }
+            
+            if (reviewer.Role != Models.Enums.UserRole.Reviewer)
+            {
+                return false; // User is not a reviewer
+            }
+            
+            if (!reviewer.IsActive)
+            {
+                return false; // Reviewer is not active
             }
 
             // Check if assignment already exists
@@ -523,6 +569,7 @@ namespace SciSubmit.Services
             _context.ReviewAssignments.Add(assignment);
 
             // Update submission status if needed
+            // Only update to UnderReview if not already UnderReview
             if (submission.Status == Models.Enums.SubmissionStatus.AbstractApproved ||
                 submission.Status == Models.Enums.SubmissionStatus.FullPaperSubmitted)
             {
@@ -543,9 +590,20 @@ namespace SciSubmit.Services
             };
 
             _context.EmailNotifications.Add(emailNotification);
-            await _context.SaveChangesAsync();
-
-            return true;
+            
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Log error for debugging
+                // In production, use proper logging
+                System.Diagnostics.Debug.WriteLine($"Error assigning reviewer: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                return false;
+            }
         }
 
         public async Task<ConferenceConfigViewModel?> GetConferenceConfigAsync()
@@ -866,6 +924,46 @@ namespace SciSubmit.Services
                 PageSize = filter.PageSize,
                 TotalCount = totalCount
             };
+        }
+
+        public async Task<bool> CreateUserAsync(CreateUserViewModel model)
+        {
+            // Check if email already exists
+            var existingUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == model.Email.ToLower());
+            
+            if (existingUser != null)
+            {
+                return false; // Email already exists
+            }
+
+            // Hash password
+            string HashPassword(string password)
+            {
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                {
+                    var hashedBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password + "SciSubmitSalt"));
+                    return Convert.ToBase64String(hashedBytes);
+                }
+            }
+
+            var user = new Models.Identity.User
+            {
+                Email = model.Email,
+                FullName = model.FullName,
+                PhoneNumber = model.PhoneNumber,
+                Affiliation = model.Affiliation,
+                Role = model.Role,
+                PasswordHash = HashPassword(model.Password),
+                EmailConfirmed = model.EmailConfirmed,
+                IsActive = model.IsActive,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<bool> UpdateUserRoleAsync(int userId, string newRole)
