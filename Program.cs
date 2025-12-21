@@ -4,7 +4,19 @@ using SciSubmit.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    // Configure antiforgery to accept token from JSON body
+    options.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute());
+});
+
+// Configure Antiforgery options
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "RequestVerificationToken";
+    options.FormFieldName = "__RequestVerificationToken";
+    options.Cookie.Name = "__RequestVerificationToken";
+});
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

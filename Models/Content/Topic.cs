@@ -29,3 +29,4 @@ namespace SciSubmit.Models.Content
         public virtual ICollection<Models.Submission.SubmissionTopic> SubmissionTopics { get; set; } = new List<Models.Submission.SubmissionTopic>();
     }
 }
+

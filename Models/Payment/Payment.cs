@@ -45,3 +45,4 @@ namespace SciSubmit.Models.Payment
         public virtual Models.Identity.User User { get; set; } = null!;
     }
 }
+

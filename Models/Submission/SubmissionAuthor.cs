@@ -34,3 +34,4 @@ namespace SciSubmit.Models.Submission
         public virtual Submission Submission { get; set; } = null!;
     }
 }
+

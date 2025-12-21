@@ -6,3 +6,4 @@ namespace SciSubmit.Models.Enums
         Poster = 1
     }
 }
+

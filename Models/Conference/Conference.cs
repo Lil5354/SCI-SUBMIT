@@ -38,3 +38,4 @@ namespace SciSubmit.Models.Conference
         public virtual ICollection<SystemSetting> SystemSettings { get; set; } = new List<SystemSetting>();
     }
 }
+

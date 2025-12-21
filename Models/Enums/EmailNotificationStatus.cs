@@ -7,3 +7,4 @@ namespace SciSubmit.Models.Enums
         Failed = 2
     }
 }
+

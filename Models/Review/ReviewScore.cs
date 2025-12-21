@@ -26,3 +26,4 @@ namespace SciSubmit.Models.Review
         public virtual Review Review { get; set; } = null!;
     }
 }
+

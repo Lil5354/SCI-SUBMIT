@@ -41,3 +41,4 @@ namespace SciSubmit.Models.Content
         public virtual ICollection<UserKeyword> UserKeywords { get; set; } = new List<UserKeyword>();
     }
 }
+

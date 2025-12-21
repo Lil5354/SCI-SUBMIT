@@ -44,3 +44,4 @@ namespace SciSubmit.Models.Notification
         public virtual Models.Identity.User? RelatedUser { get; set; }
     }
 }
+

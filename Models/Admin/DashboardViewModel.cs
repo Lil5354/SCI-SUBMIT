@@ -6,3 +6,4 @@ namespace SciSubmit.Models.Admin
         public List<DeadlineViewModel> Deadlines { get; set; } = new();
     }
 }
+

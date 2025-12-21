@@ -21,3 +21,4 @@ namespace SciSubmit.Models.Admin
         public int PageSize { get; set; } = 50;
     }
 }
+

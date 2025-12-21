@@ -24,3 +24,4 @@ namespace SciSubmit.Models.Content
         public virtual Keyword Keyword { get; set; } = null!;
     }
 }
+

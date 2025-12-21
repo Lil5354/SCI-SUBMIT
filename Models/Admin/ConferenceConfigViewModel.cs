@@ -12,3 +12,4 @@ namespace SciSubmit.Models.Admin
         public ConferencePlanViewModel? Plan { get; set; }
     }
 }
+

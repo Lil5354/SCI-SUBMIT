@@ -37,3 +37,4 @@ namespace SciSubmit.Models.Review
         public virtual Models.Identity.User DecisionMaker { get; set; } = null!;
     }
 }
+

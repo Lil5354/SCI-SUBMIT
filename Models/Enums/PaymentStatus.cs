@@ -8,3 +8,4 @@ namespace SciSubmit.Models.Enums
         Refunded = 3
     }
 }
+

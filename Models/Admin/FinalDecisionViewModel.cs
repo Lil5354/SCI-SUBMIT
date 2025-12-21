@@ -25,3 +25,4 @@ namespace SciSubmit.Models.Admin
         public DateTime SubmittedAt { get; set; }
     }
 }
+

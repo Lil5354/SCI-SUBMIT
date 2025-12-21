@@ -13,3 +13,4 @@ namespace SciSubmit.Models.Admin
         public decimal AverageReviewScore { get; set; }
     }
 }
+

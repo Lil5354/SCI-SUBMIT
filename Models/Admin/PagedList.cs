@@ -11,3 +11,4 @@ namespace SciSubmit.Models.Admin
         public bool HasNextPage => Page < TotalPages;
     }
 }
+

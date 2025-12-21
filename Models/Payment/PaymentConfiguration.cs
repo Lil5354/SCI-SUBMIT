@@ -31,3 +31,4 @@ namespace SciSubmit.Models.Payment
         public virtual Models.Conference.Conference Conference { get; set; } = null!;
     }
 }
+

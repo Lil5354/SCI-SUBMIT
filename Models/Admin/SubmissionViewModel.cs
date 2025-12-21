@@ -11,3 +11,4 @@ namespace SciSubmit.Models.Admin
         public List<string> Keywords { get; set; } = new();
     }
 }
+
