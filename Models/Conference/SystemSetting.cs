@@ -29,3 +29,4 @@ namespace SciSubmit.Models.Conference
         public virtual Conference Conference { get; set; } = null!;
     }
 }
+

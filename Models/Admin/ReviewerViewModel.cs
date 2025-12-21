@@ -11,3 +11,4 @@ namespace SciSubmit.Models.Admin
         public int ActiveAssignments { get; set; } // Số assignments đang active
     }
 }
+

@@ -8,3 +8,4 @@ namespace SciSubmit.Models.Admin
         public string BadgeClass { get; set; } = string.Empty; // "bg-danger", "bg-warning", "bg-info"
     }
 }
+

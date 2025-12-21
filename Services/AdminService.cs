@@ -152,7 +152,7 @@ namespace SciSubmit.Services
                 var searchTerm = filter.SearchTerm.ToLower();
                 query = query.Where(s => s.Title.ToLower().Contains(searchTerm) ||
                                        s.Abstract.ToLower().Contains(searchTerm) ||
-                                       s.Author.FullName.ToLower().Contains(searchTerm));
+                                       (s.Author != null && s.Author.FullName.ToLower().Contains(searchTerm)));
             }
 
             // Get total count before pagination
@@ -202,6 +202,11 @@ namespace SciSubmit.Services
                 return null;
             }
 
+            if (submission.Author == null)
+            {
+                return null;
+            }
+
             var viewModel = new SubmissionDetailsViewModel
             {
                 Id = submission.Id,
@@ -245,6 +250,15 @@ namespace SciSubmit.Services
                                    submission.Status == SubmissionStatus.FullPaperSubmitted ||
                                    submission.Status == SubmissionStatus.UnderReview
             };
+
+            // Check if can make final decision (has completed reviews and status is UnderReview)
+            var hasCompletedReviews = await _context.ReviewAssignments
+                .AnyAsync(ra => ra.SubmissionId == id && 
+                               ra.Status == Models.Enums.ReviewAssignmentStatus.Completed &&
+                               ra.Review != null);
+            
+            viewModel.CanMakeFinalDecision = hasCompletedReviews && 
+                                            submission.Status == SubmissionStatus.UnderReview;
 
             return viewModel;
         }
@@ -465,6 +479,12 @@ namespace SciSubmit.Services
 
         public async Task<bool> AssignReviewerAsync(int submissionId, int reviewerId, DateTime deadline, int adminId)
         {
+            // Validate deadline is in the future
+            if (deadline <= DateTime.UtcNow)
+            {
+                return false;
+            }
+
             // Check if submission exists and is in valid status
             var submission = await _context.Submissions.FindAsync(submissionId);
             if (submission == null)
@@ -557,13 +577,47 @@ namespace SciSubmit.Services
                 {
                     Id = plan.Id,
                     ConferenceId = plan.ConferenceId,
-                    AbstractSubmissionOpenDate = plan.AbstractSubmissionOpenDate,
-                    AbstractSubmissionDeadline = plan.AbstractSubmissionDeadline,
-                    FullPaperSubmissionOpenDate = plan.FullPaperSubmissionOpenDate,
-                    FullPaperSubmissionDeadline = plan.FullPaperSubmissionDeadline,
-                    ReviewDeadline = plan.ReviewDeadline,
-                    ResultAnnouncementDate = plan.ResultAnnouncementDate,
-                    ConferenceDate = plan.ConferenceDate
+                    // Convert UTC to local time for display in datetime-local input
+                    // Only convert if not default DateTime (01/01/0001)
+                    AbstractSubmissionOpenDate = plan.AbstractSubmissionOpenDate != default(DateTime)
+                        ? (plan.AbstractSubmissionOpenDate.Kind == DateTimeKind.Utc 
+                            ? plan.AbstractSubmissionOpenDate.ToLocalTime() 
+                            : (plan.AbstractSubmissionOpenDate.Kind == DateTimeKind.Unspecified
+                                ? DateTime.SpecifyKind(plan.AbstractSubmissionOpenDate, DateTimeKind.Utc).ToLocalTime()
+                                : plan.AbstractSubmissionOpenDate))
+                        : default(DateTime),
+                    AbstractSubmissionDeadline = plan.AbstractSubmissionDeadline != default(DateTime)
+                        ? (plan.AbstractSubmissionDeadline.Kind == DateTimeKind.Utc 
+                            ? plan.AbstractSubmissionDeadline.ToLocalTime() 
+                            : (plan.AbstractSubmissionDeadline.Kind == DateTimeKind.Unspecified
+                                ? DateTime.SpecifyKind(plan.AbstractSubmissionDeadline, DateTimeKind.Utc).ToLocalTime()
+                                : plan.AbstractSubmissionDeadline))
+                        : default(DateTime),
+                    FullPaperSubmissionOpenDate = plan.FullPaperSubmissionOpenDate.HasValue && plan.FullPaperSubmissionOpenDate.Value != default(DateTime)
+                        ? (plan.FullPaperSubmissionOpenDate.Value.Kind == DateTimeKind.Utc 
+                            ? plan.FullPaperSubmissionOpenDate.Value.ToLocalTime() 
+                            : plan.FullPaperSubmissionOpenDate.Value)
+                        : null,
+                    FullPaperSubmissionDeadline = plan.FullPaperSubmissionDeadline.HasValue && plan.FullPaperSubmissionDeadline.Value != default(DateTime)
+                        ? (plan.FullPaperSubmissionDeadline.Value.Kind == DateTimeKind.Utc 
+                            ? plan.FullPaperSubmissionDeadline.Value.ToLocalTime() 
+                            : plan.FullPaperSubmissionDeadline.Value)
+                        : null,
+                    ReviewDeadline = plan.ReviewDeadline.HasValue && plan.ReviewDeadline.Value != default(DateTime)
+                        ? (plan.ReviewDeadline.Value.Kind == DateTimeKind.Utc 
+                            ? plan.ReviewDeadline.Value.ToLocalTime() 
+                            : plan.ReviewDeadline.Value)
+                        : null,
+                    ResultAnnouncementDate = plan.ResultAnnouncementDate.HasValue && plan.ResultAnnouncementDate.Value != default(DateTime)
+                        ? (plan.ResultAnnouncementDate.Value.Kind == DateTimeKind.Utc 
+                            ? plan.ResultAnnouncementDate.Value.ToLocalTime() 
+                            : plan.ResultAnnouncementDate.Value)
+                        : null,
+                    ConferenceDate = plan.ConferenceDate.HasValue && plan.ConferenceDate.Value != default(DateTime)
+                        ? (plan.ConferenceDate.Value.Kind == DateTimeKind.Utc 
+                            ? plan.ConferenceDate.Value.ToLocalTime() 
+                            : plan.ConferenceDate.Value)
+                        : null
                 } : null
             };
 
@@ -642,8 +696,12 @@ namespace SciSubmit.Services
                 }
             }
 
-            plan.AbstractSubmissionOpenDate = model.AbstractSubmissionOpenDate;
-            plan.AbstractSubmissionDeadline = model.AbstractSubmissionDeadline;
+            // Only update if not default DateTime
+            if (model.AbstractSubmissionOpenDate != default(DateTime))
+                plan.AbstractSubmissionOpenDate = model.AbstractSubmissionOpenDate;
+            if (model.AbstractSubmissionDeadline != default(DateTime))
+                plan.AbstractSubmissionDeadline = model.AbstractSubmissionDeadline;
+            
             plan.FullPaperSubmissionOpenDate = model.FullPaperSubmissionOpenDate;
             plan.FullPaperSubmissionDeadline = model.FullPaperSubmissionDeadline;
             plan.ReviewDeadline = model.ReviewDeadline;
@@ -1286,12 +1344,15 @@ namespace SciSubmit.Services
 
             if (isUsed)
             {
-                // Can't delete if used, just mark as rejected (if we have that status)
-                // For now, we'll just delete it if not used
+                // Can't reject if used in submissions
                 return false;
             }
 
-            _context.Keywords.Remove(keyword);
+            // Mark as rejected instead of deleting
+            keyword.Status = KeywordStatus.Rejected;
+            keyword.ApprovedBy = adminId;
+            keyword.ApprovedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
             return true;
         }
@@ -1321,17 +1382,132 @@ namespace SciSubmit.Services
         // Settings Methods
         public async Task<SettingsViewModel> GetSettingsAsync()
         {
-            // For now, return default settings
-            // In production, load from database or appsettings.json
-            return new SettingsViewModel();
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                return new SettingsViewModel();
+            }
+
+            var settings = await _context.SystemSettings
+                .Where(s => s.ConferenceId == activeConference.Id)
+                .ToDictionaryAsync(s => s.Key, s => s.Value);
+
+            var viewModel = new SettingsViewModel();
+
+            // Load email settings
+            if (settings.TryGetValue("SmtpServer", out var smtpServer))
+                viewModel.SmtpServer = smtpServer ?? "smtp.gmail.com";
+            if (settings.TryGetValue("SmtpPort", out var smtpPort) && int.TryParse(smtpPort, out var port))
+                viewModel.SmtpPort = port;
+            if (settings.TryGetValue("SmtpUsername", out var smtpUsername))
+                viewModel.SmtpUsername = smtpUsername ?? string.Empty;
+            if (settings.TryGetValue("SmtpPassword", out var smtpPassword))
+                viewModel.SmtpPassword = smtpPassword ?? string.Empty;
+            if (settings.TryGetValue("SmtpUseSsl", out var smtpUseSsl) && bool.TryParse(smtpUseSsl, out var useSsl))
+                viewModel.SmtpUseSsl = useSsl;
+            if (settings.TryGetValue("FromEmail", out var fromEmail))
+                viewModel.FromEmail = fromEmail ?? string.Empty;
+            if (settings.TryGetValue("FromName", out var fromName))
+                viewModel.FromName = fromName ?? "SciSubmit";
+
+            // Load system settings
+            if (settings.TryGetValue("MaxFileSizeMB", out var maxFileSize) && int.TryParse(maxFileSize, out var fileSize))
+                viewModel.MaxFileSizeMB = fileSize;
+            if (settings.TryGetValue("MaxKeywordsPerSubmission", out var maxKeywords) && int.TryParse(maxKeywords, out var keywords))
+                viewModel.MaxKeywordsPerSubmission = keywords;
+            if (settings.TryGetValue("MaxAuthorsPerSubmission", out var maxAuthors) && int.TryParse(maxAuthors, out var authors))
+                viewModel.MaxAuthorsPerSubmission = authors;
+            if (settings.TryGetValue("ReviewDeadlineDays", out var reviewDeadline) && int.TryParse(reviewDeadline, out var days))
+                viewModel.ReviewDeadlineDays = days;
+
+            // Load notification settings
+            if (settings.TryGetValue("EmailNotificationsEnabled", out var emailEnabled) && bool.TryParse(emailEnabled, out var emailEnabledValue))
+                viewModel.EmailNotificationsEnabled = emailEnabledValue;
+            if (settings.TryGetValue("AutoAssignReviewers", out var autoAssign) && bool.TryParse(autoAssign, out var autoAssignValue))
+                viewModel.AutoAssignReviewers = autoAssignValue;
+
+            return viewModel;
         }
 
         public async Task<bool> UpdateSettingsAsync(SettingsViewModel model)
         {
-            // For now, just return true
-            // In production, save to database or appsettings.json
-            // This would require a Settings table or configuration file
-            return await Task.FromResult(true);
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                return false;
+            }
+
+            var settingsToUpdate = new Dictionary<string, string?>
+            {
+                { "SmtpServer", model.SmtpServer },
+                { "SmtpPort", model.SmtpPort.ToString() },
+                { "SmtpUsername", model.SmtpUsername },
+                { "SmtpPassword", model.SmtpPassword },
+                { "SmtpUseSsl", model.SmtpUseSsl.ToString() },
+                { "FromEmail", model.FromEmail },
+                { "FromName", model.FromName },
+                { "MaxFileSizeMB", model.MaxFileSizeMB.ToString() },
+                { "MaxKeywordsPerSubmission", model.MaxKeywordsPerSubmission.ToString() },
+                { "MaxAuthorsPerSubmission", model.MaxAuthorsPerSubmission.ToString() },
+                { "ReviewDeadlineDays", model.ReviewDeadlineDays.ToString() },
+                { "EmailNotificationsEnabled", model.EmailNotificationsEnabled.ToString() },
+                { "AutoAssignReviewers", model.AutoAssignReviewers.ToString() }
+            };
+
+            foreach (var kvp in settingsToUpdate)
+            {
+                var existingSetting = await _context.SystemSettings
+                    .FirstOrDefaultAsync(s => s.ConferenceId == activeConference.Id && s.Key == kvp.Key);
+
+                if (existingSetting != null)
+                {
+                    existingSetting.Value = kvp.Value;
+                    existingSetting.UpdatedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    var newSetting = new Models.Conference.SystemSetting
+                    {
+                        ConferenceId = activeConference.Id,
+                        Key = kvp.Key,
+                        Value = kvp.Value,
+                        Description = GetSettingDescription(kvp.Key),
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.SystemSettings.Add(newSetting);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        private string GetSettingDescription(string key)
+        {
+            return key switch
+            {
+                "SmtpServer" => "SMTP Server address for sending emails",
+                "SmtpPort" => "SMTP Server port number",
+                "SmtpUsername" => "SMTP authentication username",
+                "SmtpPassword" => "SMTP authentication password",
+                "SmtpUseSsl" => "Whether to use SSL/TLS for SMTP connection",
+                "FromEmail" => "Default sender email address",
+                "FromName" => "Default sender name",
+                "MaxFileSizeMB" => "Maximum file size in MB for uploads",
+                "MaxKeywordsPerSubmission" => "Maximum number of keywords per submission",
+                "MaxAuthorsPerSubmission" => "Maximum number of authors per submission",
+                "ReviewDeadlineDays" => "Default number of days for review deadline",
+                "EmailNotificationsEnabled" => "Enable or disable email notifications",
+                "AutoAssignReviewers" => "Automatically assign reviewers based on keywords",
+                _ => "System setting"
+            };
         }
     }
 }
+

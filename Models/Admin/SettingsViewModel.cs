@@ -22,3 +22,4 @@ namespace SciSubmit.Models.Admin
         public bool AutoAssignReviewers { get; set; } = false;
     }
 }
+

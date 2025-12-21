@@ -8,3 +8,4 @@ namespace SciSubmit.Models.Admin
         public int TotalRegistrations { get; set; }
     }
 }
+

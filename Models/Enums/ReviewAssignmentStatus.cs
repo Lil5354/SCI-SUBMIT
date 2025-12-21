@@ -8,3 +8,4 @@ namespace SciSubmit.Models.Enums
         Completed = 3
     }
 }
+

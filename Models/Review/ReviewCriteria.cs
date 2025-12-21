@@ -32,3 +32,4 @@ namespace SciSubmit.Models.Review
         public virtual ICollection<ReviewScore> ReviewScores { get; set; } = new List<ReviewScore>();
     }
 }
+

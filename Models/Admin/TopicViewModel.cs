@@ -10,3 +10,4 @@ namespace SciSubmit.Models.Admin
         public int SubmissionCount { get; set; }
     }
 }
+

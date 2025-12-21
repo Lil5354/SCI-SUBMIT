@@ -24,3 +24,4 @@ namespace SciSubmit.Models.Submission
         public virtual Models.Content.Topic Topic { get; set; } = null!;
     }
 }
+

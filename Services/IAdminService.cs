@@ -47,3 +47,4 @@ namespace SciSubmit.Services
         Task<bool> UpdateSettingsAsync(SettingsViewModel model);
     }
 }
+

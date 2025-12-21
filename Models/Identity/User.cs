@@ -55,3 +55,4 @@ namespace SciSubmit.Models.Identity
         public virtual ICollection<Models.Payment.Payment> Payments { get; set; } = new List<Models.Payment.Payment>();
     }
 }
+

@@ -33,3 +33,4 @@ namespace SciSubmit.Models.Notification
         public virtual Models.Conference.Conference Conference { get; set; } = null!;
     }
 }
+

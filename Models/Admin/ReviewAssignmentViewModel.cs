@@ -16,3 +16,4 @@ namespace SciSubmit.Models.Admin
         public string? RejectionReason { get; set; }
     }
 }
+

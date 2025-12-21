@@ -13,3 +13,4 @@ namespace SciSubmit.Models.Admin
         public DateTime? ConferenceDate { get; set; }
     }
 }
+

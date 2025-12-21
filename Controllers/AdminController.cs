@@ -93,7 +93,7 @@ namespace SciSubmit.Controllers
             {
                 TempData["ErrorMessage"] = "Không thể chấp nhận tóm tắt. Vui lòng kiểm tra lại trạng thái bài nộp.";
             }
-            return RedirectToAction(nameof(Submissions));
+            return RedirectToAction(nameof(SubmissionDetails), new { id });
         }
 
         [HttpPost]
@@ -117,7 +117,7 @@ namespace SciSubmit.Controllers
             {
                 TempData["ErrorMessage"] = "Không thể từ chối tóm tắt. Vui lòng kiểm tra lại trạng thái bài nộp.";
             }
-            return RedirectToAction(nameof(Submissions));
+            return RedirectToAction(nameof(SubmissionDetails), new { id });
         }
 
         public async Task<IActionResult> Assignments(AssignmentFilterViewModel? filter)
@@ -168,17 +168,59 @@ namespace SciSubmit.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignReviewer(int submissionId, int reviewerId, DateTime deadline)
         {
+            // Validate inputs
+            if (submissionId <= 0 || reviewerId <= 0)
+            {
+                TempData["ErrorMessage"] = "Vui lòng chọn bài báo và reviewer.";
+                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+            }
+
+            if (deadline == default(DateTime))
+            {
+                TempData["ErrorMessage"] = "Vui lòng chọn deadline.";
+                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+            }
+
+            // Convert local time to UTC if needed (datetime-local sends as Unspecified)
+            TimeZoneInfo localTimeZone = TimeZoneInfo.Local;
+            DateTime utcDeadline;
+            if (deadline.Kind == DateTimeKind.Unspecified)
+            {
+                // Treat as local time and convert to UTC
+                utcDeadline = TimeZoneInfo.ConvertTimeToUtc(deadline, localTimeZone);
+            }
+            else if (deadline.Kind == DateTimeKind.Local)
+            {
+                utcDeadline = deadline.ToUniversalTime();
+            }
+            else if (deadline.Kind == DateTimeKind.Utc)
+            {
+                utcDeadline = deadline;
+            }
+            else
+            {
+                // Fallback: treat as local
+                utcDeadline = TimeZoneInfo.ConvertTimeToUtc(deadline, localTimeZone);
+            }
+
+            // Validate deadline is in the future
+            if (utcDeadline <= DateTime.UtcNow)
+            {
+                TempData["ErrorMessage"] = "Deadline phải trong tương lai.";
+                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+            }
+
             // TODO: Get adminId from current user
             var adminId = 1; // Placeholder
             
-            var result = await _adminService.AssignReviewerAsync(submissionId, reviewerId, deadline, adminId);
+            var result = await _adminService.AssignReviewerAsync(submissionId, reviewerId, utcDeadline, adminId);
             if (result)
             {
                 TempData["SuccessMessage"] = "Đã phân công phản biện thành công!";
             }
             else
             {
-                TempData["ErrorMessage"] = "Không thể phân công phản biện. Vui lòng kiểm tra lại.";
+                TempData["ErrorMessage"] = "Không thể phân công phản biện. Vui lòng kiểm tra lại (có thể reviewer đã được phân công rồi hoặc submission/reviewer không hợp lệ).";
             }
             return RedirectToAction(nameof(Assignments));
         }
@@ -265,10 +307,128 @@ namespace SciSubmit.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateConferencePlan(Models.Admin.ConferencePlanViewModel model)
         {
-            if (!ModelState.IsValid)
+            // Validate required fields
+            if (model.AbstractSubmissionOpenDate == default(DateTime) || model.AbstractSubmissionDeadline == default(DateTime))
             {
-                TempData["ErrorMessage"] = "Dữ liệu không hợp lệ.";
+                TempData["ErrorMessage"] = "Vui lòng nhập đầy đủ ngày mở và deadline nộp tóm tắt.";
                 return RedirectToAction(nameof(Conference));
+            }
+
+            // Convert local datetime to UTC for storage
+            // datetime-local sends as Unspecified, treat as local time
+            // Use TimeZoneInfo to properly convert
+            TimeZoneInfo localTimeZone = TimeZoneInfo.Local;
+            
+            DateTime abstractOpen = model.AbstractSubmissionOpenDate;
+            if (abstractOpen.Kind == DateTimeKind.Unspecified)
+            {
+                // Treat as local time and convert to UTC
+                abstractOpen = TimeZoneInfo.ConvertTimeToUtc(abstractOpen, localTimeZone);
+            }
+            else if (abstractOpen.Kind == DateTimeKind.Local)
+            {
+                abstractOpen = abstractOpen.ToUniversalTime();
+            }
+            // If already UTC, keep as is
+
+            DateTime abstractDeadline = model.AbstractSubmissionDeadline;
+            if (abstractDeadline.Kind == DateTimeKind.Unspecified)
+            {
+                abstractDeadline = TimeZoneInfo.ConvertTimeToUtc(abstractDeadline, localTimeZone);
+            }
+            else if (abstractDeadline.Kind == DateTimeKind.Local)
+            {
+                abstractDeadline = abstractDeadline.ToUniversalTime();
+            }
+
+            model.AbstractSubmissionOpenDate = abstractOpen;
+            model.AbstractSubmissionDeadline = abstractDeadline;
+
+            // Handle nullable dates
+            if (model.FullPaperSubmissionOpenDate.HasValue && model.FullPaperSubmissionOpenDate.Value != default(DateTime))
+            {
+                var date = model.FullPaperSubmissionOpenDate.Value;
+                if (date.Kind == DateTimeKind.Unspecified)
+                {
+                    model.FullPaperSubmissionOpenDate = TimeZoneInfo.ConvertTimeToUtc(date, localTimeZone);
+                }
+                else if (date.Kind == DateTimeKind.Local)
+                {
+                    model.FullPaperSubmissionOpenDate = date.ToUniversalTime();
+                }
+                // If already UTC, keep as is
+            }
+            else
+            {
+                model.FullPaperSubmissionOpenDate = null;
+            }
+
+            if (model.FullPaperSubmissionDeadline.HasValue && model.FullPaperSubmissionDeadline.Value != default(DateTime))
+            {
+                var date = model.FullPaperSubmissionDeadline.Value;
+                if (date.Kind == DateTimeKind.Unspecified)
+                {
+                    model.FullPaperSubmissionDeadline = TimeZoneInfo.ConvertTimeToUtc(date, localTimeZone);
+                }
+                else if (date.Kind == DateTimeKind.Local)
+                {
+                    model.FullPaperSubmissionDeadline = date.ToUniversalTime();
+                }
+            }
+            else
+            {
+                model.FullPaperSubmissionDeadline = null;
+            }
+
+            if (model.ReviewDeadline.HasValue && model.ReviewDeadline.Value != default(DateTime))
+            {
+                var date = model.ReviewDeadline.Value;
+                if (date.Kind == DateTimeKind.Unspecified)
+                {
+                    model.ReviewDeadline = TimeZoneInfo.ConvertTimeToUtc(date, localTimeZone);
+                }
+                else if (date.Kind == DateTimeKind.Local)
+                {
+                    model.ReviewDeadline = date.ToUniversalTime();
+                }
+            }
+            else
+            {
+                model.ReviewDeadline = null;
+            }
+
+            if (model.ResultAnnouncementDate.HasValue && model.ResultAnnouncementDate.Value != default(DateTime))
+            {
+                var date = model.ResultAnnouncementDate.Value;
+                if (date.Kind == DateTimeKind.Unspecified)
+                {
+                    model.ResultAnnouncementDate = TimeZoneInfo.ConvertTimeToUtc(date, localTimeZone);
+                }
+                else if (date.Kind == DateTimeKind.Local)
+                {
+                    model.ResultAnnouncementDate = date.ToUniversalTime();
+                }
+            }
+            else
+            {
+                model.ResultAnnouncementDate = null;
+            }
+
+            if (model.ConferenceDate.HasValue && model.ConferenceDate.Value != default(DateTime))
+            {
+                var date = model.ConferenceDate.Value;
+                if (date.Kind == DateTimeKind.Unspecified)
+                {
+                    model.ConferenceDate = TimeZoneInfo.ConvertTimeToUtc(date, localTimeZone);
+                }
+                else if (date.Kind == DateTimeKind.Local)
+                {
+                    model.ConferenceDate = date.ToUniversalTime();
+                }
+            }
+            else
+            {
+                model.ConferenceDate = null;
             }
 
             var result = await _adminService.UpdateConferencePlanAsync(model);
@@ -332,12 +492,12 @@ namespace SciSubmit.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [IgnoreAntiforgeryToken] // JSON requests - token is validated manually if needed
         public async Task<IActionResult> CreateTopic([FromBody] TopicViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (model == null || string.IsNullOrWhiteSpace(model.Name))
             {
-                return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
+                return Json(new { success = false, message = "Vui lòng nhập tên lĩnh vực." });
             }
 
             var result = await _adminService.CreateTopicAsync(model);
@@ -345,16 +505,21 @@ namespace SciSubmit.Controllers
             {
                 return Json(new { success = true, message = "Đã thêm lĩnh vực thành công!" });
             }
-            return Json(new { success = false, message = "Không thể thêm lĩnh vực." });
+            return Json(new { success = false, message = "Không thể thêm lĩnh vực. Có thể lĩnh vực đã tồn tại." });
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [IgnoreAntiforgeryToken] // JSON requests - token is validated manually if needed
         public async Task<IActionResult> UpdateTopic(int id, [FromBody] TopicViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (model == null || string.IsNullOrWhiteSpace(model.Name))
             {
-                return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
+                return Json(new { success = false, message = "Vui lòng nhập tên lĩnh vực." });
+            }
+
+            if (id <= 0)
+            {
+                return Json(new { success = false, message = "ID lĩnh vực không hợp lệ." });
             }
 
             var result = await _adminService.UpdateTopicAsync(id, model);
@@ -362,13 +527,18 @@ namespace SciSubmit.Controllers
             {
                 return Json(new { success = true, message = "Đã cập nhật lĩnh vực thành công!" });
             }
-            return Json(new { success = false, message = "Không thể cập nhật lĩnh vực." });
+            return Json(new { success = false, message = "Không thể cập nhật lĩnh vực. Vui lòng kiểm tra lại." });
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [IgnoreAntiforgeryToken] // JSON requests - token is validated manually if needed
         public async Task<IActionResult> DeleteTopic([FromBody] DeleteTopicRequest request)
         {
+            if (request == null || request.Id <= 0)
+            {
+                return Json(new { success = false, message = "ID lĩnh vực không hợp lệ." });
+            }
+
             var result = await _adminService.DeleteTopicAsync(request.Id);
             if (result)
             {
@@ -388,7 +558,7 @@ namespace SciSubmit.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [IgnoreAntiforgeryToken] // JSON requests
         public async Task<IActionResult> CreateKeyword([FromBody] CreateKeywordRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Name))
@@ -408,7 +578,7 @@ namespace SciSubmit.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [IgnoreAntiforgeryToken] // JSON requests
         public async Task<IActionResult> ApproveKeyword([FromBody] KeywordActionRequest request)
         {
             // TODO: Get adminId from current user
@@ -423,7 +593,7 @@ namespace SciSubmit.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [IgnoreAntiforgeryToken] // JSON requests
         public async Task<IActionResult> RejectKeyword([FromBody] KeywordActionRequest request)
         {
             // TODO: Get adminId from current user
@@ -438,7 +608,7 @@ namespace SciSubmit.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [IgnoreAntiforgeryToken] // JSON requests
         public async Task<IActionResult> DeleteKeyword([FromBody] KeywordActionRequest request)
         {
             var result = await _adminService.DeleteKeywordAsync(request.KeywordId);

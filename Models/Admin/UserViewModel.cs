@@ -13,3 +13,4 @@ namespace SciSubmit.Models.Admin
         public int ReviewAssignmentCount { get; set; }
     }
 }
+

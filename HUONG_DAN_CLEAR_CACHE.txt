@@ -1,0 +1,91 @@
+═══════════════════════════════════════════════════════════════
+  HƯỚNG DẪN SỬA DASHBOARD KHÔNG HIỂN THỊ GRID MỚI
+═══════════════════════════════════════════════════════════════
+
+VẤN ĐỀ: Dashboard vẫn hiển thị layout cũ (4 nút) thay vì grid 3x3
+
+GIẢI PHÁP NHANH NHẤT:
+───────────────────────────────────────────────────────────────
+
+CÁCH 1: Dùng Script PowerShell (Khuyến nghị)
+───────────────────────────────────────────────────────────────
+1. Mở PowerShell trong thư mục e:\SciSubmit
+2. Chạy lệnh:
+   .\clear-cache-and-rebuild.ps1
+
+3. Sau khi script chạy xong:
+   - Start lại ứng dụng
+   - Mở browser → Nhấn Ctrl + F5 (hard refresh)
+   - Hoặc mở cửa sổ ẩn danh (Ctrl + Shift + N)
+
+───────────────────────────────────────────────────────────────
+
+CÁCH 2: Làm thủ công
+───────────────────────────────────────────────────────────────
+1. Stop ứng dụng (nếu đang chạy)
+
+2. Xóa cache:
+   - Xóa folder "bin"
+   - Xóa folder "obj"
+
+3. Rebuild:
+   - Mở Visual Studio
+   - Build → Rebuild Solution
+   - Hoặc chạy: dotnet clean && dotnet build
+
+4. Start lại ứng dụng
+
+5. Clear browser cache:
+   - Nhấn Ctrl + Shift + Delete
+   - Chọn "Cached images and files"
+   - Click "Clear data"
+   
+   HOẶC
+   
+   - Nhấn Ctrl + F5 (hard refresh)
+   - Hoặc mở cửa sổ ẩn danh
+
+───────────────────────────────────────────────────────────────
+
+CÁCH 3: Kiểm tra file có được lưu chưa
+───────────────────────────────────────────────────────────────
+1. Mở file: Views\Admin\Dashboard.cshtml
+
+2. Tìm dòng 158, phải có:
+   <!-- All Admin Functions Grid -->
+
+3. Nếu KHÔNG CÓ → File chưa được lưu
+   → Save lại file (Ctrl + S)
+
+4. Nếu CÓ → Vấn đề là cache
+   → Làm theo CÁCH 1 hoặc CÁCH 2
+
+───────────────────────────────────────────────────────────────
+
+KIỂM TRA SAU KHI SỬA:
+───────────────────────────────────────────────────────────────
+1. Vào /Admin/Dashboard
+2. Scroll xuống dưới
+3. Phải thấy section "Tất cả chức năng quản trị" với:
+   - Header màu tím gradient
+   - Grid 3x3 với 9 cards
+   - Mỗi card có icon và tên chức năng
+
+───────────────────────────────────────────────────────────────
+
+NẾU VẪN KHÔNG ĐƯỢC:
+───────────────────────────────────────────────────────────────
+1. Mở Developer Tools (F12)
+2. Vào tab Network
+3. Reload trang
+4. Tìm request đến /Admin/Dashboard
+5. Click vào → Xem Response
+6. Tìm text "Tất cả chức năng quản trị"
+   
+   - Nếu CÓ trong Response → Browser cache
+     → Clear cache hoàn toàn
+   
+   - Nếu KHÔNG CÓ trong Response → View chưa render
+     → Kiểm tra lại file Dashboard.cshtml
+
+═══════════════════════════════════════════════════════════════

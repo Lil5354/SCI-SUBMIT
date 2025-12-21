@@ -21,6 +21,7 @@ namespace SciSubmit.Models.Admin
         public bool CanApproveAbstract { get; set; }
         public bool CanRejectAbstract { get; set; }
         public bool CanAssignReviewer { get; set; }
+        public bool CanMakeFinalDecision { get; set; }
     }
 
     public class AuthorInfoViewModel
@@ -42,3 +43,4 @@ namespace SciSubmit.Models.Admin
         public bool IsCurrentVersion { get; set; }
     }
 }
+

@@ -11,3 +11,4 @@ namespace SciSubmit.Models.Admin
         public decimal AverageCompletionTime { get; set; } // in days
     }
 }
+

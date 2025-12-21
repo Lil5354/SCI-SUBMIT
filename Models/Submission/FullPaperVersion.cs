@@ -40,3 +40,4 @@ namespace SciSubmit.Models.Submission
         public virtual Models.Identity.User Uploader { get; set; } = null!;
     }
 }
+

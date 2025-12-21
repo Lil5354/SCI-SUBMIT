@@ -6,6 +6,22 @@
 @Html.AntiForgeryToken()
 
 <div class="container-fluid my-4">
+    <!-- TempData Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <!-- Header -->
     <div class="mb-4">
         <div class="d-flex justify-content-between align-items-center">
@@ -35,7 +51,7 @@
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <h5 class="mb-0">@topic.Name</h5>
                                 <div class="btn-group">
-                                    <button class="btn btn-sm btn-outline-warning" onclick="editField(@topic.Id, '@topic.Name', '@(topic.Description ?? "")', @topic.OrderIndex, @topic.IsActive.ToString().ToLower())" title="Chỉnh sửa">
+                                    <button class="btn btn-sm btn-outline-warning" onclick="editField(@topic.Id, @Html.Raw(Json.Serialize(topic.Name)), @Html.Raw(Json.Serialize(topic.Description ?? "")), @topic.OrderIndex, @topic.IsActive.ToString().ToLower())" title="Chỉnh sửa">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button class="btn btn-sm btn-outline-danger" onclick="deleteField(@topic.Id)" title="Xóa">
@@ -112,6 +128,10 @@
 
 @section Scripts {
     <script>
+        function getToken() {
+            return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        }
+
         function showAddFieldModal() {
             document.getElementById('fieldModalTitle').textContent = 'Thêm lĩnh vực mới';
             document.getElementById('fieldForm').reset();
@@ -123,22 +143,29 @@
         function editField(id, name, description, orderIndex, isActive) {
             document.getElementById('fieldModalTitle').textContent = 'Chỉnh sửa lĩnh vực';
             document.getElementById('fieldId').value = id;
-            document.getElementById('fieldName').value = name;
+            // No need to escape, just use the value directly
+            document.getElementById('fieldName').value = name || '';
             document.getElementById('fieldDescription').value = description || '';
             document.getElementById('fieldOrderIndex').value = orderIndex;
-            document.getElementById('fieldIsActive').checked = isActive;
+            document.getElementById('fieldIsActive').checked = isActive === 'true' || isActive === true;
             new bootstrap.Modal(document.getElementById('fieldModal')).show();
         }
 
         function deleteField(id) {
             if (confirm('Bạn có chắc chắn muốn xóa lĩnh vực này không?')) {
+                const token = getToken();
+                if (!token) {
+                    alert('Không tìm thấy token xác thực. Vui lòng tải lại trang.');
+                    return;
+                }
+
                 fetch('@Url.Action("DeleteTopic", "Admin")', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'RequestVerificationToken': getToken()
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify({ Id: id })
+                    body: JSON.stringify({ Id: id, __RequestVerificationToken: token })
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -176,27 +203,44 @@
                 ? '@Url.Action("UpdateTopic", "Admin")?id=' + data.Id
                 : '@Url.Action("CreateTopic", "Admin")';
 
+            const token = getToken();
+            if (!token) {
+                alert('Không tìm thấy token xác thực. Vui lòng tải lại trang.');
+                return;
+            }
+
+            // Include token in body for JSON requests
+            data.__RequestVerificationToken = token;
+            
             fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'RequestVerificationToken': getToken()
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(result => {
                 if (result.success) {
                     alert(result.message);
-                    bootstrap.Modal.getInstance(document.getElementById('fieldModal')).hide();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('fieldModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
                     location.reload();
                 } else {
-                    alert(result.message);
+                    alert(result.message || 'Có lỗi xảy ra khi lưu lĩnh vực.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Có lỗi xảy ra khi lưu lĩnh vực.');
+                alert('Có lỗi xảy ra khi lưu lĩnh vực: ' + error.message);
             });
         }
     </script>

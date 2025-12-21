@@ -8,3 +8,4 @@ namespace SciSubmit.Models.Enums
         Rejected = 3
     }
 }
+
