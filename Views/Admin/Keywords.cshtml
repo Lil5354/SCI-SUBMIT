@@ -1,6 +1,13 @@
+@model SciSubmit.Models.Admin.PagedList<SciSubmit.Models.Admin.KeywordViewModel>
+@using SciSubmit.Models.Enums
 @{
     ViewData["Title"] = "Quản lý từ khóa";
+    var filter = ViewBag.Filter as SciSubmit.Models.Admin.KeywordFilterViewModel ?? new SciSubmit.Models.Admin.KeywordFilterViewModel();
+    var approvedKeywords = Model.Items.Where(k => k.Status == KeywordStatus.Approved).ToList();
+    var pendingKeywords = Model.Items.Where(k => k.Status == KeywordStatus.Pending).ToList();
 }
+
+@Html.AntiForgeryToken()
 
 <div class="container-fluid my-4">
     <!-- Header -->
@@ -24,12 +31,12 @@
     <ul class="nav nav-tabs mb-4" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button">
-                <i class="fas fa-check-circle me-2"></i>Đã duyệt (<span id="approvedCount">45</span>)
+                <i class="fas fa-check-circle me-2"></i>Đã duyệt (<span id="approvedCount">@approvedKeywords.Count</span>)
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button">
-                <i class="fas fa-clock me-2"></i>Chờ duyệt (<span id="pendingCount">8</span>)
+                <i class="fas fa-clock me-2"></i>Chờ duyệt (<span id="pendingCount">@pendingKeywords.Count</span>)
             </button>
         </li>
     </ul>
@@ -39,15 +46,25 @@
         <div class="tab-pane fade show active" id="approved" role="tabpanel">
             <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <div class="d-flex flex-wrap gap-2 mb-3">
-                        <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
-                            AI
-                            <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword('AI', 'approved')"></button>
-                        </span>
-                        <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
-                            Machine Learning
-                            <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword('Machine Learning', 'approved')"></button>
-                        </span>
+                    @if (approvedKeywords.Any())
+                    {
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            @foreach (var keyword in approvedKeywords)
+                            {
+                                <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                                    @keyword.Name
+                                    <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword(@keyword.Id, '@keyword.Name')" title="Xóa"></button>
+                                </span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Chưa có từ khóa nào đã duyệt.
+                        </div>
+                    }
                         <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
                             Tài chính
                             <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword('Tài chính', 'approved')"></button>
@@ -98,40 +115,42 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td style="width: 30%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
-                                        <strong style="word-wrap: break-word; overflow-wrap: break-word;">Deep Learning</strong>
-                                    </td>
-                                    <td style="width: 25%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">Nguyễn Văn A</td>
-                                    <td style="width: 20%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">20/01/2025</td>
-                                    <td style="width: 25%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <button class="btn btn-sm btn-success" onclick="approveKeyword('Deep Learning', 1)" title="Duyệt">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" onclick="rejectKeyword(1)" title="Từ chối">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="width: 30%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
-                                        <strong style="word-wrap: break-word; overflow-wrap: break-word;">FinTech</strong>
-                                    </td>
-                                    <td style="width: 25%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">Trần Thị B</td>
-                                    <td style="width: 20%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">18/01/2025</td>
-                                    <td style="width: 25%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <button class="btn btn-sm btn-success" onclick="approveKeyword('FinTech', 2)" title="Duyệt">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" onclick="rejectKeyword(2)" title="Từ chối">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                @if (pendingKeywords.Any())
+                                {
+                                    @foreach (var keyword in pendingKeywords)
+                                    {
+                                        <tr>
+                                            <td style="width: 30%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                                <strong style="word-wrap: break-word; overflow-wrap: break-word;">@keyword.Name</strong>
+                                            </td>
+                                            <td style="width: 25%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                                @(keyword.CreatedByName ?? "N/A")
+                                            </td>
+                                            <td style="width: 20%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">
+                                                @keyword.CreatedAt.ToString("dd/MM/yyyy")
+                                            </td>
+                                            <td style="width: 25%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                                <div class="d-flex justify-content-center gap-1">
+                                                    <button class="btn btn-sm btn-success" onclick="approveKeyword(@keyword.Id, '@keyword.Name')" title="Duyệt">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" onclick="rejectKeyword(@keyword.Id, '@keyword.Name')" title="Từ chối">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4">
+                                            <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                                            <p class="text-muted mb-0">Chưa có từ khóa nào chờ duyệt</p>
+                                        </td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -173,32 +192,117 @@
             new bootstrap.Modal(document.getElementById('keywordModal')).show();
         }
 
-        function approveKeyword(keyword, id) {
-            if (confirm(`Duyệt từ khóa "${keyword}"?`)) {
-                // TODO: Implement approve
-                alert('Đã duyệt từ khóa thành công!');
-                // Remove from pending, add to approved
+        function getToken() {
+            return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        }
+
+        function approveKeyword(id, name) {
+            if (confirm(`Duyệt từ khóa "${name}"?`)) {
+                fetch('@Url.Action("ApproveKeyword", "Admin")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getToken()
+                    },
+                    body: JSON.stringify({ KeywordId: id })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi duyệt từ khóa.');
+                });
             }
         }
 
-        function rejectKeyword(id) {
-            if (confirm('Từ chối từ khóa này?')) {
-                // TODO: Implement reject
-                alert('Đã từ chối từ khóa!');
+        function rejectKeyword(id, name) {
+            if (confirm(`Từ chối từ khóa "${name}"?`)) {
+                fetch('@Url.Action("RejectKeyword", "Admin")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getToken()
+                    },
+                    body: JSON.stringify({ KeywordId: id })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi từ chối từ khóa.');
+                });
             }
         }
 
-        function deleteKeyword(keyword, status) {
-            if (confirm(`Xóa từ khóa "${keyword}"?`)) {
-                // TODO: Implement delete
-                alert('Đã xóa từ khóa thành công!');
+        function deleteKeyword(id, name) {
+            if (confirm(`Xóa từ khóa "${name}"?`)) {
+                fetch('@Url.Action("DeleteKeyword", "Admin")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getToken()
+                    },
+                    body: JSON.stringify({ KeywordId: id })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi xóa từ khóa.');
+                });
             }
         }
 
         function saveKeyword() {
-            // TODO: Implement save
-            alert('Đã thêm từ khóa thành công!');
-            bootstrap.Modal.getInstance(document.getElementById('keywordModal')).hide();
+            const keywordName = document.querySelector('#keywordForm input[name="Keyword"]').value;
+            if (!keywordName) {
+                alert('Vui lòng nhập tên từ khóa.');
+                return;
+            }
+
+            fetch('@Url.Action("CreateKeyword", "Admin")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getToken()
+                },
+                body: JSON.stringify({ name: keywordName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    bootstrap.Modal.getInstance(document.getElementById('keywordModal')).hide();
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi thêm từ khóa.');
+            });
         }
     </script>
 }

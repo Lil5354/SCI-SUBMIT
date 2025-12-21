@@ -1,0 +1,118 @@
+@model int
+@{
+    ViewData["Title"] = "Phân công phản biện";
+    var availableReviewers = ViewBag.AvailableReviewers as List<SciSubmit.Models.Admin.ReviewerViewModel> ?? new List<SciSubmit.Models.Admin.ReviewerViewModel>();
+    var submission = ViewBag.Submission as SciSubmit.Models.Submission.Submission;
+}
+
+<div class="container-fluid my-4">
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="text-gradient mb-2">
+                    <i class="fas fa-user-tie me-2"></i>Phân công phản biện
+                </h2>
+                <p class="text-muted mb-0">Chọn Reviewer cho bài báo: <strong>@submission?.Title</strong></p>
+            </div>
+            <div>
+                <a href="@Url.Action("SubmissionDetails", new { id = Model })" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Danh sách Reviewer gợi ý</h5>
+                </div>
+                <div class="card-body">
+                    @if (availableReviewers.Any())
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-robot me-2"></i>
+                            <strong>Gợi ý dựa trên từ khóa:</strong> Các Reviewer được sắp xếp theo độ phù hợp với bài báo.
+                        </div>
+
+                        <form method="post" action="@Url.Action("AssignReviewer")">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="submissionId" value="@Model" />
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Chọn Reviewer <span class="text-danger">*</span></label>
+                                <select name="reviewerId" class="form-select" required>
+                                    <option value="">-- Chọn Reviewer --</option>
+                                    @foreach (var reviewer in availableReviewers)
+                                    {
+                                        <option value="@reviewer.Id">
+                                            @reviewer.FullName (@reviewer.MatchScore% phù hợp) - @reviewer.Email
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Deadline phản biện <span class="text-danger">*</span></label>
+                                <input type="datetime-local" name="deadline" class="form-control" required />
+                                <small class="text-muted">Chọn thời hạn để Reviewer hoàn thành phản biện</small>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="@Url.Action("SubmissionDetails", new { id = Model })" class="btn btn-secondary">Hủy</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i>Phân công
+                                </button>
+                            </div>
+                        </form>
+
+                        <hr class="my-4">
+
+                        <h6 class="mb-3">Chi tiết Reviewer:</h6>
+                        @foreach (var reviewer in availableReviewers.Take(5))
+                        {
+                            <div class="card mb-2 @(reviewer.MatchScore >= 50 ? "border-primary" : "")">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">@reviewer.FullName</h6>
+                                            <p class="text-muted mb-1 small">@reviewer.Email</p>
+                                            @if (!string.IsNullOrEmpty(reviewer.Affiliation))
+                                            {
+                                                <p class="text-muted mb-1 small">@reviewer.Affiliation</p>
+                                            }
+                                            @if (reviewer.Keywords.Any())
+                                            {
+                                                <div class="mt-2">
+                                                    @foreach (var keyword in reviewer.Keywords.Take(5))
+                                                    {
+                                                        <span class="badge bg-secondary me-1">@keyword</span>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge @(reviewer.MatchScore >= 50 ? "bg-success" : "bg-warning")">
+                                                @reviewer.MatchScore% phù hợp
+                                            </span>
+                                            <br>
+                                            <small class="text-muted">@reviewer.ActiveAssignments assignments đang active</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Không tìm thấy Reviewer nào phù hợp. Vui lòng thêm keywords cho Reviewer hoặc chọn Reviewer thủ công.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

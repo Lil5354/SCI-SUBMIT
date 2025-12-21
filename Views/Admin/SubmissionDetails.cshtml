@@ -1,6 +1,6 @@
+@model SciSubmit.Models.Admin.SubmissionDetailsViewModel
 @{
     ViewData["Title"] = "Chi tiết bài nộp - Admin";
-    var submissionId = ViewData["SubmissionId"] ?? 0;
 }
 
 <div class="container-fluid my-4">
@@ -14,7 +14,7 @@
                 <p class="text-muted mb-0">Xem và quản lý bài báo</p>
             </div>
             <div>
-                <a href="/Admin/Submissions" class="btn btn-outline-secondary">
+                <a href="@Url.Action("Submissions")" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Quay lại
                 </a>
             </div>
@@ -32,45 +32,78 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label fw-semibold text-muted">Tiêu đề</label>
-                        <h5 class="mb-0">Nghiên cứu về ứng dụng AI trong quản lý tài chính</h5>
+                        <h5 class="mb-0">@Model.Title</h5>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold text-muted">Tóm tắt (Abstract)</label>
-                        <p class="mb-0">Đây là tóm tắt bài báo về nghiên cứu ứng dụng AI trong quản lý tài chính...</p>
+                        <p class="mb-0">@Model.Abstract</p>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-muted">Chủ đề</label>
-                            <p class="mb-0"><span class="badge bg-info">Tài chính & Kế toán</span></p>
+                            <div>
+                                @foreach (var topic in Model.Topics)
+                                {
+                                    <span class="badge bg-info me-1">@topic</span>
+                                }
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-muted">Từ khóa</label>
                             <div>
-                                <span class="badge bg-primary me-1">AI</span>
-                                <span class="badge bg-primary me-1">Machine Learning</span>
-                                <span class="badge bg-primary me-1">Tài chính</span>
+                                @foreach (var keyword in Model.Keywords)
+                                {
+                                    <span class="badge bg-primary me-1">@keyword</span>
+                                }
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold text-muted">Tác giả</label>
-                        <ul class="list-unstyled mb-0">
-                            <li class="mb-2">
-                                <strong>Nguyễn Văn A</strong>
-                                <span class="badge bg-success ms-2">Tác giả chính</span>
+                        <label class="form-label fw-semibold text-muted">Tác giả chính</label>
+                        <p class="mb-0">
+                            <strong>@Model.AuthorName</strong>
+                            @if (!string.IsNullOrEmpty(Model.AuthorEmail))
+                            {
                                 <br>
-                                <small class="text-muted ms-4">nguyenvana@example.com | Đại học ABC</small>
-                            </li>
-                            <li>
-                                <strong>Trần Thị B</strong>
+                                <small class="text-muted">@Model.AuthorEmail</small>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.AuthorAffiliation))
+                            {
                                 <br>
-                                <small class="text-muted ms-4">tranthib@example.com | Đại học XYZ</small>
-                            </li>
-                        </ul>
+                                <small class="text-muted">@Model.AuthorAffiliation</small>
+                            }
+                        </p>
                     </div>
+
+                    @if (Model.CoAuthors.Any())
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted">Đồng tác giả</label>
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var author in Model.CoAuthors)
+                                {
+                                    <li class="mb-2">
+                                        <strong>@author.FullName</strong>
+                                        @if (author.IsCorrespondingAuthor)
+                                        {
+                                            <span class="badge bg-success ms-2">Tác giả chính</span>
+                                        }
+                                        <br>
+                                        <small class="text-muted ms-4">
+                                            @author.Email
+                                            @if (!string.IsNullOrEmpty(author.Affiliation))
+                                            {
+                                                <text> | @author.Affiliation</text>
+                                            }
+                                        </small>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
                 </div>
             </div>
 
@@ -80,23 +113,71 @@
                     <h5 class="mb-0"><i class="fas fa-file me-2"></i>File đã upload</h5>
                 </div>
                 <div class="card-body">
-                    <div class="list-group">
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="fas fa-file-pdf text-danger me-2"></i>
-                                    <strong>abstract_v1.pdf</strong>
-                                    <br>
-                                    <small class="text-muted">Upload lúc: 15/01/2025 10:30</small>
+                    @if (!string.IsNullOrEmpty(Model.AbstractFileUrl))
+                    {
+                        <div class="list-group mb-3">
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-file-pdf text-danger me-2"></i>
+                                        <strong>Abstract File</strong>
+                                        <br>
+                                        @if (Model.AbstractSubmittedAt.HasValue)
+                                        {
+                                            <small class="text-muted">Nộp lúc: @Model.AbstractSubmittedAt.Value.ToString("dd/MM/yyyy HH:mm")</small>
+                                        }
+                                    </div>
+                                    <a href="@Model.AbstractFileUrl" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="fas fa-download me-1"></i>Tải xuống
+                                    </a>
                                 </div>
-                                <a href="#" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-download me-1"></i>Tải xuống
-                                </a>
                             </div>
                         </div>
-                    </div>
+                    }
+
+                    @if (Model.FullPaperVersions.Any())
+                    {
+                        <h6 class="mb-3">Full Paper Versions:</h6>
+                        <div class="list-group">
+                            @foreach (var version in Model.FullPaperVersions)
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="fas fa-file-pdf text-danger me-2"></i>
+                                            <strong>Version @version.VersionNumber @(version.IsCurrentVersion ? "(Current)" : "")</strong>
+                                            <br>
+                                            <small class="text-muted">@version.FileName</small>
+                                            <br>
+                                            <small class="text-muted">Upload lúc: @version.UploadedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                        </div>
+                                        <a href="@version.FileUrl" class="btn btn-sm btn-outline-primary" target="_blank">
+                                            <i class="fas fa-download me-1"></i>Tải xuống
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @if (string.IsNullOrEmpty(Model.AbstractFileUrl) && !Model.FullPaperVersions.Any())
+                    {
+                        <p class="text-muted mb-0">Chưa có file nào được upload</p>
+                    }
                 </div>
             </div>
+
+            @if (!string.IsNullOrEmpty(Model.AbstractRejectionReason))
+            {
+                <div class="card shadow-sm border-0 mb-4 border-danger">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Lý do từ chối</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">@Model.AbstractRejectionReason</p>
+                    </div>
+                </div>
+            }
         </div>
 
         <!-- Sidebar Actions -->
@@ -107,7 +188,25 @@
                     <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Trạng thái</h6>
                 </div>
                 <div class="card-body text-center">
-                    <span class="badge bg-warning fs-6 px-4 py-2">Chờ duyệt tóm tắt</span>
+                    @{
+                        var statusBadgeClass = Model.Status switch
+                        {
+                            "PendingAbstractReview" => "bg-warning",
+                            "AbstractApproved" => "bg-success",
+                            "AbstractRejected" => "bg-danger",
+                            "UnderReview" => "bg-info",
+                            "Accepted" => "bg-success",
+                            "Rejected" => "bg-danger",
+                            _ => "bg-secondary"
+                        };
+                    }
+                    <span class="badge @statusBadgeClass fs-6 px-4 py-2">@Model.Status</span>
+                    @if (Model.AbstractReviewedAt.HasValue)
+                    {
+                        <p class="text-muted mt-2 mb-0">
+                            <small>Duyệt lúc: @Model.AbstractReviewedAt.Value.ToString("dd/MM/yyyy HH:mm")</small>
+                        </p>
+                    }
                 </div>
             </div>
 
@@ -118,15 +217,29 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="/Admin/ReviewSubmission/@submissionId" class="btn btn-success">
-                            <i class="fas fa-check me-2"></i>Duyệt tóm tắt
-                        </a>
-                        <a href="/Admin/Assignments" class="btn btn-outline-primary">
-                            <i class="fas fa-user-tie me-2"></i>Phân công phản biện
-                        </a>
-                        <button class="btn btn-outline-danger" onclick="withdrawSubmission()">
-                            <i class="fas fa-times me-2"></i>Rút bài
-                        </button>
+                        @if (Model.CanApproveAbstract)
+                        {
+                            <form method="post" action="@Url.Action("ApproveAbstract", new { id = Model.Id })" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-success w-100" onclick="return confirm('Bạn có chắc chắn muốn chấp nhận tóm tắt này?');">
+                                    <i class="fas fa-check me-2"></i>Duyệt tóm tắt
+                                </button>
+                            </form>
+                        }
+
+                        @if (Model.CanRejectAbstract)
+                        {
+                            <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                <i class="fas fa-times me-2"></i>Từ chối tóm tắt
+                            </button>
+                        }
+
+                        @if (Model.CanAssignReviewer)
+                        {
+                            <a href="@Url.Action("AssignReviewer", new { submissionId = Model.Id })" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-user-tie me-2"></i>Phân công phản biện
+                            </a>
+                        }
                     </div>
                 </div>
             </div>
@@ -134,12 +247,30 @@
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        function withdrawSubmission() {
-            if (confirm('Bạn có chắc chắn muốn rút bài nộp này không?')) {
-                // TODO: Implement
-            }
-        }
-    </script>
+<!-- Reject Modal -->
+@if (Model.CanRejectAbstract)
+{
+    <div class="modal fade" id="rejectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="@Url.Action("RejectAbstract", new { id = Model.Id })">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-header">
+                        <h5 class="modal-title">Từ chối tóm tắt</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Lý do từ chối <span class="text-danger">*</span></label>
+                            <textarea name="reason" class="form-control" rows="4" required placeholder="Nhập lý do từ chối..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-danger">Xác nhận từ chối</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 }

@@ -1,6 +1,6 @@
+@model SciSubmit.Models.Admin.FinalDecisionViewModel
 @{
     ViewData["Title"] = "Ra quyết định cuối cùng";
-    var submissionId = ViewData["SubmissionId"] ?? 0;
 }
 
 <div class="container-fluid my-4">
@@ -20,13 +20,16 @@
                     <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Thông tin bài báo</h5>
                 </div>
                 <div class="card-body">
-                    <h5 class="mb-3">Nghiên cứu về ứng dụng AI trong quản lý tài chính</h5>
+                    <h5 class="mb-3">@Model.SubmissionTitle</h5>
                     <div class="row">
                         <div class="col-md-6">
-                            <span class="badge bg-info">Tài chính & Kế toán</span>
+                            @foreach (var topic in Model.Topics)
+                            {
+                                <span class="badge bg-info me-1">@topic</span>
+                            }
                         </div>
                         <div class="col-md-6 text-end">
-                            <small class="text-muted">Mã bài: #@submissionId</small>
+                            <small class="text-muted">Mã bài: #@Model.SubmissionId</small>
                         </div>
                     </div>
                 </div>
@@ -41,45 +44,45 @@
                     <!-- Average Score -->
                     <div class="text-center mb-4 p-4 bg-light rounded">
                         <h6 class="text-muted mb-2">Điểm trung bình</h6>
-                        <h2 class="text-primary mb-0">4.5 / 5.0</h2>
-                        <small class="text-muted">Từ 2 phản biện</small>
+                        <h2 class="text-primary mb-0">@Model.AverageScore.ToString("F1") / 5.0</h2>
+                        <small class="text-muted">Từ @Model.CompletedReviews / @Model.TotalReviews phản biện</small>
                     </div>
 
-                    <!-- Review 1 -->
-                    <div class="mb-4 pb-4 border-bottom">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <h6 class="mb-1">Phản biện 1</h6>
-                                <small class="text-muted">GS. Nguyễn Văn X</small>
+                    @if (Model.Reviews.Any())
+                    {
+                        @foreach (var review in Model.Reviews)
+                        {
+                            <div class="mb-4 @(review != Model.Reviews.Last() ? "pb-4 border-bottom" : "")">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h6 class="mb-1">Phản biện @(Model.Reviews.IndexOf(review) + 1)</h6>
+                                        <small class="text-muted">@review.ReviewerName</small>
+                                    </div>
+                                    <span class="badge @(review.Recommendation?.ToLower() == "accept" ? "bg-success" : review.Recommendation?.ToLower().Contains("minor") == true ? "bg-warning" : review.Recommendation?.ToLower().Contains("major") == true ? "bg-warning" : "bg-danger")">
+                                        @review.Recommendation
+                                    </span>
+                                </div>
+                                <div class="mb-2">
+                                    <small class="text-muted">Điểm: </small>
+                                    <span class="badge bg-primary">@review.Score.ToString("F1")/5</span>
+                                    <small class="text-muted ms-2">Ngày nộp: @review.SubmittedAt.ToString("dd/MM/yyyy")</small>
+                                </div>
+                                @if (!string.IsNullOrEmpty(review.CommentsForAuthor))
+                                {
+                                    <div class="bg-light p-3 rounded">
+                                        <p class="mb-0 small">@review.CommentsForAuthor</p>
+                                    </div>
+                                }
                             </div>
-                            <span class="badge bg-success">Chấp nhận</span>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Chưa có phản biện nào hoàn thành.
                         </div>
-                        <div class="mb-2">
-                            <small class="text-muted">Điểm: </small>
-                            <span class="badge bg-primary">4.3/5</span>
-                        </div>
-                        <div class="bg-light p-3 rounded">
-                            <p class="mb-0 small">Bài báo có chất lượng tốt, phương pháp nghiên cứu rõ ràng...</p>
-                        </div>
-                    </div>
-
-                    <!-- Review 2 -->
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <h6 class="mb-1">Phản biện 2</h6>
-                                <small class="text-muted">PGS. Trần Thị Y</small>
-                            </div>
-                            <span class="badge bg-success">Chấp nhận</span>
-                        </div>
-                        <div class="mb-2">
-                            <small class="text-muted">Điểm: </small>
-                            <span class="badge bg-primary">4.7/5</span>
-                        </div>
-                        <div class="bg-light p-3 rounded">
-                            <p class="mb-0 small">Nghiên cứu có đóng góp quan trọng trong lĩnh vực...</p>
-                        </div>
-                    </div>
+                    }
                 </div>
             </div>
 
@@ -90,11 +93,37 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <i class="fas fa-check-circle fa-2x text-success me-3"></i>
+                        @{
+                            var recClass = Model.SystemRecommendation switch
+                            {
+                                "Accept" => "text-success",
+                                "MinorRevision" => "text-warning",
+                                "MajorRevision" => "text-warning",
+                                "Reject" => "text-danger",
+                                _ => "text-info"
+                            };
+                            var recIcon = Model.SystemRecommendation switch
+                            {
+                                "Accept" => "fa-check-circle",
+                                "MinorRevision" => "fa-edit",
+                                "MajorRevision" => "fa-edit",
+                                "Reject" => "fa-times-circle",
+                                _ => "fa-info-circle"
+                            };
+                            var recText = Model.SystemRecommendation switch
+                            {
+                                "Accept" => "Chấp nhận",
+                                "MinorRevision" => "Chỉnh sửa nhỏ",
+                                "MajorRevision" => "Chỉnh sửa lớn",
+                                "Reject" => "Từ chối",
+                                _ => "Chưa có"
+                            };
+                        }
+                        <i class="fas @recIcon fa-2x @recClass me-3"></i>
                         <div>
-                            <h5 class="text-success mb-1">Khuyến nghị: Chấp nhận</h5>
+                            <h5 class="@recClass mb-1">Khuyến nghị: @recText</h5>
                             <p class="text-muted mb-0">
-                                Dựa trên điểm trung bình 4.5/5 và cả 2 phản biện đều khuyến nghị chấp nhận
+                                Dựa trên điểm trung bình @Model.AverageScore.ToString("F1")/5 và @Model.CompletedReviews phản biện đã hoàn thành
                             </p>
                         </div>
                     </div>
@@ -107,8 +136,16 @@
                     <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>Ra quyết định cuối cùng</h5>
                 </div>
                 <div class="card-body">
+                    @if (!Model.CanMakeDecision)
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Chưa thể ra quyết định. Cần ít nhất 1 phản biện hoàn thành.
+                        </div>
+                    }
+                    
                     <form id="decisionForm" asp-action="MakeFinalDecision" method="post">
-                        <input type="hidden" name="id" value="@submissionId" />
+                        <input type="hidden" name="id" value="@Model.SubmissionId" />
 
                         <div class="mb-4">
                             <label class="form-label fw-semibold">Quyết định <span class="text-danger">*</span></label>
@@ -152,7 +189,7 @@
                             <a href="/Admin/Submissions" class="btn btn-outline-secondary me-2">
                                 <i class="fas fa-times me-2"></i>Hủy
                             </a>
-                            <button type="submit" class="btn btn-primary btn-lg" id="btnSubmit" disabled>
+                            <button type="submit" class="btn btn-primary btn-lg" id="btnSubmit" disabled="@(!Model.CanMakeDecision)">
                                 <i class="fas fa-paper-plane me-2"></i>Xác nhận quyết định
                             </button>
                         </div>

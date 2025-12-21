@@ -1,166 +1,210 @@
+@model SciSubmit.Models.Admin.PagedList<SciSubmit.Models.Admin.ReviewAssignmentViewModel>
 @{
     ViewData["Title"] = "Phân công phản biện";
+    var filter = ViewBag.Filter as SciSubmit.Models.Admin.AssignmentFilterViewModel ?? new SciSubmit.Models.Admin.AssignmentFilterViewModel();
+    var submissions = ViewBag.Submissions as List<dynamic> ?? new List<dynamic>();
+    var statusOptions = ViewBag.StatusOptions as string[] ?? Array.Empty<string>();
 }
 
 <div class="container-fluid my-4">
+    <!-- TempData Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <!-- Header -->
     <div class="mb-4">
-        <h2 class="text-gradient mb-2">
-            <i class="fas fa-user-tie me-2"></i>Phân công phản biện
-        </h2>
-        <p class="text-muted">Gán Reviewer cho các bài báo đã nộp đầy đủ</p>
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="text-gradient mb-2">
+                    <i class="fas fa-user-tie me-2"></i>Phân công phản biện
+                </h2>
+                <p class="text-muted mb-0">Gán Reviewer cho các bài báo đã nộp đầy đủ</p>
+            </div>
+            <div>
+                <a href="@Url.Action("Submissions")" class="btn btn-outline-primary">
+                    <i class="fas fa-list me-2"></i>Quản lý bài nộp
+                </a>
+            </div>
+        </div>
     </div>
 
-    <!-- Assignment Form -->
+    <!-- Filters -->
     <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Phân công mới</h5>
-        </div>
         <div class="card-body">
-            <form id="assignmentForm" asp-action="AssignReviewer" method="post">
+            <form method="get" action="@Url.Action("Assignments")">
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Chọn bài báo <span class="text-danger">*</span></label>
-                        <select name="submissionId" class="form-select" required>
-                            <option value="">-- Chọn bài báo --</option>
-                            <option value="1">Nghiên cứu về ứng dụng AI trong quản lý tài chính</option>
-                            <option value="2">Phân tích xu hướng thương mại điện tử tại Việt Nam</option>
+                    <div class="col-md-4">
+                        <label class="form-label">Trạng thái</label>
+                        <select class="form-select" name="Status">
+                            <option value="">Tất cả</option>
+                            @foreach (var status in statusOptions)
+                            {
+                                <option value="@status" selected="@(filter.Status == status)">@status</option>
+                            }
                         </select>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Deadline phản biện <span class="text-danger">*</span></label>
-                        <input type="datetime-local" name="deadline" class="form-control" required />
+                    <div class="col-md-4">
+                        <label class="form-label">Bài báo</label>
+                        <select class="form-select" name="SubmissionId">
+                            <option value="">Tất cả</option>
+                            @foreach (var sub in submissions)
+                            {
+                                <option value="@sub.Id" selected="@(filter.SubmissionId == sub.Id)">@sub.Title</option>
+                            }
+                        </select>
                     </div>
-                </div>
-
-                <div class="mt-4">
-                    <label class="form-label fw-semibold">Chọn Reviewer <span class="text-danger">*</span></label>
-                    <div class="alert alert-info">
-                        <i class="fas fa-robot me-2"></i>
-                        <strong>AI Gợi ý:</strong> Dựa trên từ khóa của bài báo, hệ thống gợi ý các Reviewer phù hợp:
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-2"></i>Lọc
+                        </button>
                     </div>
-                    <div id="aiSuggestions" class="mb-3">
-                        <div class="card mb-2 border-primary">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1">GS. Nguyễn Văn X</h6>
-                                        <small class="text-muted">Keywords trùng khớp: AI (100%), Machine Learning (95%), Tài chính (90%)</small>
-                                    </div>
-                                    <button type="button" class="btn btn-sm btn-primary" onclick="selectReviewer(1)">
-                                        <i class="fas fa-check me-1"></i>Chọn
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card mb-2">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1">PGS. Trần Thị Y</h6>
-                                        <small class="text-muted">Keywords trùng khớp: AI (85%), Tài chính (80%)</small>
-                                    </div>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectReviewer(2)">
-                                        <i class="fas fa-check me-1"></i>Chọn
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control" placeholder="Tìm kiếm Reviewer..." id="reviewerSearch" />
-                    </div>
-                    <select name="reviewerId" id="reviewerSelect" class="form-select mt-2" required>
-                        <option value="">-- Chọn Reviewer --</option>
-                        <option value="1">GS. Nguyễn Văn X</option>
-                        <option value="2">PGS. Trần Thị Y</option>
-                        <option value="3">TS. Lê Văn Z</option>
-                    </select>
-                </div>
-
-                <div class="mt-4 d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-paper-plane me-2"></i>Phân công phản biện
-                    </button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Current Assignments -->
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-light">
-            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Danh sách phân công</h5>
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Danh sách phân công</h5>
+                <span class="badge bg-primary">@Model.TotalCount phân công</span>
+            </div>
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" style="table-layout: fixed; width: 100%;">
-                    <colgroup>
-                        <col style="width: 30%;">
-                        <col style="width: 20%;">
-                        <col style="width: 15%;">
-                        <col style="width: 15%;">
-                        <col style="width: 20%;">
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th style="width: 30%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Bài báo</th>
-                            <th style="width: 20%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Reviewer</th>
-                            <th style="width: 15%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Trạng thái</th>
-                            <th style="width: 15%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Deadline</th>
-                            <th style="width: 20%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="width: 30%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
-                                <strong style="word-wrap: break-word; overflow-wrap: break-word;">Nghiên cứu về ứng dụng AI...</strong>
-                            </td>
-                            <td style="width: 20%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">GS. Nguyễn Văn X</td>
-                            <td class="text-center" style="width: 15%; min-width: 120px; padding: 12px; box-sizing: border-box; overflow: hidden;">
-                                <span class="badge bg-success">Đã nhận lời</span>
-                            </td>
-                            <td class="text-center" style="width: 15%; min-width: 120px; padding: 12px; box-sizing: border-box; overflow: hidden; white-space: nowrap;">30/01/2025</td>
-                            <td class="text-center" style="width: 20%; min-width: 150px; padding: 12px; box-sizing: border-box; overflow: hidden;">
-                                <button class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="width: 30%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
-                                <strong style="word-wrap: break-word; overflow-wrap: break-word;">Phân tích xu hướng thương mại...</strong>
-                            </td>
-                            <td style="width: 20%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">PGS. Trần Thị Y</td>
-                            <td class="text-center" style="width: 15%; min-width: 120px; padding: 12px; box-sizing: border-box; overflow: hidden;">
-                                <span class="badge bg-warning">Chờ phản hồi</span>
-                            </td>
-                            <td class="text-center" style="width: 15%; min-width: 120px; padding: 12px; box-sizing: border-box; overflow: hidden; white-space: nowrap;">28/01/2025</td>
-                            <td class="text-center" style="width: 20%; min-width: 150px; padding: 12px; box-sizing: border-box; overflow: hidden;">
-                                <button class="btn btn-sm btn-outline-warning" onclick="sendReminder(2)">
-                                    <i class="fas fa-bell"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            @if (Model.Items.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" style="table-layout: fixed; width: 100%;">
+                        <colgroup>
+                            <col style="width: 30%;">
+                            <col style="width: 20%;">
+                            <col style="width: 12%;">
+                            <col style="width: 12%;">
+                            <col style="width: 12%;">
+                            <col style="width: 14%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th style="width: 30%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Bài báo</th>
+                                <th style="width: 20%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Reviewer</th>
+                                <th class="text-center" style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Trạng thái</th>
+                                <th class="text-center" style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Ngày mời</th>
+                                <th class="text-center" style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Deadline</th>
+                                <th class="text-center" style="width: 14%; min-width: 80px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var assignment in Model.Items)
+                            {
+                                <tr>
+                                    <td style="width: 30%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                        <div style="max-width: 100%; overflow: hidden; word-wrap: break-word;">
+                                            <strong style="word-wrap: break-word; overflow-wrap: break-word; display: block;">@assignment.SubmissionTitle</strong>
+                                            <small class="text-muted" style="word-wrap: break-word; overflow-wrap: break-word; display: block;">ID: @assignment.SubmissionId</small>
+                                        </div>
+                                    </td>
+                                    <td style="width: 20%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; word-wrap: break-word;">
+                                        <div style="max-width: 100%; overflow: hidden; word-wrap: break-word;">
+                                            <strong style="word-wrap: break-word; overflow-wrap: break-word; display: block;">@assignment.ReviewerName</strong>
+                                            <small class="text-muted" style="word-wrap: break-word; overflow-wrap: break-word; display: block;">@assignment.ReviewerEmail</small>
+                                        </div>
+                                    </td>
+                                    <td class="text-center" style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                        @{
+                                            var statusBadgeClass = assignment.Status switch
+                                            {
+                                                "Pending" => "bg-warning",
+                                                "Accepted" => "bg-success",
+                                                "Rejected" => "bg-danger",
+                                                "Completed" => "bg-info",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @statusBadgeClass">@assignment.Status</span>
+                                    </td>
+                                    <td class="text-center" style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">
+                                        <small>@assignment.InvitedAt.ToString("dd/MM/yyyy")</small>
+                                    </td>
+                                    <td class="text-center" style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden; white-space: nowrap;">
+                                        @{
+                                            var isOverdue = assignment.Deadline < DateTime.UtcNow && assignment.Status != "Completed";
+                                        }
+                                        <small class="@(isOverdue ? "text-danger fw-bold" : "")">
+                                            @assignment.Deadline.ToString("dd/MM/yyyy")
+                                        </small>
+                                    </td>
+                                    <td class="text-center" style="width: 14%; min-width: 80px; padding: 12px; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
+                                        <a href="@Url.Action("SubmissionDetails", new { id = assignment.SubmissionId })" 
+                                           class="btn btn-sm btn-outline-primary" title="Xem bài báo">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                                <a class="page-link" href="@Url.Action("Assignments", new { Page = Model.Page - 1, filter.Status, filter.SubmissionId })">Trước</a>
+                            </li>
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.Page ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Assignments", new { Page = i, filter.Status, filter.SubmissionId })">@i</a>
+                                </li>
+                            }
+                            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                                <a class="page-link" href="@Url.Action("Assignments", new { Page = Model.Page + 1, filter.Status, filter.SubmissionId })">Sau</a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Chưa có phân công nào</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Quick Assign Button -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+            <a href="@Url.Action("Submissions")" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus-circle me-2"></i>Phân công phản biện mới
+            </a>
+            <p class="text-muted mt-2 mb-0">Chọn bài báo từ danh sách quản lý bài nộp để phân công</p>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        function selectReviewer(id) {
-            document.getElementById('reviewerSelect').value = id;
-        }
-
-        function sendReminder(assignmentId) {
-            if (confirm('Gửi email nhắc nhở Reviewer?')) {
-                // TODO: Implement
-                alert('Đã gửi email nhắc nhở!');
-            }
-        }
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
     </script>
 }
