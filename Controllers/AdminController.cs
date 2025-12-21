@@ -148,30 +148,70 @@ namespace SciSubmit.Controllers
 
         public async Task<IActionResult> AssignReviewer(int? submissionId)
         {
-            if (!submissionId.HasValue)
+            if (!submissionId.HasValue || submissionId.Value <= 0)
             {
                 TempData["ErrorMessage"] = "Vui lòng chọn bài báo.";
                 return RedirectToAction(nameof(Assignments));
             }
 
-            var availableReviewers = await _adminService.GetAvailableReviewersAsync(submissionId.Value);
             var submission = await _context.Submissions
                 .FirstOrDefaultAsync(s => s.Id == submissionId.Value);
+            
+            if (submission == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy bài báo với ID: " + submissionId.Value;
+                return RedirectToAction(nameof(Assignments));
+            }
+
+            // Check if submission is in valid status for assignment
+            var validStatuses = new[] 
+            { 
+                Models.Enums.SubmissionStatus.AbstractApproved,
+                Models.Enums.SubmissionStatus.FullPaperSubmitted,
+                Models.Enums.SubmissionStatus.UnderReview
+            };
+            
+            if (!validStatuses.Contains(submission.Status))
+            {
+                TempData["ErrorMessage"] = $"Không thể phân công phản biện. Trạng thái bài báo hiện tại: {submission.Status}. Chỉ có thể phân công khi bài báo ở trạng thái: Đã duyệt tóm tắt, Đã nộp Full-text, hoặc Đang phản biện.";
+                return RedirectToAction(nameof(SubmissionDetails), new { id = submissionId.Value });
+            }
+
+            var availableReviewers = await _adminService.GetAvailableReviewersAsync(submissionId.Value);
+
+            // Check if there are any reviewers in the system at all
+            var totalReviewers = await _context.Users
+                .CountAsync(u => u.Role == Models.Enums.UserRole.Reviewer && u.IsActive);
+            
+            if (totalReviewers == 0)
+            {
+                TempData["WarningMessage"] = "Không có Reviewer nào trong hệ thống. Vui lòng tạo Reviewer trong Quản lý Người dùng trước.";
+            }
+            else if (!availableReviewers.Any())
+            {
+                TempData["WarningMessage"] = $"Có {totalReviewers} Reviewer trong hệ thống nhưng không có Reviewer nào được trả về. Vui lòng kiểm tra lại.";
+            }
 
             ViewBag.AvailableReviewers = availableReviewers;
             ViewBag.Submission = submission;
             ViewBag.SubmissionId = submissionId.Value;
-            return View();
+            return View(submissionId.Value);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignReviewer(int submissionId, int reviewerId, DateTime deadline)
         {
-            // Validate inputs
-            if (submissionId <= 0 || reviewerId <= 0)
+            // Validate inputs - check if values are actually provided
+            if (submissionId <= 0)
             {
-                TempData["ErrorMessage"] = "Vui lòng chọn bài báo và reviewer.";
+                TempData["ErrorMessage"] = "Lỗi: Không tìm thấy bài báo. Vui lòng quay lại và chọn bài báo.";
+                return RedirectToAction(nameof(Assignments));
+            }
+            
+            if (reviewerId <= 0)
+            {
+                TempData["ErrorMessage"] = "Vui lòng chọn reviewer.";
                 return RedirectToAction(nameof(AssignReviewer), new { submissionId });
             }
 
@@ -210,19 +250,85 @@ namespace SciSubmit.Controllers
                 return RedirectToAction(nameof(AssignReviewer), new { submissionId });
             }
 
+            // Check submission status before assigning
+            var submission = await _context.Submissions.FindAsync(submissionId);
+            if (submission == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy bài báo với ID: " + submissionId;
+                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+            }
+
+            // Check if submission is in valid status for assignment
+            var validStatuses = new[] 
+            { 
+                Models.Enums.SubmissionStatus.AbstractApproved,
+                Models.Enums.SubmissionStatus.FullPaperSubmitted,
+                Models.Enums.SubmissionStatus.UnderReview
+            };
+            
+            if (!validStatuses.Contains(submission.Status))
+            {
+                TempData["ErrorMessage"] = $"Không thể phân công phản biện. Trạng thái bài báo hiện tại: {submission.Status}. Chỉ có thể phân công khi bài báo ở trạng thái: Đã duyệt tóm tắt, Đã nộp Full-text, hoặc Đang phản biện.";
+                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+            }
+
+            // Check if reviewer already assigned to this submission
+            var existingAssignment = await _context.ReviewAssignments
+                .FirstOrDefaultAsync(ra => ra.SubmissionId == submissionId && ra.ReviewerId == reviewerId);
+            
+            if (existingAssignment != null)
+            {
+                TempData["ErrorMessage"] = "Reviewer này đã được phân công cho bài báo này rồi.";
+                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+            }
+
             // TODO: Get adminId from current user
             var adminId = 1; // Placeholder
             
-            var result = await _adminService.AssignReviewerAsync(submissionId, reviewerId, utcDeadline, adminId);
-            if (result)
+            try
             {
-                TempData["SuccessMessage"] = "Đã phân công phản biện thành công!";
+                var result = await _adminService.AssignReviewerAsync(submissionId, reviewerId, utcDeadline, adminId);
+                if (result)
+                {
+                    TempData["SuccessMessage"] = "Đã phân công phản biện thành công!";
+                    return RedirectToAction(nameof(SubmissionDetails), new { id = submissionId });
+                }
+                else
+                {
+                    // More specific error message
+                    var reviewer = await _context.Users.FindAsync(reviewerId);
+                    var errorMsg = "Không thể phân công phản biện. ";
+                    
+                    if (reviewer == null)
+                    {
+                        errorMsg += "Reviewer không tồn tại.";
+                    }
+                    else if (reviewer.Role != Models.Enums.UserRole.Reviewer)
+                    {
+                        errorMsg += "Người dùng này không phải là Reviewer.";
+                    }
+                    else if (!reviewer.IsActive)
+                    {
+                        errorMsg += "Reviewer này đã bị vô hiệu hóa.";
+                    }
+                    else if (utcDeadline <= DateTime.UtcNow)
+                    {
+                        errorMsg += "Deadline phải trong tương lai.";
+                    }
+                    else
+                    {
+                        errorMsg += "Vui lòng kiểm tra lại (có thể reviewer đã được phân công rồi hoặc có lỗi xảy ra).";
+                    }
+                    
+                    TempData["ErrorMessage"] = errorMsg;
+                    return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+                }
             }
-            else
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Không thể phân công phản biện. Vui lòng kiểm tra lại (có thể reviewer đã được phân công rồi hoặc submission/reviewer không hợp lệ).";
+                TempData["ErrorMessage"] = $"Lỗi khi phân công phản biện: {ex.Message}";
+                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
             }
-            return RedirectToAction(nameof(Assignments));
         }
 
         public async Task<IActionResult> FinalDecision(int id)
@@ -451,6 +557,48 @@ namespace SciSubmit.Controllers
             ViewBag.Filter = filter;
             ViewBag.RoleOptions = Enum.GetNames(typeof(Models.Enums.UserRole));
             return View(users);
+        }
+
+        [HttpGet]
+        public IActionResult CreateUser()
+        {
+            ViewBag.RoleOptions = Enum.GetNames(typeof(Models.Enums.UserRole));
+            return View(new Models.Admin.CreateUserViewModel());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateUser(Models.Admin.CreateUserViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.RoleOptions = Enum.GetNames(typeof(Models.Enums.UserRole));
+                return View(model);
+            }
+
+            // Check if email already exists
+            var existingUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == model.Email.ToLower());
+            
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("Email", "Email này đã được sử dụng.");
+                ViewBag.RoleOptions = Enum.GetNames(typeof(Models.Enums.UserRole));
+                return View(model);
+            }
+
+            var result = await _adminService.CreateUserAsync(model);
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Đã tạo người dùng thành công!";
+                return RedirectToAction(nameof(Users));
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Không thể tạo người dùng. Email có thể đã tồn tại.";
+                ViewBag.RoleOptions = Enum.GetNames(typeof(Models.Enums.UserRole));
+                return View(model);
+            }
         }
 
         [HttpPost]

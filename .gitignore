@@ -318,4 +318,5 @@ MigrationBackup/
 
 # Documentation files (excluded from repository)
 *.md
+*.txt
 *.pdf
