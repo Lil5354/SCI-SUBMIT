@@ -47,3 +47,8 @@ namespace SciSubmit.Models.Admin
         public bool IsActive { get; set; } = true;
     }
 }
+
+
+
+
+

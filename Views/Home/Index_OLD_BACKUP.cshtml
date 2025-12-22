@@ -1,0 +1,648 @@
+@{
+    ViewData["Title"] = "Home";
+}
+
+<!-- Hero Section -->
+<section class="hero-section" id="heroSection" style="background-image: none;">
+    <!-- Animated Background Layers -->
+    <div class="hero-mesh-gradient" id="heroMeshGradient"></div>
+    <div class="hero-gradient-overlay" id="heroGradientOverlay"></div>
+    <div class="hero-grid-overlay" id="heroGridOverlay"></div>
+    
+    <!-- Light Streaks - 2 Components at 2 sides (DEFI style) -->
+    <div class="hero-light-streaks" id="heroLightStreaks">
+        <div class="light-streak light-streak-left"></div>
+        <div class="light-streak light-streak-right"></div>
+    </div>
+    
+    <!-- Particle Effects - Flying Up Animations -->
+    <div class="hero-particles" id="heroParticles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+    
+    <!-- Decorative floating circles -->
+    <div class="decorative-circle"></div>
+    <div class="decorative-circle"></div>
+    <div class="decorative-circle"></div>
+    
+    <div class="container">
+        <div class="hero-content text-center text-white animate-fade-in-up">
+            <h1 class="hero-title">
+                <i class="fas fa-graduation-cap me-3"></i>
+                Welcome to Scientific Conference Management System
+            </h1>
+            <p class="hero-subtitle">
+                A professional platform for managing, submitting, and evaluating scientific research works.
+                Connect researchers and facilitate excellent academic collaboration.
+            </p>
+            <div class="mt-4">
+                <a href="/Submission/Create" class="btn btn-light btn-lg me-3 shadow-lg">
+                    <i class="fas fa-plus-circle me-2"></i>Submit New Paper
+                </a>
+                <a href="/Submission/Index" class="btn btn-outline-light btn-lg shadow-lg">
+                    <i class="fas fa-file-alt me-2"></i>View My Submissions
+                </a>
+            </div>
+            <div class="mt-3">
+                <a href="/Seed" class="btn btn-outline-warning btn-sm">
+                    <i class="fas fa-database me-2"></i>Import Sample Data (Test)
+                </a>
+            </div>
+            <!-- Countdown Timer -->
+            <div class="countdown-container mb-4">
+                <h5 class="text-white mb-3">
+                    <i class="fas fa-clock me-2"></i>Time Remaining Until Conference
+                </h5>
+                <div class="countdown-timer">
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="countdownDays">0</div>
+                        <div class="countdown-label">Days</div>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="countdownHours">0</div>
+                        <div class="countdown-label">Hours</div>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="countdownMinutes">0</div>
+                        <div class="countdown-label">Minutes</div>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="countdownSeconds">0</div>
+                        <div class="countdown-label">Seconds</div>
+                    </div>
+                </div>
+                <p class="text-white-50 mt-3 mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>Conference Date: <strong id="conferenceDate">Loading...</strong>
+                </p>
+            </div>
+
+            <div class="hero-info justify-content-center">
+                <div class="hero-info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <div class="fw-bold" id="conferenceLocation">Loading...</div>
+                        <small class="opacity-75">Location</small>
+                    </div>
+                </div>
+                <div class="hero-info-item">
+                    <i class="fas fa-users"></i>
+                    <div>
+                        <div class="fw-bold">Academic</div>
+                        <small class="opacity-75">Community</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Progress Steps Section (4 Steps) -->
+<section class="section bg-light position-relative">
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="section-title">
+            <h2>Submission Process</h2>
+            <p>Track your paper progress through 4 steps</p>
+        </div>
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="progress-steps" id="progressSteps">
+                    <div class="progress-line" id="progressLine" style="width: 0%;"></div>
+                    
+                    <div class="progress-step active" data-step="1">
+                        <div class="progress-step-circle">
+                            <i class="fas fa-file-alt progress-step-icon"></i>
+                        </div>
+                        <div class="progress-step-label">Abstract</div>
+                    </div>
+                    
+                    <div class="progress-step" data-step="2">
+                        <div class="progress-step-circle">
+                            <i class="fas fa-file-pdf progress-step-icon"></i>
+                        </div>
+                        <div class="progress-step-label">Full Paper</div>
+                    </div>
+                    
+                    <div class="progress-step" data-step="3">
+                        <div class="progress-step-circle">
+                            <i class="fas fa-clipboard-check progress-step-icon"></i>
+                        </div>
+                        <div class="progress-step-label">Review</div>
+                    </div>
+                    
+                    <div class="progress-step" data-step="4">
+                        <div class="progress-step-circle">
+                            <i class="fas fa-credit-card progress-step-icon"></i>
+                        </div>
+                        <div class="progress-step-label">Payment</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="section position-relative">
+    <!-- Decorative background elements -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="overflow: hidden; pointer-events: none; z-index: 0;">
+        <svg class="position-absolute" style="top: -10%; right: -5%; width: 400px; height: 400px; opacity: 0.05;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M40.8,-57.2C52.2,-46.9,60.1,-32.6,63.5,-17.8C66.9,-3,65.8,12.3,60.9,26.1C56,39.9,47.3,52.2,36.1,60.3C24.9,68.4,11.1,72.3,-2.6,75.9C-16.3,79.5,-32.6,82.8,-45.3,77.2C-58,71.6,-67.1,57.1,-73.2,41.2C-79.3,25.3,-82.4,8,-79.4,-8.4C-76.4,-24.8,-67.3,-40.4,-55.2,-50.7C-43.1,-61,-28,-66,-13.5,-63.5C1,-61,2,-51,14.1,-42.6Z" transform="translate(100 100)" fill="#2563eb"/>
+        </svg>
+        <svg class="position-absolute" style="bottom: -10%; left: -5%; width: 300px; height: 300px; opacity: 0.05;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M31.4,-41.5C42.8,-32.6,55.4,-26.9,63.1,-17.6C70.8,-8.3,73.6,4.6,70.1,16.2C66.6,27.8,56.8,38.1,45.6,45.3C34.4,52.5,21.8,56.6,8.9,59.8C-4,63,-17.2,65.3,-28.4,61.5C-39.6,57.7,-48.8,47.8,-55.5,36.1C-62.2,24.4,-66.4,10.9,-65.1,-2C-63.8,-14.9,-57,-27.2,-48.2,-36.8C-39.4,-46.4,-28.6,-53.3,-17.5,-58.8C-6.4,-64.3,5,-68.4,16.2,-67.2Z" transform="translate(100 100)" fill="#10b981"/>
+        </svg>
+    </div>
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-card-icon bg-primary text-white">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <div class="stat-card-value text-primary" id="statSubmissions">0</div>
+                    <div class="stat-card-label">Submissions</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);">
+                        <i class="fas fa-clock text-white"></i>
+                    </div>
+                    <div class="stat-card-value" style="color: #f59e0b;" id="statUnderReview">0</div>
+                    <div class="stat-card-label">Under Review</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">
+                        <i class="fas fa-check-circle text-white"></i>
+                    </div>
+                    <div class="stat-card-value" style="color: #10b981;" id="statAccepted">0</div>
+                    <div class="stat-card-label">Accepted</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);">
+                        <i class="fas fa-times-circle text-white"></i>
+                    </div>
+                    <div class="stat-card-value" style="color: #ef4444;" id="statRejected">0</div>
+                    <div class="stat-card-label">Rejected</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Actions Section -->
+<section class="section bg-light position-relative" style="background: linear-gradient(to bottom, #f9fafb 0%, #ffffff 100%);">
+    <!-- Decorative pattern -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%232563eb&quot; fill-opacity=&quot;0.02&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); opacity: 0.5; pointer-events: none;"></div>
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="section-title">
+            <h2>Quick Actions</h2>
+            <p>Choose one of the actions below to get started</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body p-5 position-relative">
+                        <!-- Decorative corner accent -->
+                        <div class="position-absolute top-0 end-0" style="width: 80px; height: 80px; background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, transparent 70%); border-radius: 0 var(--radius-lg) 0 var(--radius-xl);"></div>
+                        <div class="mb-4 position-relative">
+                            <div class="stat-card-icon bg-primary text-white mx-auto" style="box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                        </div>
+                        <h4 class="card-title">Submit New Paper</h4>
+                        <p class="card-text text-muted">
+                            Submit your new research work to the conference. The system supports file upload and paper information management.
+                        </p>
+                        <a href="/Submission/Create" class="btn btn-primary">
+                            <i class="fas fa-arrow-right me-2"></i>Get Started
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body p-5 position-relative">
+                        <!-- Decorative corner accent -->
+                        <div class="position-absolute top-0 end-0" style="width: 80px; height: 80px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, transparent 70%); border-radius: 0 var(--radius-lg) 0 var(--radius-xl);"></div>
+                        <div class="mb-4 position-relative">
+                            <div class="stat-card-icon mx-auto" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);">
+                                <i class="fas fa-clipboard-list text-white"></i>
+                            </div>
+                        </div>
+                        <h4 class="card-title">View My Submissions</h4>
+                        <p class="card-text text-muted">
+                            Track the status of your submitted papers, view feedback from the editorial board, and make edits when needed.
+                        </p>
+                        <a href="/Submission/Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-right me-2"></i>View List
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body p-5 position-relative">
+                        <!-- Decorative corner accent -->
+                        <div class="position-absolute top-0 end-0" style="width: 80px; height: 80px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, transparent 70%); border-radius: 0 var(--radius-lg) 0 var(--radius-xl);"></div>
+                        <div class="mb-4 position-relative">
+                            <div class="stat-card-icon mx-auto" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);">
+                                <i class="fas fa-star text-white"></i>
+                            </div>
+                        </div>
+                        <h4 class="card-title">Reviews</h4>
+                        <p class="card-text text-muted">
+                            If you are a reviewer, access to view assigned papers and perform evaluations.
+                        </p>
+                        <a href="/Review/Index" class="btn" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; border: none;">
+                            <i class="fas fa-arrow-right me-2"></i>View Assignments
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Submissions Section -->
+<section class="section position-relative">
+    <!-- Subtle background decoration -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at 90% 10%, rgba(37, 99, 235, 0.03) 0%, transparent 50%); pointer-events: none;"></div>
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="section-title">
+            <h2>Recent Submissions</h2>
+            <p>List of your most recently submitted papers</p>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div id="recentSubmissionsContainer">
+                    <div class="text-center py-5">
+                        <i class="fas fa-spinner fa-spin fa-2x text-muted mb-3"></i>
+                        <p class="text-muted">Loading recent submissions...</p>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="/Submission/Index" class="btn btn-outline-primary">
+                        <i class="fas fa-list me-2"></i>View All Submissions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Helper function to convert hex to rgba
+        function hexToRgba(hex, alpha) {
+            if (!hex || !hex.startsWith('#')) return `rgba(59, 130, 246, ${alpha})`;
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+        
+        // Load interface settings and update page
+        let conferenceDateObj = new Date('2025-04-18T08:00:00');
+        
+        async function loadInterfaceSettings() {
+            try {
+                const response = await fetch('/Home/GetInterfaceSettings');
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Update hero section
+                    if (data.heroTitle) {
+                        const titleEl = document.querySelector('.hero-title');
+                        if (titleEl) titleEl.innerHTML = '<i class="fas fa-graduation-cap me-3"></i>' + data.heroTitle;
+                    }
+                    if (data.heroSubtitle) {
+                        const subtitleEl = document.querySelector('.hero-subtitle');
+                        if (subtitleEl) subtitleEl.textContent = data.heroSubtitle;
+                    }
+                    if (data.conferenceDate) {
+                        conferenceDateObj = new Date(data.conferenceDate);
+                        const dateEl = document.getElementById('conferenceDate');
+                        if (dateEl) dateEl.textContent = conferenceDateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                    }
+                    if (data.conferenceLocation) {
+                        const locationEl = document.getElementById('conferenceLocation');
+                        if (locationEl) locationEl.textContent = data.conferenceLocation;
+                    }
+                    
+                    // Update background image/color - Background can be changed by admin
+                    const heroSection = document.querySelector('.hero-section');
+                    if (heroSection) {
+                        // If background image is provided, use it with adjustable gradient overlay opacity
+                        if (data.heroBackgroundImage && data.heroBackgroundImage.trim() !== '') {
+                            // Get gradient overlay opacity (default 0.4 = 40% opacity if not set)
+                            const gradientOpacity = data.gradientOverlayOpacity !== undefined ? data.gradientOverlayOpacity : 0.4;
+                            
+                            // Set background image FIRST, then gradient overlay on top with adjustable opacity
+                            // Lower opacity = image more visible, higher opacity = gradient more visible
+                            heroSection.style.setProperty('background-image', 
+                                `linear-gradient(135deg, 
+                                    rgba(30, 64, 175, ${gradientOpacity * 0.75}) 0%, 
+                                    rgba(37, 99, 235, ${gradientOpacity * 0.70}) 20%,
+                                    rgba(236, 72, 153, ${gradientOpacity * 0.65}) 40%,
+                                    rgba(59, 130, 246, ${gradientOpacity * 0.70}) 60%,
+                                    rgba(251, 191, 36, ${gradientOpacity * 0.65}) 80%,
+                                    rgba(16, 185, 129, ${gradientOpacity * 0.75}) 100%
+                                ),
+                                url("${data.heroBackgroundImage}")`, 
+                                'important'
+                            );
+                            heroSection.style.setProperty('background-size', 'cover, cover', 'important');
+                            heroSection.style.setProperty('background-position', 'center center, center center', 'important');
+                            heroSection.style.setProperty('background-repeat', 'no-repeat, no-repeat', 'important');
+                            heroSection.style.setProperty('background-blend-mode', 'normal, normal', 'important');
+                            heroSection.style.setProperty('background-color', '#0a0e27', 'important');
+                            
+                            console.log('Background image applied with gradient overlay opacity:', gradientOpacity, data.heroBackgroundImage);
+                        } else if (data.heroBackgroundColor) {
+                            // If only color is provided, use gradient with that color as base
+                            heroSection.style.setProperty('background', 
+                                `linear-gradient(135deg, 
+                                    rgba(30, 64, 175, 0.75) 0%, 
+                                    rgba(37, 99, 235, 0.70) 20%,
+                                    rgba(236, 72, 153, 0.65) 40%,
+                                    rgba(59, 130, 246, 0.70) 60%,
+                                    rgba(251, 191, 36, 0.65) 80%,
+                                    rgba(16, 185, 129, 0.75) 100%
+                                ),
+                                ${data.heroBackgroundColor}`, 
+                                'important'
+                            );
+                        }
+                    }
+                    
+                    // Apply animation settings
+                    const particlesEl = document.getElementById('heroParticles');
+                    const lightStreaksEl = document.getElementById('heroLightStreaks');
+                    const gradientOverlayEl = document.getElementById('heroGradientOverlay');
+                    const meshGradientEl = document.getElementById('heroMeshGradient');
+                    
+                    if (data.enableAnimations === false) {
+                        if (particlesEl) particlesEl.style.display = 'none';
+                        if (lightStreaksEl) lightStreaksEl.style.display = 'none';
+                        if (gradientOverlayEl) gradientOverlayEl.style.animation = 'none';
+                    } else {
+                        // Apply animation speed
+                        if (data.animationSpeed) {
+                            heroSection.classList.remove('animation-slow', 'animation-normal', 'animation-fast');
+                            heroSection.classList.add(`animation-${data.animationSpeed}`);
+                        }
+                        
+                        // Apply particle settings
+                        if (particlesEl) {
+                            if (data.enableParticles === false) {
+                                particlesEl.style.display = 'none';
+                            } else {
+                                particlesEl.style.display = 'block';
+                                particlesEl.className = 'hero-particles';
+                                if (data.particleDensity) {
+                                    particlesEl.classList.add(`particles-${data.particleDensity}`);
+                                }
+                            }
+                        }
+                        
+                        // Apply light streak settings
+                        if (lightStreaksEl) {
+                            if (data.enableLightStreaks === false) {
+                                lightStreaksEl.style.display = 'none';
+                            } else {
+                                lightStreaksEl.style.display = 'block';
+                                lightStreaksEl.className = 'hero-light-streaks';
+                                if (data.lightIntensity) {
+                                    lightStreaksEl.classList.add(`lights-${data.lightIntensity}`);
+                                }
+                            }
+                        }
+                        
+                        // Apply gradient colors
+                        if (meshGradientEl && (data.gradientColor1 || data.gradientColor2 || data.gradientColor3)) {
+                            const color1 = data.gradientColor1 ? hexToRgba(data.gradientColor1, 0.4) : 'rgba(59, 130, 246, 0.4)';
+                            const color2 = data.gradientColor2 ? hexToRgba(data.gradientColor2, 0.4) : 'rgba(16, 185, 129, 0.4)';
+                            const color3 = data.gradientColor3 ? hexToRgba(data.gradientColor3, 0.4) : 'rgba(245, 158, 11, 0.4)';
+                            
+                            meshGradientEl.style.background = `
+                                radial-gradient(at 0% 0%, ${color1} 0%, transparent 50%),
+                                radial-gradient(at 100% 0%, ${color1} 0%, transparent 50%),
+                                radial-gradient(at 0% 100%, ${color2} 0%, transparent 50%),
+                                radial-gradient(at 100% 100%, ${color2} 0%, transparent 50%)
+                            `;
+                            
+                            if (gradientOverlayEl) {
+                                gradientOverlayEl.style.background = `
+                                    radial-gradient(circle at 20% 30%, ${color1} 0%, transparent 50%),
+                                    radial-gradient(circle at 80% 70%, ${color2} 0%, transparent 50%),
+                                    radial-gradient(circle at 50% 50%, ${color3} 0%, transparent 60%)
+                                `;
+                            }
+                            
+                            // Update light streak colors (2 components at 2 sides)
+                            if (lightStreaksEl && lightStreaksEl.style.display !== 'none') {
+                                const leftStreak = lightStreaksEl.querySelector('.light-streak-left');
+                                const rightStreak = lightStreaksEl.querySelector('.light-streak-right');
+                                
+                                if (leftStreak) {
+                                    leftStreak.style.background = `radial-gradient(
+                                        circle,
+                                        ${color1} 0%,
+                                        rgba(236, 72, 153, 0.5) 30%,
+                                        ${color3} 50%,
+                                        transparent 80%
+                                    )`;
+                                }
+                                
+                                if (rightStreak) {
+                                    rightStreak.style.background = `radial-gradient(
+                                        circle,
+                                        ${color3} 0%,
+                                        rgba(236, 72, 153, 0.5) 30%,
+                                        ${color1} 50%,
+                                        transparent 80%
+                                    )`;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Update statistics
+                    if (data.statistics) {
+                        if (data.statistics.submissions !== undefined) {
+                            const el = document.getElementById('statSubmissions');
+                            if (el) el.textContent = data.statistics.submissions;
+                        }
+                        if (data.statistics.underReview !== undefined) {
+                            const el = document.getElementById('statUnderReview');
+                            if (el) el.textContent = data.statistics.underReview;
+                        }
+                        if (data.statistics.accepted !== undefined) {
+                            const el = document.getElementById('statAccepted');
+                            if (el) el.textContent = data.statistics.accepted;
+                        }
+                        if (data.statistics.rejected !== undefined) {
+                            const el = document.getElementById('statRejected');
+                            if (el) el.textContent = data.statistics.rejected;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading interface settings:', error);
+            }
+        }
+        
+        // Helper function to convert hex to rgba
+        function hexToRgba(hex, alpha) {
+            if (!hex || !hex.startsWith('#')) return `rgba(59, 130, 246, ${alpha})`;
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        // Countdown Timer
+        function updateCountdown() {
+            const now = new Date();
+            const diff = conferenceDateObj - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdownDays').textContent = '0';
+                document.getElementById('countdownHours').textContent = '0';
+                document.getElementById('countdownMinutes').textContent = '0';
+                document.getElementById('countdownSeconds').textContent = '0';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('countdownDays').textContent = days.toString().padStart(2, '0');
+            document.getElementById('countdownHours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('countdownMinutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('countdownSeconds').textContent = seconds.toString().padStart(2, '0');
+        }
+
+        // Load settings on page load
+        loadInterfaceSettings();
+        
+        // Update countdown every second
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Progress Steps Animation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize progress bar based on submission status
+            // This should be set based on actual submission data
+            const currentStep = 1; // 1: Abstract, 2: Full Paper, 3: Review, 4: Payment
+            updateProgressBar(currentStep);
+        });
+
+        function updateProgressBar(currentStep) {
+            const steps = document.querySelectorAll('.progress-step');
+            const progressLine = document.getElementById('progressLine');
+            
+            steps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                step.classList.remove('active', 'completed');
+                
+                if (stepNumber < currentStep) {
+                    step.classList.add('completed');
+                    step.querySelector('.progress-step-circle').innerHTML = '<i class="fas fa-check"></i>';
+                } else if (stepNumber === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+            
+            // Update progress line
+            if (currentStep > 1) {
+                const progressPercent = ((currentStep - 1) / 3) * 100;
+                progressLine.style.width = progressPercent + '%';
+            }
+        }
+
+        // Enhanced animations on scroll
+        document.addEventListener('DOMContentLoaded', function() {
+            // Intersection Observer for fade-in animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                        }, index * 100); // Stagger animation
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+            
+            // Add fade-in-on-scroll class to elements
+            document.querySelectorAll('.stat-card, .card:not(.hero-section .card)').forEach((el, index) => {
+                el.classList.add('fade-in-on-scroll');
+                observer.observe(el);
+            });
+            
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    if (href !== '#' && href.length > 1) {
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    }
+                });
+            });
+            
+            // Add loading state to buttons
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.classList.add('btn-loading');
+                    }
+                });
+            });
+        });
+        
+        // Add hover effects with animation
+        document.querySelectorAll('.btn, .card, .stat-card').forEach(el => {
+            el.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.3s ease';
+            });
+        });
+    </script>
+}

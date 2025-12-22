@@ -4,7 +4,31 @@
     // Force refresh - Version 2.0
 }
 
-<div class="container-fluid my-4">
+<link rel="stylesheet" href="~/css/dashboard-defi.css" asp-append-version="true" />
+
+<!-- DEFI Background Layers -->
+<div class="dashboard-defi-background"></div>
+<div class="dashboard-particles">
+    <div class="dashboard-particle"></div>
+    <div class="dashboard-particle"></div>
+    <div class="dashboard-particle"></div>
+    <div class="dashboard-particle"></div>
+    <div class="dashboard-particle"></div>
+    <div class="dashboard-particle"></div>
+    <div class="dashboard-particle"></div>
+    <div class="dashboard-particle"></div>
+    <div class="dashboard-particle"></div>
+    <div class="dashboard-particle"></div>
+</div>
+<div class="dashboard-light-streaks">
+    <div class="dashboard-light-streak dashboard-light-left"></div>
+    <div class="dashboard-light-streak dashboard-light-right"></div>
+</div>
+
+<div class="dashboard-defi-wrapper">
+<div class="container-fluid">
+<div class="dashboard-defi-content">
+<div class="container-fluid my-4 px-4">
     <!-- TempData Messages -->
     @if (TempData["SuccessMessage"] != null)
     {
@@ -21,55 +45,55 @@
         </div>
     }
     <!-- Header -->
-    <div class="mb-4">
-        <h2 class="text-gradient mb-2">
+    <div class="dashboard-defi-header mb-4">
+        <h2>
             <i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin
         </h2>
-        <p class="text-muted">Tổng quan hệ thống và quản lý hội thảo</p>
+        <p>Tổng quan hệ thống và quản lý hội thảo</p>
     </div>
 
     <!-- Statistics Cards -->
     <div class="row g-4 mb-4">
         <div class="col-md-3 col-sm-6">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card h-100">
                 <div class="card-body text-center">
-                    <div class="stat-card-icon bg-primary text-white mx-auto mb-3">
+                    <div class="stat-card-icon text-white mx-auto mb-3">
                         <i class="fas fa-file-upload"></i>
                     </div>
-                    <h3 class="text-primary mb-1">@Model.Stats.TotalSubmissions</h3>
+                    <h3 class="mb-1">@Model.Stats.TotalSubmissions</h3>
                     <p class="text-muted mb-0">Tổng số bài nộp</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card h-100">
                 <div class="card-body text-center">
-                    <div class="stat-card-icon bg-success text-white mx-auto mb-3">
+                    <div class="stat-card-icon text-white mx-auto mb-3">
                         <i class="fas fa-check-circle"></i>
                     </div>
-                    <h3 class="text-success mb-1">@Model.Stats.ApprovedAbstracts</h3>
+                    <h3 class="mb-1">@Model.Stats.ApprovedAbstracts</h3>
                     <p class="text-muted mb-0">Đã duyệt tóm tắt</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card h-100">
                 <div class="card-body text-center">
-                    <div class="stat-card-icon bg-warning text-white mx-auto mb-3">
+                    <div class="stat-card-icon text-white mx-auto mb-3">
                         <i class="fas fa-clipboard-check"></i>
                     </div>
-                    <h3 class="text-warning mb-1">@Model.Stats.UnderReview</h3>
+                    <h3 class="mb-1">@Model.Stats.UnderReview</h3>
                     <p class="text-muted mb-0">Đang phản biện</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card h-100">
                 <div class="card-body text-center">
-                    <div class="stat-card-icon bg-info text-white mx-auto mb-3">
+                    <div class="stat-card-icon text-white mx-auto mb-3">
                         <i class="fas fa-users"></i>
                     </div>
-                    <h3 class="text-info mb-1">@Model.Stats.TotalRegistrations</h3>
+                    <h3 class="mb-1">@Model.Stats.TotalRegistrations</h3>
                     <p class="text-muted mb-0">Số lượng đăng ký</p>
                 </div>
             </div>
@@ -79,7 +103,7 @@
     <div class="row g-4">
         <!-- Upcoming Deadlines -->
         <div class="col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card h-100">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Deadline sắp tới</h5>
                 </div>
@@ -113,7 +137,7 @@
 
         <!-- Quản lý Bài nộp & Phản biện -->
         <div class="col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card h-100">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Quản lý Bài nộp & Phản biện</h5>
                 </div>
@@ -135,7 +159,7 @@
 
         <!-- Quản lý Hệ thống -->
         <div class="col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card h-100">
                 <div class="card-header bg-info text-white">
                     <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Quản lý Hệ thống</h5>
                 </div>
@@ -159,8 +183,8 @@
     <!-- All Admin Functions Grid -->
     <div class="row g-4 mt-2">
         <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card">
+                <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%) !important;">
                     <h5 class="mb-0"><i class="fas fa-th me-2"></i>Tất cả chức năng quản trị</h5>
                 </div>
                 <div class="card-body">
@@ -281,35 +305,55 @@
                                 </div>
                             </a>
                         </div>
+
+                        <!-- 10. Interface Settings -->
+                        <div class="col-md-3 col-sm-6">
+                            <a href="@Url.Action("InterfaceSettings")" class="card text-decoration-none border h-100 hover-shadow">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="fas fa-palette fa-2x text-info"></i>
+                                    </div>
+                                    <h6 class="card-title mb-0">Interface Settings</h6>
+                                    <small class="text-muted">Customize home page appearance</small>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- 12. Timeline Management -->
+                        <div class="col-md-3 col-sm-6">
+                            <a href="@Url.Action("Timeline")" class="card text-decoration-none border h-100 hover-shadow">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="fas fa-stream fa-2x text-primary"></i>
+                                    </div>
+                                    <h6 class="card-title mb-0">Timeline Management</h6>
+                                    <small class="text-muted">Manage conference timeline</small>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- 11. Full Papers Management -->
+                        <div class="col-md-3 col-sm-6">
+                            <a href="@Url.Action("FullPapers")" class="card text-decoration-none border h-100 hover-shadow">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="fas fa-file-pdf fa-2x text-danger"></i>
+                                    </div>
+                                    <h6 class="card-title mb-0">Full Papers</h6>
+                                    <small class="text-muted">Manage full papers & assign reviewers</small>
+                                </div>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+</div>
+</div>
 
 @section Scripts {
-    <style>
-        .hover-shadow {
-            transition: all 0.3s ease;
-        }
-        .hover-shadow:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-        }
-        .stat-card-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-        .bg-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-    </style>
     <script>
         // Auto-hide alerts after 5 seconds
         setTimeout(function() {

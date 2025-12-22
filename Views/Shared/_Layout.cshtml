@@ -1,15 +1,27 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Hệ Thống Quản Lý Hội Thảo Khoa Học</title>
+    <title>@ViewData["Title"] - Scientific Conference Management System</title>
+    <!-- Google Fonts - Inter: Professional, modern font for conferences -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site-override.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/table-fix.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/table-alignment-fix.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SciSubmit.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+    <!-- Home page enhanced styles - Load last to override site.css -->
+    @if (ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index")
+    {
+        <link rel="stylesheet" href="~/css/home-enhanced.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/home-animations.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/timeline.css" asp-append-version="true" />
+    }
     <!-- Font Awesome Icons -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
@@ -36,25 +48,25 @@
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" && ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" 
                                asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="fas fa-home me-1"></i>Trang chủ
+                                <i class="fas fa-home me-1"></i>Home
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Create" && ViewContext.RouteData.Values["Controller"]?.ToString() == "Submission" ? "active" : "")" 
                                asp-area="" asp-controller="Submission" asp-action="Create">
-                                <i class="fas fa-plus-circle me-1"></i>Nộp bài
+                                <i class="fas fa-plus-circle me-1"></i>Submit Paper
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" && ViewContext.RouteData.Values["Controller"]?.ToString() == "Submission" ? "active" : "")" 
                                asp-area="" asp-controller="Submission" asp-action="Index">
-                                <i class="fas fa-file-alt me-1"></i>Bài đã nộp
+                                <i class="fas fa-file-alt me-1"></i>My Submissions
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Review" ? "active" : "")" 
                                asp-area="" asp-controller="Review" asp-action="Index">
-                                <i class="fas fa-clipboard-check me-1"></i>Phản biện
+                                <i class="fas fa-clipboard-check me-1"></i>Reviews
                             </a>
                         </li>
                     </ul>
@@ -63,13 +75,13 @@
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" 
                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user-circle me-2"></i>
-                                <span>Tài khoản</span>
+                                <span>Account</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Hồ sơ</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Cài đặt</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                             </ul>
                         </li>
                         <li class="nav-item position-relative">
@@ -98,22 +110,22 @@
                         <i class="fas fa-microscope me-2"></i>SciSubmit
                     </h5>
                     <p class="mb-0">
-                        Hệ thống quản lý và nộp bài hội thảo khoa học chuyên nghiệp
+                        Professional scientific conference management and submission system
                     </p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <h6 class="fw-bold mb-3">Liên hệ</h6>
+                    <h6 class="fw-bold mb-3">Contact</h6>
                     <p class="mb-1">
-                        <i class="fas fa-envelope me-2"></i>hoithaokhoahoc@example.com
+                        <i class="fas fa-envelope me-2"></i>conference@example.com
                     </p>
                     <p class="mb-0">
-                        <i class="fas fa-phone me-2"></i>(028) 2236 3333
+                        <i class="fas fa-phone me-2"></i>+1 (555) 123-4567
                     </p>
                 </div>
             </div>
             <hr class="my-4">
             <div class="text-center">
-                <p class="mb-0">&copy; 2025 SciSubmit. Tất cả quyền được bảo lưu.</p>
+                <p class="mb-0">&copy; 2025 SciSubmit. All rights reserved.</p>
             </div>
         </div>
     </footer>

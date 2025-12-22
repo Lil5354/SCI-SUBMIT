@@ -156,3 +156,8 @@ ORDER BY t.OrderIndex;
 PRINT 'Hoàn thành! Bây giờ bạn có thể test:';
 PRINT '1. Timeline Hội thảo: Vào /Admin/Conference và kiểm tra timeline';
 PRINT '2. CRUD Lĩnh vực: Vào /Admin/Fields và thử Create, Update, Delete';
+
+
+
+
+

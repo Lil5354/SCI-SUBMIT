@@ -1,0 +1,263 @@
+@model SciSubmit.Models.Admin.InterfaceSettingsViewModel
+@{
+    ViewData["Title"] = "Interface Settings";
+}
+
+<div class="container-fluid my-4">
+    <!-- TempData Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Header -->
+    <div class="mb-4">
+        <h2 class="text-gradient mb-2">
+            <i class="fas fa-palette me-2"></i>Interface Settings
+        </h2>
+        <p class="text-muted">Customize the appearance and content of the home page</p>
+    </div>
+
+    <!-- Interface Settings Form -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Home Page Customization</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="UpdateInterfaceSettings" method="post">
+                @Html.AntiForgeryToken()
+                
+                <!-- Hero Section Settings -->
+                <div class="mb-4">
+                    <h5 class="mb-3"><i class="fas fa-heading me-2"></i>Hero Section</h5>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Hero Title <span class="text-danger">*</span></label>
+                            <input type="text" asp-for="HeroTitle" class="form-control" placeholder="Welcome to Scientific Conference Management System" required />
+                            <small class="text-muted">Main title displayed in the hero section</small>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Hero Subtitle</label>
+                            <textarea asp-for="HeroSubtitle" class="form-control" rows="3" placeholder="A professional platform for managing, submitting, and evaluating scientific research works."></textarea>
+                            <small class="text-muted">Subtitle/description displayed below the title</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Conference Date</label>
+                            <input type="datetime-local" asp-for="ConferenceDate" class="form-control" />
+                            <small class="text-muted">Date and time of the conference</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Conference Location</label>
+                            <input type="text" asp-for="ConferenceLocation" class="form-control" placeholder="e.g., New York, USA" />
+                            <small class="text-muted">Location where the conference will be held</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Background Settings -->
+                <div class="mb-4">
+                    <h5 class="mb-3"><i class="fas fa-image me-2"></i>Background Settings</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Background Color</label>
+                            <input type="color" asp-for="HeroBackgroundColor" class="form-control form-control-color" />
+                            <small class="text-muted">Background color for the hero section (e.g., #1e40af)</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Background Image URL</label>
+                            <input type="url" asp-for="HeroBackgroundImage" class="form-control" placeholder="https://example.com/image.jpg" />
+                            <small class="text-muted">
+                                <strong>Background image (changeable):</strong> URL of the background image (e.g., cityscape, landscape). 
+                                A DEFI-style diagonal gradient overlay will be applied on top. 
+                                Leave empty to use gradient-only background.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Animation Settings -->
+                <div class="mb-4">
+                    <h5 class="mb-3"><i class="fas fa-magic me-2"></i>Animation Settings</h5>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="EnableAnimations" id="enableAnimations" />
+                                <label class="form-check-label" for="enableAnimations">
+                                    <strong>Enable Animations</strong>
+                                </label>
+                                <small class="d-block text-muted">Enable all background animations and effects</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Animation Speed</label>
+                            <select asp-for="AnimationSpeed" class="form-select">
+                                <option value="slow">Slow</option>
+                                <option value="normal">Normal</option>
+                                <option value="fast">Fast</option>
+                            </select>
+                            <small class="text-muted">Speed of animation effects</small>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-4 pt-3">
+                                <input class="form-check-input" type="checkbox" asp-for="EnableParticles" id="enableParticles" />
+                                <label class="form-check-label" for="enableParticles">
+                                    Enable Particle Effects
+                                </label>
+                            </div>
+                            <label class="form-label fw-semibold mt-2">Particle Density</label>
+                            <select asp-for="ParticleDensity" class="form-select">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-4 pt-3">
+                                <input class="form-check-input" type="checkbox" asp-for="EnableLightStreaks" id="enableLightStreaks" />
+                                <label class="form-check-label" for="enableLightStreaks">
+                                    Enable Light Streaks
+                                </label>
+                            </div>
+                            <label class="form-label fw-semibold mt-2">Light Intensity</label>
+                            <select asp-for="LightIntensity" class="form-select">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Gradient Color -->
+                <div class="mb-4">
+                    <h5 class="mb-3"><i class="fas fa-palette me-2"></i>Gradient Overlay Color</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Gradient Overlay Color</label>
+                            <div class="input-group">
+                                <input type="color" asp-for="GradientColor" id="gradientColor" class="form-control form-control-color" style="width: 80px; height: 40px; cursor: pointer;" />
+                                <input type="text" class="form-control" id="gradientColorText" value="@(Model.GradientColor ?? "#3b82f6")" placeholder="#3b82f6" pattern="^#[0-9A-Fa-f]{6}$" />
+                            </div>
+                            <small class="text-muted">Single color for gradient overlay that highlights the background image</small>
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Tip:</strong> This color is used for the diagonal gradient overlay at the top corners to highlight the background. Choose a bright color (e.g., blue, purple, orange) that complements your background image. You can use the color picker or type a hex color code directly.
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Display Options -->
+                <div class="mb-4">
+                    <h5 class="mb-3"><i class="fas fa-eye me-2"></i>Display Options</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="ShowStatistics" id="showStatistics" />
+                                <label class="form-check-label" for="showStatistics">
+                                    Show Statistics Section
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="ShowCountdown" id="showCountdown" />
+                                <label class="form-check-label" for="showCountdown">
+                                    Show Countdown Timer
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="ShowProgressSteps" id="showProgressSteps" />
+                                <label class="form-check-label" for="showProgressSteps">
+                                    Show Progress Steps
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="ShowQuickActions" id="showQuickActions" />
+                                <label class="form-check-label" for="showQuickActions">
+                                    Show Quick Actions
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="ShowRecentSubmissions" id="showRecentSubmissions" />
+                                <label class="form-check-label" for="showRecentSubmissions">
+                                    Show Recent Submissions
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <a href="@Url.Action("Dashboard")" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+
+        // Sync color picker and text input for gradient color
+        $(document).ready(function() {
+            // Initialize: sync from color picker (which has model value) to text input
+            var pickerValue = $('#gradientColor').val();
+            if (pickerValue) {
+                $('#gradientColorText').val(pickerValue);
+            }
+
+            // Sync from color picker to text input
+            $('#gradientColor').on('input change', function() {
+                $('#gradientColorText').val($(this).val());
+            });
+
+            // Sync from text input to color picker (with validation)
+            $('#gradientColorText').on('input blur', function() {
+                var value = $(this).val();
+                if (value && value.match(/^#[0-9A-Fa-f]{6}$/)) {
+                    $('#gradientColor').val(value);
+                    $(this).removeClass('is-invalid');
+                } else if (value && value !== '') {
+                    $(this).addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid');
+                }
+            });
+        });
+    </script>
+}
+

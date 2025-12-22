@@ -1,0 +1,405 @@
+/* ========================================
+   DASHBOARD DEFI-INSPIRED STYLES
+   Based on DEFI Conference Design
+   ======================================== */
+
+/* Dashboard Container with DEFI Background */
+.dashboard-defi-wrapper {
+  position: relative;
+  min-height: 100vh;
+  background: #0a0e27;
+  overflow: hidden;
+}
+
+/* Background Layers - Same as Home Page */
+.dashboard-defi-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: 
+    linear-gradient(135deg, 
+      rgba(30, 64, 175, 0.75) 0%, 
+      rgba(37, 99, 235, 0.70) 20%,
+      rgba(236, 72, 153, 0.65) 40%,
+      rgba(59, 130, 246, 0.70) 60%,
+      rgba(251, 191, 36, 0.65) 80%,
+      rgba(16, 185, 129, 0.75) 100%
+    );
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
+}
+
+/* Animated Background Layers */
+.dashboard-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
+}
+
+.dashboard-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 6px rgba(255, 255, 255, 0.9),
+    0 0 12px rgba(255, 255, 255, 0.5);
+  animation: floatUp 12s linear infinite;
+}
+
+.dashboard-particle:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 14s; }
+.dashboard-particle:nth-child(2) { left: 20%; animation-delay: 1.5s; animation-duration: 16s; }
+.dashboard-particle:nth-child(3) { left: 30%; animation-delay: 3s; animation-duration: 13s; }
+.dashboard-particle:nth-child(4) { left: 40%; animation-delay: 0.5s; animation-duration: 15s; }
+.dashboard-particle:nth-child(5) { left: 50%; animation-delay: 2s; animation-duration: 17s; }
+.dashboard-particle:nth-child(6) { left: 60%; animation-delay: 4s; animation-duration: 14s; }
+.dashboard-particle:nth-child(7) { left: 70%; animation-delay: 1s; animation-duration: 16s; }
+.dashboard-particle:nth-child(8) { left: 80%; animation-delay: 2.5s; animation-duration: 13s; }
+.dashboard-particle:nth-child(9) { left: 90%; animation-delay: 3.5s; animation-duration: 15s; }
+.dashboard-particle:nth-child(10) { left: 15%; animation-delay: 5s; animation-duration: 18s; }
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(100vh) translateX(0) scale(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+    transform: translateY(80vh) translateX(15px) scale(0.8);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(40vh) translateX(-10px) scale(1);
+  }
+  80% {
+    opacity: 0.5;
+    transform: translateY(10vh) translateX(20px) scale(1.1);
+  }
+  100% {
+    transform: translateY(-50px) translateX(-15px) scale(1.3);
+    opacity: 0;
+  }
+}
+
+/* Light Streaks - 2 Components */
+.dashboard-light-streaks {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
+}
+
+.dashboard-light-streak {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.8;
+}
+
+.dashboard-light-left {
+  width: 600px;
+  height: 600px;
+  bottom: -200px;
+  left: -200px;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.6) 0%,
+    rgba(236, 72, 153, 0.5) 30%,
+    rgba(251, 191, 36, 0.4) 50%,
+    transparent 80%
+  );
+  animation: flowLightLeft 25s ease-in-out infinite;
+  transform-origin: bottom left;
+}
+
+.dashboard-light-right {
+  width: 500px;
+  height: 500px;
+  top: 30%;
+  right: -150px;
+  background: radial-gradient(
+    circle,
+    rgba(251, 191, 36, 0.6) 0%,
+    rgba(236, 72, 153, 0.5) 30%,
+    rgba(59, 130, 246, 0.4) 50%,
+    transparent 80%
+  );
+  animation: flowLightRight 20s ease-in-out infinite;
+  transform-origin: center right;
+}
+
+@keyframes flowLightLeft {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translate(100px, -150px) scale(1.1) rotate(5deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(200px, -300px) scale(1.2) rotate(10deg);
+    opacity: 0.7;
+  }
+  75% {
+    transform: translate(150px, -200px) scale(1.05) rotate(7deg);
+    opacity: 0.75;
+  }
+}
+
+@keyframes flowLightRight {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 0.6;
+  }
+  33% {
+    transform: translate(-100px, 50px) scale(1.1) rotate(-5deg);
+    opacity: 0.8;
+  }
+  66% {
+    transform: translate(-150px, -50px) scale(1.15) rotate(-10deg);
+    opacity: 0.7;
+  }
+}
+
+/* Dashboard Content - Above animations */
+.dashboard-defi-content {
+  position: relative;
+  z-index: 10;
+  padding: 2rem 0;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  margin: 2rem auto;
+  max-width: 1400px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* Header Styles */
+.dashboard-defi-header h2 {
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: 900;
+  color: #1e40af !important;
+  margin-bottom: 0.5rem;
+  text-shadow: none;
+}
+
+.dashboard-defi-header h2 i {
+  color: #f59e0b;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.dashboard-defi-header p {
+  color: #4b5563;
+  font-size: 1.1rem;
+}
+
+/* Statistics Cards - DEFI Style */
+.dashboard-defi-content .card {
+  background: #ffffff !important;
+  border: 1px solid rgba(229, 231, 235, 0.8) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-defi-content .card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.dashboard-defi-content .card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
+}
+
+.dashboard-defi-content .card:hover::before {
+  transform: scaleX(1);
+}
+
+.dashboard-defi-content .card-body {
+  color: #1f2937 !important;
+}
+
+.dashboard-defi-content .stat-card-icon {
+  width: 72px !important;
+  height: 72px !important;
+  border-radius: 18px !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s ease;
+}
+
+.dashboard-defi-content .card:hover .stat-card-icon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dashboard-defi-content .card h3 {
+  color: #1f2937 !important;
+  font-weight: 800;
+  font-size: 2.5rem;
+  text-shadow: none;
+}
+
+.dashboard-defi-content .card .text-muted {
+  color: #6b7280 !important;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Card Headers */
+.dashboard-defi-content .card-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  border: none !important;
+  border-radius: 20px 20px 0 0 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  padding: 1.5rem !important;
+}
+
+.dashboard-defi-content .card-header.bg-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+.dashboard-defi-content .card-header.bg-info {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+}
+
+/* Buttons in Cards */
+.dashboard-defi-content .btn-outline-success,
+.dashboard-defi-content .btn-outline-info {
+  border: 2px solid currentColor !important;
+  color: inherit !important;
+  background: transparent !important;
+  transition: all 0.3s ease;
+  border-radius: 12px !important;
+  font-weight: 600;
+}
+
+.dashboard-defi-content .btn-outline-success:hover,
+.dashboard-defi-content .btn-outline-info:hover {
+  background: currentColor !important;
+  color: #ffffff !important;
+  transform: translateX(5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Function Grid Cards */
+.dashboard-defi-content .hover-shadow {
+  background: #ffffff !important;
+  border: 1px solid rgba(229, 231, 235, 0.8) !important;
+  border-radius: 16px !important;
+  color: #1f2937 !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-defi-content .hover-shadow:hover {
+  transform: translateY(-8px) scale(1.02) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+.dashboard-defi-content .hover-shadow .card-title {
+  color: #1f2937 !important;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.dashboard-defi-content .hover-shadow .text-muted {
+  color: #6b7280 !important;
+}
+
+.dashboard-defi-content .hover-shadow i {
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+}
+
+.dashboard-defi-content .hover-shadow:hover i {
+  transform: scale(1.2) rotate(5deg);
+  filter: drop-shadow(0 6px 15px rgba(0, 0, 0, 0.4));
+}
+
+/* Alerts */
+.dashboard-defi-content .alert {
+  background: #ffffff !important;
+  border: 1px solid rgba(229, 231, 235, 0.8) !important;
+  border-radius: 16px !important;
+  color: #1f2937 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dashboard-defi-content .alert-success {
+  border-left: 4px solid #10b981 !important;
+}
+
+.dashboard-defi-content .alert-danger {
+  border-left: 4px solid #ef4444 !important;
+}
+
+/* List Group Items */
+.dashboard-defi-content .list-group-item {
+  background: #ffffff !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.8) !important;
+  color: #1f2937 !important;
+  padding: 1rem 0 !important;
+}
+
+.dashboard-defi-content .list-group-item:last-child {
+  border-bottom: none !important;
+}
+
+.dashboard-defi-content .list-group-item h6 {
+  color: #1f2937 !important;
+  font-weight: 600;
+}
+
+.dashboard-defi-content .list-group-item small {
+  color: #6b7280 !important;
+}
+
+.dashboard-defi-content .badge {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: #ffffff !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 20px !important;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-defi-content {
+    padding: 1rem 0;
+  }
+  
+  .dashboard-defi-content .card {
+    margin-bottom: 1rem;
+  }
+}
+

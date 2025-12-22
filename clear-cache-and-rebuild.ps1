@@ -37,3 +37,8 @@ Write-Host "Bây giờ hãy:" -ForegroundColor Yellow
 Write-Host "1. Start lại ứng dụng" -ForegroundColor White
 Write-Host "2. Mở browser và nhấn Ctrl + F5 (hard refresh)" -ForegroundColor White
 Write-Host "3. Hoặc mở cửa sổ ẩn danh và truy cập /Admin/Dashboard" -ForegroundColor White
+
+
+
+
+

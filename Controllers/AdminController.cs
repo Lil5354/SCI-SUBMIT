@@ -4,6 +4,7 @@ using SciSubmit.Services;
 using SciSubmit.Models.Admin;
 using SciSubmit.Models.Enums;
 using SciSubmit.Data;
+using System.Text.Json;
 
 namespace SciSubmit.Controllers
 {
@@ -798,6 +799,331 @@ namespace SciSubmit.Controllers
                 TempData["ErrorMessage"] = "Không thể cập nhật cài đặt.";
             }
             return RedirectToAction(nameof(Settings));
+        }
+
+        // Interface Settings
+        public async Task<IActionResult> InterfaceSettings()
+        {
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                TempData["ErrorMessage"] = "No active conference found.";
+                return View(new Models.Admin.InterfaceSettingsViewModel());
+            }
+
+            var settings = await _context.SystemSettings
+                .Where(s => s.ConferenceId == activeConference.Id)
+                .ToDictionaryAsync(s => s.Key, s => s.Value);
+
+            var viewModel = new Models.Admin.InterfaceSettingsViewModel
+            {
+                HeroTitle = settings.GetValueOrDefault("Interface.HeroTitle", "Welcome to Scientific Conference Management System"),
+                HeroSubtitle = settings.GetValueOrDefault("Interface.HeroSubtitle", "A professional platform for managing, submitting, and evaluating scientific research works."),
+                ConferenceDate = activeConference.StartDate?.ToString("yyyy-MM-ddTHH:mm"),
+                ConferenceLocation = settings.GetValueOrDefault("Interface.ConferenceLocation", activeConference.Location ?? ""),
+                HeroBackgroundColor = settings.GetValueOrDefault("Interface.HeroBackgroundColor"),
+                HeroBackgroundImage = settings.GetValueOrDefault("Interface.HeroBackgroundImage"),
+                EnableAnimations = bool.Parse(settings.GetValueOrDefault("Interface.EnableAnimations", "true") ?? "true"),
+                AnimationSpeed = settings.GetValueOrDefault("Interface.AnimationSpeed", "normal"),
+                EnableParticles = bool.Parse(settings.GetValueOrDefault("Interface.EnableParticles", "true") ?? "true"),
+                ParticleDensity = settings.GetValueOrDefault("Interface.ParticleDensity", "medium"),
+                EnableLightStreaks = bool.Parse(settings.GetValueOrDefault("Interface.EnableLightStreaks", "true") ?? "true"),
+                LightIntensity = settings.GetValueOrDefault("Interface.LightIntensity", "medium"),
+                GradientColor = settings.GetValueOrDefault("Interface.GradientColor", "#3b82f6"),
+                ShowStatistics = bool.Parse(settings.GetValueOrDefault("Interface.ShowStatistics", "true") ?? "true"),
+                ShowCountdown = bool.Parse(settings.GetValueOrDefault("Interface.ShowCountdown", "true") ?? "true"),
+                ShowProgressSteps = bool.Parse(settings.GetValueOrDefault("Interface.ShowProgressSteps", "true") ?? "true"),
+                ShowQuickActions = bool.Parse(settings.GetValueOrDefault("Interface.ShowQuickActions", "true") ?? "true"),
+                ShowRecentSubmissions = bool.Parse(settings.GetValueOrDefault("Interface.ShowRecentSubmissions", "true") ?? "true")
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateInterfaceSettings(Models.Admin.InterfaceSettingsViewModel model)
+        {
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                TempData["ErrorMessage"] = "No active conference found.";
+                return RedirectToAction(nameof(InterfaceSettings));
+            }
+
+            var settingsToUpdate = new Dictionary<string, string?>
+            {
+                { "Interface.HeroTitle", model.HeroTitle },
+                { "Interface.HeroSubtitle", model.HeroSubtitle },
+                { "Interface.ConferenceLocation", model.ConferenceLocation },
+                { "Interface.HeroBackgroundColor", model.HeroBackgroundColor },
+                { "Interface.HeroBackgroundImage", model.HeroBackgroundImage },
+                { "Interface.EnableAnimations", model.EnableAnimations.ToString() },
+                { "Interface.AnimationSpeed", model.AnimationSpeed },
+                { "Interface.EnableParticles", model.EnableParticles.ToString() },
+                { "Interface.ParticleDensity", model.ParticleDensity },
+                { "Interface.EnableLightStreaks", model.EnableLightStreaks.ToString() },
+                { "Interface.LightIntensity", model.LightIntensity },
+                { "Interface.GradientColor", model.GradientColor },
+                { "Interface.ShowStatistics", model.ShowStatistics.ToString() },
+                { "Interface.ShowCountdown", model.ShowCountdown.ToString() },
+                { "Interface.ShowProgressSteps", model.ShowProgressSteps.ToString() },
+                { "Interface.ShowQuickActions", model.ShowQuickActions.ToString() },
+                { "Interface.ShowRecentSubmissions", model.ShowRecentSubmissions.ToString() }
+            };
+
+            foreach (var kvp in settingsToUpdate)
+            {
+                var existingSetting = await _context.SystemSettings
+                    .FirstOrDefaultAsync(s => s.ConferenceId == activeConference.Id && s.Key == kvp.Key);
+
+                if (existingSetting != null)
+                {
+                    existingSetting.Value = kvp.Value;
+                    existingSetting.UpdatedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    var newSetting = new Models.Conference.SystemSetting
+                    {
+                        ConferenceId = activeConference.Id,
+                        Key = kvp.Key,
+                        Value = kvp.Value,
+                        Description = $"Interface setting: {kvp.Key}",
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.SystemSettings.Add(newSetting);
+                }
+            }
+
+            // Update conference date if provided
+            if (!string.IsNullOrEmpty(model.ConferenceDate) && DateTime.TryParse(model.ConferenceDate, out var date))
+            {
+                activeConference.StartDate = date;
+                activeConference.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Interface settings updated successfully!";
+            return RedirectToAction(nameof(InterfaceSettings));
+        }
+
+        // Timeline Management
+        public async Task<IActionResult> Timeline()
+        {
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                TempData["ErrorMessage"] = "No active conference found.";
+                return View(new TimelineViewModel());
+            }
+
+            var timelineSetting = await _context.SystemSettings
+                .FirstOrDefaultAsync(s => s.ConferenceId == activeConference.Id && s.Key == "Dashboard.Timeline");
+
+            var viewModel = new TimelineViewModel();
+            
+            if (timelineSetting != null && !string.IsNullOrEmpty(timelineSetting.Value))
+            {
+                try
+                {
+                    viewModel.Items = JsonSerializer.Deserialize<List<TimelineItem>>(timelineSetting.Value) ?? new List<TimelineItem>();
+                }
+                catch
+                {
+                    viewModel.Items = new List<TimelineItem>();
+                }
+            }
+
+            // Sort by order
+            viewModel.Items = viewModel.Items.OrderBy(i => i.Order).ToList();
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateTimeline(TimelineViewModel model)
+        {
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                TempData["ErrorMessage"] = "No active conference found.";
+                return RedirectToAction(nameof(Timeline));
+            }
+
+            // Assign IDs to new items
+            int maxId = 0;
+            if (model.Items != null && model.Items.Any())
+            {
+                maxId = model.Items.Where(i => i.Id > 0).DefaultIfEmpty(new TimelineItem { Id = 0 }).Max(i => i.Id);
+                foreach (var item in model.Items.Where(i => i.Id == 0))
+                {
+                    item.Id = ++maxId;
+                }
+
+                // Sort by order
+                model.Items = model.Items.OrderBy(i => i.Order).ToList();
+            }
+
+            var timelineJson = JsonSerializer.Serialize(model.Items ?? new List<TimelineItem>());
+
+            var timelineSetting = await _context.SystemSettings
+                .FirstOrDefaultAsync(s => s.ConferenceId == activeConference.Id && s.Key == "Dashboard.Timeline");
+
+            if (timelineSetting != null)
+            {
+                timelineSetting.Value = timelineJson;
+                timelineSetting.UpdatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                timelineSetting = new Models.Conference.SystemSetting
+                {
+                    ConferenceId = activeConference.Id,
+                    Key = "Dashboard.Timeline",
+                    Value = timelineJson,
+                    Description = "Dashboard timeline items",
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.SystemSettings.Add(timelineSetting);
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Timeline updated successfully!";
+            return RedirectToAction(nameof(Timeline));
+        }
+
+        // Full Papers Management
+        public async Task<IActionResult> FullPapers()
+        {
+            var fullPapers = await _context.FullPaperVersions
+                .Include(f => f.Submission)
+                    .ThenInclude(s => s.Author)
+                .Include(f => f.Submission)
+                    .ThenInclude(s => s.ReviewAssignments)
+                        .ThenInclude(ra => ra.Reviewer)
+                .Where(f => f.IsCurrentVersion)
+                .OrderByDescending(f => f.UploadedAt)
+                .Select(f => new Models.Admin.FullPaperViewModel
+                {
+                    Id = f.Id,
+                    SubmissionId = f.SubmissionId,
+                    Title = f.Submission.Title,
+                    AuthorName = f.Submission.Author.FullName,
+                    VersionNumber = f.VersionNumber,
+                    FileName = f.FileName,
+                    FileUrl = f.FileUrl,
+                    FileSize = f.FileSize,
+                    UploadedAt = f.UploadedAt,
+                    IsCurrentVersion = f.IsCurrentVersion,
+                    AssignedReviewers = f.Submission.ReviewAssignments
+                        .Select(ra => new Models.Admin.ReviewerAssignmentViewModel
+                        {
+                            ReviewAssignmentId = ra.Id,
+                            ReviewerId = ra.ReviewerId,
+                            ReviewerName = ra.Reviewer.FullName,
+                            ReviewerEmail = ra.Reviewer.Email,
+                            Status = ra.Status.ToString(),
+                            Deadline = ra.Deadline
+                        }).ToList(),
+                    CanAssignReviewer = f.Submission.Status == Models.Enums.SubmissionStatus.AbstractApproved || 
+                                       f.Submission.Status == Models.Enums.SubmissionStatus.UnderReview
+                })
+                .ToListAsync();
+
+            // Get available reviewers
+            ViewBag.Reviewers = await _context.Users
+                .Where(u => u.Role == Models.Enums.UserRole.Reviewer)
+                .OrderBy(u => u.FullName)
+                .Select(u => new { u.Id, u.FullName, u.Email })
+                .ToListAsync();
+
+            return View(fullPapers);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignReviewers(int submissionId, List<int> reviewerIds)
+        {
+            if (reviewerIds == null || reviewerIds.Count == 0)
+            {
+                TempData["ErrorMessage"] = "Please select at least one reviewer.";
+                return RedirectToAction(nameof(FullPapers));
+            }
+
+            if (reviewerIds.Count > 3)
+            {
+                TempData["ErrorMessage"] = "Maximum 3 reviewers can be assigned per paper.";
+                return RedirectToAction(nameof(FullPapers));
+            }
+
+            var submission = await _context.Submissions
+                .Include(s => s.ReviewAssignments)
+                .FirstOrDefaultAsync(s => s.Id == submissionId);
+
+            if (submission == null)
+            {
+                TempData["ErrorMessage"] = "Submission not found.";
+                return RedirectToAction(nameof(FullPapers));
+            }
+
+            // Remove existing assignments for this submission
+            var existingAssignments = submission.ReviewAssignments.ToList();
+            foreach (var assignment in existingAssignments)
+            {
+                _context.ReviewAssignments.Remove(assignment);
+            }
+
+            // Create new assignments
+            // TODO: Get adminId from current user
+            var adminId = 1; // Placeholder
+            var deadline = DateTime.UtcNow.AddDays(14); // Default 14 days deadline
+
+            foreach (var reviewerId in reviewerIds)
+            {
+                var reviewer = await _context.Users.FindAsync(reviewerId);
+                if (reviewer == null || reviewer.Role != Models.Enums.UserRole.Reviewer)
+                {
+                    continue;
+                }
+
+                var assignment = new Models.Review.ReviewAssignment
+                {
+                    SubmissionId = submissionId,
+                    ReviewerId = reviewerId,
+                    Status = Models.Enums.ReviewAssignmentStatus.Pending,
+                    InvitedAt = DateTime.UtcNow,
+                    InvitedBy = adminId,
+                    Deadline = deadline,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.ReviewAssignments.Add(assignment);
+            }
+
+            // Update submission status if needed
+            if (submission.Status == Models.Enums.SubmissionStatus.AbstractApproved)
+            {
+                submission.Status = Models.Enums.SubmissionStatus.UnderReview;
+                submission.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Successfully assigned {reviewerIds.Count} reviewer(s) to the paper.";
+            return RedirectToAction(nameof(FullPapers));
         }
     }
 

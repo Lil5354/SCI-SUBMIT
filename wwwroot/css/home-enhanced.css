@@ -1,0 +1,557 @@
+/* ========================================
+   ENHANCED HOME PAGE STYLES
+   Combining current design with DEFI conference aesthetics
+   ======================================== */
+
+/* Enhanced Hero Section with DEFI-inspired design - HIGHEST PRIORITY */
+body .hero-section,
+body section.hero-section,
+body #heroSection,
+html body .hero-section {
+  /* Background structure: base image (customizable) + gradient overlay */
+  background-color: #0a0e27 !important; /* Dark base color if no image */
+  background-size: cover !important;
+  background-position: center center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  position: relative !important;
+  overflow: hidden !important;
+  min-height: 90vh !important;
+  display: flex !important;
+  align-items: center !important;
+  /* Default gradient - will be overridden by inline style if background image is set */
+  background-image: 
+    linear-gradient(135deg, 
+      rgba(30, 64, 175, 0.75) 0%, 
+      rgba(37, 99, 235, 0.70) 20%,
+      rgba(236, 72, 153, 0.65) 40%,
+      rgba(59, 130, 246, 0.70) 60%,
+      rgba(251, 191, 36, 0.65) 80%,
+      rgba(16, 185, 129, 0.75) 100%
+    ) !important;
+  background-blend-mode: normal !important;
+  /* Background image will be set via inline style from admin settings - inline style has higher priority */
+}
+
+/* Animated background elements - Override site.css COMPLETELY */
+body .hero-section::before,
+body section.hero-section::before,
+body #heroSection::before,
+html body .hero-section::before {
+  content: '' !important;
+  position: absolute !important;
+  top: -50% !important;
+  left: -50% !important;
+  width: 200% !important;
+  height: 200% !important;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%) !important;
+  animation: rotate 20s linear infinite !important;
+  /* Override site.css patterns COMPLETELY */
+  background-image: none !important;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%) !important;
+  opacity: 1 !important;
+  z-index: 1 !important;
+}
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+body .hero-section::after,
+body section.hero-section::after,
+body #heroSection::after,
+html body .hero-section::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.12) 0%, transparent 45%) !important;
+  pointer-events: none !important;
+  /* Override site.css grid pattern COMPLETELY */
+  background-image: none !important;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.12) 0%, transparent 45%) !important;
+  z-index: 1 !important;
+}
+
+/* Enhanced Hero Content */
+.hero-content {
+  position: relative;
+  z-index: 10;
+  animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-section .hero-title,
+section.hero-section .hero-title,
+#heroSection .hero-title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem) !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.02em !important;
+  margin-bottom: 1.5rem !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  text-shadow: none !important;
+  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3)) !important;
+  color: transparent !important;
+}
+
+.hero-title i {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.6));
+}
+
+.hero-section .hero-subtitle,
+section.hero-section .hero-subtitle,
+#heroSection .hero-subtitle {
+  font-size: clamp(1.125rem, 2.5vw, 1.5rem) !important;
+  line-height: 1.8 !important;
+  font-weight: 400 !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+  max-width: 800px !important;
+  margin: 0 auto 2rem !important;
+}
+
+/* Enhanced Buttons */
+.hero-section .btn {
+  padding: 0.875rem 2rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 50px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section .btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.hero-section .btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.hero-section .btn-light {
+  background: #ffffff;
+  color: #1e40af;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.hero-section .btn-light:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  background: #f9fafb;
+}
+
+.hero-section .btn-outline-light {
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.hero-section .btn-outline-light:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #ffffff;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Enhanced Countdown Timer */
+.countdown-container {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 24px !important;
+  padding: 2rem !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 0 0 0 rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 0 0 10px rgba(255, 255, 255, 0);
+  }
+}
+
+.countdown-item {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 16px !important;
+  padding: 1.5rem 1.25rem !important;
+  min-width: 90px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.countdown-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.countdown-item:hover {
+  transform: translateY(-5px) scale(1.05) !important;
+  background: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.countdown-item:hover::before {
+  left: 100%;
+}
+
+.countdown-value {
+  font-size: clamp(2.5rem, 6vw, 4rem) !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+  line-height: 1 !important;
+  margin-bottom: 0.5rem;
+}
+
+.countdown-label {
+  font-size: clamp(0.75rem, 1.5vw, 0.875rem) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+}
+
+/* Enhanced Progress Steps - Override with higher specificity */
+.section .progress-steps {
+  position: relative !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 2rem 0 !important;
+  margin: 2rem 0 !important;
+}
+
+.section .progress-steps::before {
+  height: 4px !important;
+  background: #e5e7eb !important;
+  border-radius: 2px;
+}
+
+.section .progress-steps .progress-line {
+  position: absolute !important;
+  top: 50% !important;
+  left: 0 !important;
+  height: 4px !important;
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%) !important;
+  transform: translateY(-50%) !important;
+  transition: width 0.5s ease !important;
+  z-index: 1 !important;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4) !important;
+  border-radius: 2px;
+}
+
+.section .progress-step {
+  position: relative !important;
+  z-index: 2 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  flex: 1 !important;
+  transition: all 0.3s ease !important;
+}
+
+.section .progress-step-circle {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 1rem !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  border: 4px solid #ffffff !important;
+}
+
+.section .progress-step.active .progress-step-circle {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4) !important;
+  animation: pulseCircle 2s ease-in-out infinite !important;
+  border-color: #3b82f6 !important;
+}
+
+.section .progress-step.completed .progress-step-circle {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4) !important;
+  border-color: #10b981 !important;
+}
+
+@keyframes pulseCircle {
+  0%, 100% {
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 35px rgba(59, 130, 246, 0.6);
+  }
+}
+
+.section .progress-step-icon {
+  font-size: 1.75rem !important;
+  color: #6b7280 !important;
+  transition: all 0.3s ease !important;
+}
+
+.section .progress-step.active .progress-step-icon {
+  color: #ffffff !important;
+}
+
+.section .progress-step.completed .progress-step-icon {
+  color: #ffffff !important;
+}
+
+.section .progress-step-label {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #6b7280 !important;
+  text-align: center !important;
+  transition: all 0.3s ease !important;
+}
+
+.section .progress-step.active .progress-step-label {
+  color: #3b82f6 !important;
+  font-weight: 700 !important;
+}
+
+.section .progress-step.completed .progress-step-label {
+  color: #10b981 !important;
+  font-weight: 700 !important;
+}
+
+/* Enhanced Statistics Cards */
+.stat-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%) !important;
+  border-radius: 20px !important;
+  padding: 2rem !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
+}
+
+.stat-card:hover::before {
+  transform: scaleX(1);
+}
+
+.stat-card-icon {
+  width: 72px !important;
+  height: 72px !important;
+  border-radius: 18px !important;
+  box-shadow: 0 8px 20px rgba(30, 64, 175, 0.3) !important;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover .stat-card-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.stat-card-value {
+  font-size: 2.5rem !important;
+  font-weight: 800 !important;
+  margin: 1rem 0 0.5rem;
+  background: linear-gradient(135deg, currentColor 0%, currentColor 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-card-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Enhanced Quick Action Cards */
+.section .card {
+  border-radius: 24px !important;
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+.section .card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.section .card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.section .card:hover::before {
+  transform: scaleX(1);
+}
+
+.section .card-body {
+  padding: 2.5rem !important;
+}
+
+.section .card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.section .card-text {
+  color: #6b7280;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+/* Enhanced Section Titles */
+.section-title h2 {
+  font-size: clamp(2rem, 4vw, 2.75rem) !important;
+  font-weight: 800 !important;
+  background: linear-gradient(135deg, #1e40af 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
+}
+
+.section-title h2::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  border-radius: 2px;
+}
+
+.section-title p {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin-top: 1.5rem;
+}
+
+/* Smooth scroll animations */
+.fade-in-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-section {
+    min-height: 80vh;
+    padding: 3rem 0;
+  }
+  
+  .countdown-item {
+    min-width: 70px;
+    padding: 1rem 0.75rem !important;
+  }
+  
+  .progress-step-circle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .stat-card {
+    padding: 1.5rem !important;
+  }
+}
+

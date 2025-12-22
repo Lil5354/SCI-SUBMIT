@@ -1,0 +1,358 @@
+/* ========================================
+   ANIMATED BACKGROUND EFFECTS
+   Inspired by DEFI Conference Design
+   ======================================== */
+
+/* Particle/Star Field Animation - Flying Up Animation */
+@keyframes floatParticles {
+  0% {
+    transform: translateY(100vh) translateX(0) rotate(0deg) scale(0.8);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(50vh) translateX(20px) rotate(180deg) scale(1);
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-100px) translateX(-20px) rotate(360deg) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Alternative upward floating animation */
+@keyframes floatUp {
+  0% {
+    transform: translateY(100vh) translateX(0) scale(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+    transform: translateY(80vh) translateX(15px) scale(0.8);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(40vh) translateX(-10px) scale(1);
+  }
+  80% {
+    opacity: 0.5;
+    transform: translateY(10vh) translateX(20px) scale(1.1);
+  }
+  100% {
+    transform: translateY(-50px) translateX(-15px) scale(1.3);
+    opacity: 0;
+  }
+}
+
+@keyframes flowLight {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(200%) translateY(200%) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+/* Animated Background Container - Ensure it's above site.css */
+body .hero-section,
+body section.hero-section,
+body #heroSection {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Particle Layer - Flying Up Animations */
+body .hero-particles,
+body #heroParticles {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  z-index: 3 !important;
+  overflow: visible !important;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 6px rgba(255, 255, 255, 0.9),
+    0 0 12px rgba(255, 255, 255, 0.5);
+  animation: floatUp 12s linear infinite;
+}
+
+/* Particles distributed across the screen, starting from bottom */
+.particle:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 14s; }
+.particle:nth-child(2) { left: 20%; animation-delay: 1.5s; animation-duration: 16s; }
+.particle:nth-child(3) { left: 30%; animation-delay: 3s; animation-duration: 13s; }
+.particle:nth-child(4) { left: 40%; animation-delay: 0.5s; animation-duration: 15s; }
+.particle:nth-child(5) { left: 50%; animation-delay: 2s; animation-duration: 17s; }
+.particle:nth-child(6) { left: 60%; animation-delay: 4s; animation-duration: 14s; }
+.particle:nth-child(7) { left: 70%; animation-delay: 1s; animation-duration: 16s; }
+.particle:nth-child(8) { left: 80%; animation-delay: 2.5s; animation-duration: 13s; }
+.particle:nth-child(9) { left: 90%; animation-delay: 3.5s; animation-duration: 15s; }
+.particle:nth-child(10) { left: 15%; animation-delay: 5s; animation-duration: 18s; }
+.particle:nth-child(11) { left: 25%; animation-delay: 1.8s; animation-duration: 14s; }
+.particle:nth-child(12) { left: 35%; animation-delay: 4.2s; animation-duration: 16s; }
+.particle:nth-child(13) { left: 45%; animation-delay: 0.8s; animation-duration: 13s; }
+.particle:nth-child(14) { left: 55%; animation-delay: 2.8s; animation-duration: 15s; }
+.particle:nth-child(15) { left: 65%; animation-delay: 4.5s; animation-duration: 17s; }
+
+/* Flowing Light Streaks - DEFI Style: 2 components at 2 sides (left and right) */
+body .hero-light-streaks,
+body #heroLightStreaks {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+  overflow: visible !important;
+}
+
+.light-streak {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.8;
+}
+
+/* Left Animated Component - Bottom-left, diagonal up (single color) */
+.light-streak-left {
+  width: 600px;
+  height: 600px;
+  bottom: -200px;
+  left: -200px;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.7) 0%,
+    rgba(59, 130, 246, 0.6) 30%,
+    rgba(59, 130, 246, 0.4) 50%,
+    transparent 80%
+  );
+  animation: flowLightLeft 25s ease-in-out infinite;
+  transform-origin: bottom left;
+}
+
+/* Right Animated Component - Mid-right, horizontal/diagonal (single color) */
+.light-streak-right {
+  width: 500px;
+  height: 500px;
+  top: 30%;
+  right: -150px;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.7) 0%,
+    rgba(59, 130, 246, 0.6) 30%,
+    rgba(59, 130, 246, 0.4) 50%,
+    transparent 80%
+  );
+  animation: flowLightRight 20s ease-in-out infinite;
+  transform-origin: center right;
+}
+
+@keyframes flowLightLeft {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translate(100px, -150px) scale(1.1) rotate(5deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(200px, -300px) scale(1.2) rotate(10deg);
+    opacity: 0.7;
+  }
+  75% {
+    transform: translate(150px, -200px) scale(1.05) rotate(7deg);
+    opacity: 0.75;
+  }
+}
+
+@keyframes flowLightRight {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 0.6;
+  }
+  33% {
+    transform: translate(-100px, 50px) scale(1.1) rotate(-5deg);
+    opacity: 0.8;
+  }
+  66% {
+    transform: translate(-150px, -50px) scale(1.15) rotate(-10deg);
+    opacity: 0.7;
+  }
+}
+
+/* Animated Gradient Overlay - DEFI Style: Diagonal bright gradients at top corners (single color) */
+.hero-gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  /* Diagonal gradients at top-left and top-right corners using single color to highlight background */
+  background: 
+    linear-gradient(135deg, rgba(59, 130, 246, 0.6) 0%, rgba(59, 130, 246, 0.6) 25%, transparent 60%),
+    linear-gradient(225deg, rgba(59, 130, 246, 0.6) 0%, rgba(59, 130, 246, 0.6) 25%, transparent 60%);
+  background-size: 50% 50%, 50% 50%;
+  background-position: top left, top right;
+  background-repeat: no-repeat;
+  opacity: 0.85;
+  animation: pulseGlow 8s ease-in-out infinite;
+}
+
+/* Dark Overlay Layer - DEFI Style: Semi-transparent dark layer to make background visible but slightly darkened */
+.hero-dark-overlay,
+#heroDarkOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(135deg, rgba(10, 14, 39, 0.7) 0%, rgba(15, 23, 42, 0.6) 100%);
+}
+
+/* Mesh Gradient Effect - Single color */
+.hero-mesh-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background: 
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.3) 0%, transparent 50%);
+  animation: backgroundShift 20s ease-in-out infinite;
+}
+
+@keyframes backgroundShift {
+  0%, 100% {
+    transform: scale(1) translate(0, 0);
+    opacity: 1;
+  }
+  33% {
+    transform: scale(1.1) translate(2%, 1%);
+    opacity: 0.9;
+  }
+  66% {
+    transform: scale(0.95) translate(-1%, 2%);
+    opacity: 0.95;
+  }
+}
+
+/* Grid Pattern Overlay */
+.hero-grid-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.5;
+  animation: gridPulse 10s ease-in-out infinite;
+}
+
+@keyframes gridPulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Content Layer - Ensure it's above animations */
+.hero-content {
+  position: relative;
+  z-index: 10;
+}
+
+/* Adjust existing decorative circles */
+.hero-section .decorative-circle {
+  z-index: 2;
+}
+
+/* Customizable Animation Speed Classes */
+.animation-slow {
+  animation-duration: 20s !important;
+}
+
+.animation-normal {
+  animation-duration: 15s !important;
+}
+
+.animation-fast {
+  animation-duration: 10s !important;
+}
+
+/* Customizable Particle Density */
+.particles-low .particle {
+  opacity: 0.2;
+}
+
+.particles-medium .particle {
+  opacity: 0.4;
+}
+
+.particles-high .particle {
+  opacity: 0.6;
+}
+
+/* Customizable Light Intensity */
+.lights-low .light-streak {
+  opacity: 0.3;
+  filter: blur(50px);
+}
+
+.lights-medium .light-streak {
+  opacity: 0.5;
+  filter: blur(40px);
+}
+
+.lights-high .light-streak {
+  opacity: 0.7;
+  filter: blur(30px);
+}
+
