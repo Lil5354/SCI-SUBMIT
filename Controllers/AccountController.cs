@@ -1,10 +1,35 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using SciSubmit.Services;
+using SciSubmit.Data;
+using SciSubmit.Models.Identity;
+using SciSubmit.Models.Enums;
+using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace SciSubmit.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly IUserService _userService;
+        private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<AccountController> _logger;
+
+        public AccountController(
+            IUserService userService,
+            ApplicationDbContext context,
+            IConfiguration configuration,
+            ILogger<AccountController> logger)
+        {
+            _userService = userService;
+            _context = context;
+            _configuration = configuration;
+            _logger = logger;
+        }
         // GET: Account/Login
         public IActionResult Login(string? returnUrl = null)
         {
@@ -137,13 +162,198 @@ namespace SciSubmit.Controllers
             return View(model);
         }
 
+        // GET: Account/Settings
+        public IActionResult Settings()
+        {
+            // TODO: Get current user settings
+            var model = new Models.Account.UserSettingsViewModel
+            {
+                EmailNotificationsEnabled = true,
+                ReviewAssignmentNotifications = true,
+                SubmissionStatusNotifications = true,
+                DeadlineReminders = true,
+                ShowEmailPublicly = false,
+                ShowPhonePublicly = false,
+                Language = "vi-VN"
+            };
+
+            return View(model);
+        }
+
+        // POST: Account/Settings
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Settings(Models.Account.UserSettingsViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // TODO: Implement settings update logic
+            TempData["SuccessMessage"] = "Cập nhật cài đặt thành công!";
+            return View(model);
+        }
+
         // POST: Account/Logout
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // TODO: Implement logout logic
+            _userService.ClearUserSession(HttpContext);
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
+        }
+
+        // GET: Account/GoogleLogin
+        public IActionResult GoogleLogin(string? returnUrl = null)
+        {
+            // Kiểm tra Google OAuth có được cấu hình không
+            var googleClientId = _configuration["Authentication:Google:ClientId"];
+            var googleClientSecret = _configuration["Authentication:Google:ClientSecret"];
+
+            if (string.IsNullOrEmpty(googleClientId) || string.IsNullOrEmpty(googleClientSecret))
+            {
+                TempData["ErrorMessage"] = "Đăng nhập Google chưa được cấu hình.";
+                return RedirectToAction("Login", new { returnUrl });
+            }
+
+            // Kiểm tra xem Google scheme có được đăng ký không
+            var schemes = HttpContext.RequestServices.GetRequiredService<Microsoft.AspNetCore.Authentication.IAuthenticationSchemeProvider>();
+            var googleScheme = schemes.GetSchemeAsync(GoogleDefaults.AuthenticationScheme).Result;
+            
+            if (googleScheme == null)
+            {
+                TempData["ErrorMessage"] = "Đăng nhập Google chưa được cấu hình.";
+                return RedirectToAction("Login", new { returnUrl });
+            }
+
+            var properties = new AuthenticationProperties
+            {
+                RedirectUri = Url.Action("GoogleCallback", "Account", new { returnUrl }),
+                Items = { { "returnUrl", returnUrl ?? Url.Action("Index", "Home") } }
+            };
+
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+        // GET: Account/GoogleCallback
+        public async Task<IActionResult> GoogleCallback(string? returnUrl = null)
+        {
+            try
+            {
+                var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+                
+                if (!result.Succeeded)
+                {
+                    _logger.LogWarning("Google authentication failed");
+                    TempData["ErrorMessage"] = "Đăng nhập Google thất bại. Vui lòng thử lại.";
+                    return RedirectToAction("Login");
+                }
+
+                var claims = result.Principal?.Claims.ToList();
+                if (claims == null || !claims.Any())
+                {
+                    _logger.LogWarning("No claims received from Google");
+                    TempData["ErrorMessage"] = "Không nhận được thông tin từ Google.";
+                    return RedirectToAction("Login");
+                }
+
+                // Lấy thông tin từ Google
+                var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value
+                    ?? claims.FirstOrDefault(c => c.Type == "email")?.Value;
+                var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value
+                    ?? claims.FirstOrDefault(c => c.Type == "name")?.Value;
+                var googleId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+                    ?? claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+                if (string.IsNullOrEmpty(email))
+                {
+                    _logger.LogWarning("Email not found in Google claims");
+                    TempData["ErrorMessage"] = "Không tìm thấy email từ Google.";
+                    return RedirectToAction("Login");
+                }
+
+                // Tìm hoặc tạo user
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Email == email || u.GoogleId == googleId);
+
+                if (user == null)
+                {
+                    // Tạo user mới
+                    user = new User
+                    {
+                        Email = email,
+                        FullName = name ?? email.Split('@')[0],
+                        GoogleId = googleId,
+                        Role = UserRole.Guest,
+                        EmailConfirmed = true, // Google đã xác thực email
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    _context.Users.Add(user);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Created new user from Google OAuth: {Email}", email);
+                }
+                else
+                {
+                    // Cập nhật GoogleId nếu chưa có
+                    if (string.IsNullOrEmpty(user.GoogleId) && !string.IsNullOrEmpty(googleId))
+                    {
+                        user.GoogleId = googleId;
+                        await _context.SaveChangesAsync();
+                    }
+
+                    // Cập nhật last login
+                    user.LastLoginAt = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                }
+
+                // Set session
+                _userService.SetUserSession(HttpContext, user);
+
+                // Sign in với Cookie authentication
+                var claimsIdentity = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Name, user.FullName),
+                    new Claim(ClaimTypes.Role, user.Role.ToString())
+                }, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
+                };
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    authProperties);
+
+                // Sign out Google scheme
+                await HttpContext.SignOutAsync(GoogleDefaults.AuthenticationScheme);
+
+                // Get returnUrl from properties
+                if (result.Properties?.Items != null && result.Properties.Items.TryGetValue("returnUrl", out var returnUrlFromProps))
+                {
+                    returnUrl = returnUrlFromProps;
+                }
+                if (string.IsNullOrEmpty(returnUrl))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+                return Redirect(returnUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GoogleCallback");
+                TempData["ErrorMessage"] = "Có lỗi xảy ra khi đăng nhập với Google. Vui lòng thử lại.";
+                return RedirectToAction("Login");
+            }
         }
     }
 

@@ -7,6 +7,7 @@ using SciSubmit.Models.Content;
 using SciSubmit.Models.Conference;
 using SciSubmit.Models.Notification;
 using SciSubmit.Models.Identity;
+using System;
 
 namespace SciSubmit.Services
 {
@@ -1245,19 +1246,36 @@ namespace SciSubmit.Services
                 return false;
             }
 
-            var maxOrderIndex = await _context.Topics
+            // Check if topic name already exists in this conference (case-insensitive)
+            var topics = await _context.Topics
                 .Where(t => t.ConferenceId == activeConference.Id)
-                .Select(t => (int?)t.OrderIndex)
-                .DefaultIfEmpty(0)
-                .MaxAsync() ?? 0;
+                .ToListAsync();
+            var exists = topics.Any(t => t.Name.Trim().Equals(model.Name.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (exists)
+            {
+                return false;
+            }
+
+            // If OrderIndex is 0 or not specified, calculate the next index
+            int orderIndex = model.OrderIndex;
+            if (orderIndex <= 0)
+            {
+                var maxOrderIndex = await _context.Topics
+                    .Where(t => t.ConferenceId == activeConference.Id)
+                    .Select(t => (int?)t.OrderIndex)
+                    .DefaultIfEmpty(0)
+                    .MaxAsync() ?? 0;
+                orderIndex = maxOrderIndex + 1;
+            }
 
             var topic = new Models.Content.Topic
             {
                 ConferenceId = activeConference.Id,
-                Name = model.Name,
-                Description = model.Description,
-                OrderIndex = maxOrderIndex + 1,
-                IsActive = true,
+                Name = model.Name.Trim(),
+                Description = string.IsNullOrWhiteSpace(model.Description) ? null : model.Description.Trim(),
+                OrderIndex = orderIndex,
+                IsActive = model.IsActive,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -1275,8 +1293,19 @@ namespace SciSubmit.Services
                 return false;
             }
 
-            topic.Name = model.Name;
-            topic.Description = model.Description;
+            // Check for duplicate name (excluding the current topic itself)
+            var topics = await _context.Topics
+                .Where(t => t.ConferenceId == topic.ConferenceId && t.Id != id)
+                .ToListAsync();
+            var exists = topics.Any(t => t.Name.Trim().Equals(model.Name.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (exists)
+            {
+                return false;
+            }
+
+            topic.Name = model.Name.Trim();
+            topic.Description = string.IsNullOrWhiteSpace(model.Description) ? null : model.Description.Trim();
             topic.OrderIndex = model.OrderIndex;
             topic.IsActive = model.IsActive;
             // Note: UpdatedAt field doesn't exist in Topic model, but we can add it if needed

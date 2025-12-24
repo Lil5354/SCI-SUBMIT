@@ -1,0 +1,191 @@
+@model SciSubmit.Models.Account.UserSettingsViewModel
+@{
+    ViewData["Title"] = "Cài đặt";
+}
+
+<div class="container my-5">
+    <!-- Header -->
+    <div class="mb-4">
+        <h2 class="text-gradient mb-2">
+            <i class="fas fa-cog me-2"></i>Cài đặt
+        </h2>
+        <p class="text-muted">Quản lý cài đặt tài khoản và tùy chọn cá nhân</p>
+    </div>
+
+    <!-- Success Message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Error Message -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Settings Form -->
+        <div class="col-lg-8">
+            <form asp-action="Settings" method="post">
+                @Html.AntiForgeryToken()
+
+                <!-- Notification Settings -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Cài đặt thông báo</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="EmailNotificationsEnabled" id="emailNotifications" />
+                                <label class="form-check-label" for="emailNotifications">
+                                    <strong>Bật thông báo email</strong>
+                                </label>
+                            </div>
+                            <small class="text-muted d-block mt-1">Nhận thông báo qua email về các hoạt động liên quan đến tài khoản của bạn</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="ReviewAssignmentNotifications" id="reviewNotifications" />
+                                <label class="form-check-label" for="reviewNotifications">
+                                    <strong>Thông báo khi được phân công phản biện</strong>
+                                </label>
+                            </div>
+                            <small class="text-muted d-block mt-1">Nhận thông báo khi bạn được phân công phản biện một bài báo</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="SubmissionStatusNotifications" id="submissionNotifications" />
+                                <label class="form-check-label" for="submissionNotifications">
+                                    <strong>Thông báo thay đổi trạng thái bài nộp</strong>
+                                </label>
+                            </div>
+                            <small class="text-muted d-block mt-1">Nhận thông báo khi trạng thái bài nộp của bạn thay đổi</small>
+                        </div>
+
+                        <div class="mb-0">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="DeadlineReminders" id="deadlineReminders" />
+                                <label class="form-check-label" for="deadlineReminders">
+                                    <strong>Nhắc nhở deadline</strong>
+                                </label>
+                            </div>
+                            <small class="text-muted d-block mt-1">Nhận email nhắc nhở trước deadline quan trọng</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Cài đặt quyền riêng tư</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="ShowEmailPublicly" id="showEmail" />
+                                <label class="form-check-label" for="showEmail">
+                                    <strong>Hiển thị email công khai</strong>
+                                </label>
+                            </div>
+                            <small class="text-muted d-block mt-1">Cho phép người khác xem email của bạn trong danh sách tác giả</small>
+                        </div>
+
+                        <div class="mb-0">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="ShowPhonePublicly" id="showPhone" />
+                                <label class="form-check-label" for="showPhone">
+                                    <strong>Hiển thị số điện thoại công khai</strong>
+                                </label>
+                            </div>
+                            <small class="text-muted d-block mt-1">Cho phép người khác xem số điện thoại của bạn</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Language Settings -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-language me-2"></i>Cài đặt ngôn ngữ</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-0">
+                            <label asp-for="Language" class="form-label fw-semibold">
+                                <i class="fas fa-globe me-2 text-success"></i>Ngôn ngữ giao diện
+                            </label>
+                            <select asp-for="Language" class="form-select">
+                                <option value="vi-VN">Tiếng Việt</option>
+                                <option value="en-US">English</option>
+                            </select>
+                            <small class="text-muted d-block mt-1">Chọn ngôn ngữ hiển thị cho giao diện</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-2"></i>Lưu cài đặt
+                    </button>
+                    <a asp-action="Profile" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>Quay lại hồ sơ
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sidebar Info -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-0">
+                        <i class="fas fa-lightbulb me-2 text-warning"></i>
+                        Cài đặt này ảnh hưởng đến cách bạn nhận thông báo và trải nghiệm sử dụng hệ thống.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-question-circle me-2"></i>Hỗ trợ</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-2">
+                        <strong>Thông báo email:</strong> Bạn sẽ nhận email về các hoạt động quan trọng liên quan đến tài khoản.
+                    </p>
+                    <p class="small text-muted mb-0">
+                        <strong>Quyền riêng tư:</strong> Kiểm soát thông tin cá nhân được hiển thị công khai.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+    </script>
+}
+
+
+
+
+
+

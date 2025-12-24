@@ -1,5 +1,14 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using SciSubmit.Data;
+using SciSubmit.Services;
+using SciSubmit.Jobs;
+using Hangfire;
+using Hangfire.SqlServer;
+using System.IO;
+using SciSubmit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,14 +25,90 @@ builder.Services.AddAntiforgery(options =>
     options.HeaderName = "RequestVerificationToken";
     options.FormFieldName = "__RequestVerificationToken";
     options.Cookie.Name = "__RequestVerificationToken";
+    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
+});
+
+// Add Session
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
 });
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Data Protection - Persist keys to file system for OAuth state
+var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, "DataProtectionKeys");
+if (!Directory.Exists(dataProtectionKeysPath))
+{
+    Directory.CreateDirectory(dataProtectionKeysPath);
+}
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath))
+    .SetApplicationName("SciSubmit");
+
+// Authentication - Cookie
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromDays(30);
+        options.SlidingExpiration = true;
+    });
+
+// Google OAuth - Only if configured
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+
+if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+{
+    builder.Services.AddAuthentication()
+        .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+        {
+            options.ClientId = googleClientId;
+            options.ClientSecret = googleClientSecret;
+            options.CallbackPath = "/Account/GoogleCallback";
+            options.CorrelationCookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+            options.CorrelationCookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
+        });
+}
+
 // Add Services
-builder.Services.AddScoped<SciSubmit.Services.IAdminService, SciSubmit.Services.AdminService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IVnpayService, VnpayService>();
+builder.Services.AddScoped<IMomoService, MomoService>();
+builder.Services.AddScoped<IExportService, ExportService>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<ISmsService, SmsService>();
+
+// HttpClient for external APIs
+builder.Services.AddHttpClient<MomoService>();
+
+// Hangfire - Background Jobs
+builder.Services.AddHangfire(config =>
+{
+    config.UseSqlServerStorage(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        new SqlServerStorageOptions
+        {
+            SchemaName = "HangFire"
+        });
+});
+
+builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 
@@ -31,16 +116,44 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+else
+{
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+// IMPORTANT: Session must be before Authentication
+app.UseSession();
+
 app.UseRouting();
 
+// Authentication & Authorization
+app.UseAuthentication();
 app.UseAuthorization();
+
+// Hangfire Dashboard (Development only)
+if (app.Environment.IsDevelopment())
+{
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        Authorization = new[] { new HangfireAuthorizationFilter() }
+    });
+}
+
+// Recurring Jobs
+RecurringJob.AddOrUpdate<EmailQueueJob>(
+    "process-email-queue",
+    job => job.ProcessEmailQueueAsync(),
+    Cron.Minutely);
+
+RecurringJob.AddOrUpdate<EmailQueueJob>(
+    "send-deadline-reminders",
+    job => job.SendDeadlineRemindersAsync(),
+    Cron.Daily(8)); // Run daily at 8 AM
 
 app.MapControllerRoute(
     name: "default",
@@ -58,7 +171,7 @@ if (app.Environment.IsDevelopment())
             var logger = services.GetRequiredService<ILogger<Program>>();
             
             logger.LogInformation("Checking database for seed data...");
-            await SciSubmit.Data.DbInitializer.SeedAsync(context);
+            await DbInitializer.SeedAsync(context);
             logger.LogInformation("Database seeding completed.");
         }
         catch (Exception ex)

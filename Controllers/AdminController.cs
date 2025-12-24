@@ -5,6 +5,7 @@ using SciSubmit.Models.Admin;
 using SciSubmit.Models.Enums;
 using SciSubmit.Data;
 using System.Text.Json;
+using System;
 
 namespace SciSubmit.Controllers
 {
@@ -12,11 +13,13 @@ namespace SciSubmit.Controllers
     {
         private readonly IAdminService _adminService;
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<AdminController> _logger;
 
-        public AdminController(IAdminService adminService, ApplicationDbContext context)
+        public AdminController(IAdminService adminService, ApplicationDbContext context, ILogger<AdminController> logger)
         {
             _adminService = adminService;
             _context = context;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Dashboard()
@@ -644,9 +647,33 @@ namespace SciSubmit.Controllers
         [IgnoreAntiforgeryToken] // JSON requests - token is validated manually if needed
         public async Task<IActionResult> CreateTopic([FromBody] TopicViewModel model)
         {
-            if (model == null || string.IsNullOrWhiteSpace(model.Name))
+            if (model == null)
+            {
+                return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
+            }
+
+            if (string.IsNullOrWhiteSpace(model.Name))
             {
                 return Json(new { success = false, message = "Vui lòng nhập tên lĩnh vực." });
+            }
+
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy hội nghị đang hoạt động. Vui lòng tạo hội nghị trước." });
+            }
+
+            var topics = await _context.Topics
+                .Where(t => t.ConferenceId == activeConference.Id)
+                .ToListAsync();
+            var exists = topics.Any(t => t.Name.Trim().Equals(model.Name.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (exists)
+            {
+                return Json(new { success = false, message = "Lĩnh vực này đã tồn tại trong hội nghị đang hoạt động." });
             }
 
             var result = await _adminService.CreateTopicAsync(model);
@@ -654,7 +681,7 @@ namespace SciSubmit.Controllers
             {
                 return Json(new { success = true, message = "Đã thêm lĩnh vực thành công!" });
             }
-            return Json(new { success = false, message = "Không thể thêm lĩnh vực. Có thể lĩnh vực đã tồn tại." });
+            return Json(new { success = false, message = "Không thể thêm lĩnh vực. Vui lòng kiểm tra lại." });
         }
 
         [HttpPost]
@@ -669,6 +696,25 @@ namespace SciSubmit.Controllers
             if (id <= 0)
             {
                 return Json(new { success = false, message = "ID lĩnh vực không hợp lệ." });
+            }
+
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy hội nghị đang hoạt động." });
+            }
+
+            var topics = await _context.Topics
+                .Where(t => t.ConferenceId == activeConference.Id && t.Id != id)
+                .ToListAsync();
+            var exists = topics.Any(t => t.Name.Trim().Equals(model.Name.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (exists)
+            {
+                return Json(new { success = false, message = "Tên lĩnh vực này đã tồn tại trong hội nghị đang hoạt động." });
             }
 
             var result = await _adminService.UpdateTopicAsync(id, model);
@@ -1058,15 +1104,25 @@ namespace SciSubmit.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignReviewers(int submissionId, List<int> reviewerIds)
         {
-            if (reviewerIds == null || reviewerIds.Count == 0)
+            // Filter out empty values (0 or null)
+            reviewerIds = reviewerIds?.Where(id => id > 0).Distinct().ToList() ?? new List<int>();
+            
+            if (reviewerIds.Count == 0)
             {
-                TempData["ErrorMessage"] = "Please select at least one reviewer.";
+                TempData["ErrorMessage"] = "Vui lòng chọn ít nhất một reviewer.";
                 return RedirectToAction(nameof(FullPapers));
             }
 
             if (reviewerIds.Count > 3)
             {
-                TempData["ErrorMessage"] = "Maximum 3 reviewers can be assigned per paper.";
+                TempData["ErrorMessage"] = "Tối đa chỉ được chọn 3 reviewers cho mỗi bài báo.";
+                return RedirectToAction(nameof(FullPapers));
+            }
+            
+            // Check for duplicates
+            if (reviewerIds.Count != reviewerIds.Distinct().Count())
+            {
+                TempData["ErrorMessage"] = "Bạn không thể chọn cùng một reviewer nhiều lần.";
                 return RedirectToAction(nameof(FullPapers));
             }
 
@@ -1123,6 +1179,135 @@ namespace SciSubmit.Controllers
 
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = $"Successfully assigned {reviewerIds.Count} reviewer(s) to the paper.";
+            return RedirectToAction(nameof(FullPapers));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddTestReviewers()
+        {
+            try
+            {
+                // Simple password hashing (same as DbInitializer)
+                string HashPassword(string password)
+                {
+                    using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                    {
+                        var hashedBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password + "SciSubmitSalt"));
+                        return Convert.ToBase64String(hashedBytes);
+                    }
+                }
+
+                // Check if reviewers already exist
+                var existingReviewers = await _context.Users
+                    .Where(u => u.Role == Models.Enums.UserRole.Reviewer && u.IsActive)
+                    .ToListAsync();
+
+                if (existingReviewers.Count >= 5)
+                {
+                    TempData["InfoMessage"] = "Đã có đủ reviewers trong hệ thống.";
+                    return RedirectToAction(nameof(FullPapers));
+                }
+
+                // Create test reviewers
+                var reviewers = new List<Models.Identity.User>();
+
+                // Reviewer 1: GS. Nguyễn Văn X
+                if (!existingReviewers.Any(r => r.Email == "reviewer1@scisubmit.com"))
+                {
+                    reviewers.Add(new Models.Identity.User
+                    {
+                        Email = "reviewer1@scisubmit.com",
+                        PasswordHash = HashPassword("Reviewer@123"),
+                        FullName = "GS. Nguyễn Văn X",
+                        Affiliation = "Đại học ABC",
+                        Role = Models.Enums.UserRole.Reviewer,
+                        EmailConfirmed = true,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                // Reviewer 2: PGS. Trần Thị Y
+                if (!existingReviewers.Any(r => r.Email == "reviewer2@scisubmit.com"))
+                {
+                    reviewers.Add(new Models.Identity.User
+                    {
+                        Email = "reviewer2@scisubmit.com",
+                        PasswordHash = HashPassword("Reviewer@123"),
+                        FullName = "PGS. Trần Thị Y",
+                        Affiliation = "Đại học XYZ",
+                        Role = Models.Enums.UserRole.Reviewer,
+                        EmailConfirmed = true,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                // Reviewer 3: TS. Phạm Văn Z
+                if (!existingReviewers.Any(r => r.Email == "reviewer3@scisubmit.com"))
+                {
+                    reviewers.Add(new Models.Identity.User
+                    {
+                        Email = "reviewer3@scisubmit.com",
+                        PasswordHash = HashPassword("Reviewer@123"),
+                        FullName = "TS. Phạm Văn Z",
+                        Affiliation = "Đại học DEF",
+                        Role = Models.Enums.UserRole.Reviewer,
+                        EmailConfirmed = true,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                // Reviewer 4: PGS.TS. Lê Thị W
+                if (!existingReviewers.Any(r => r.Email == "reviewer4@scisubmit.com"))
+                {
+                    reviewers.Add(new Models.Identity.User
+                    {
+                        Email = "reviewer4@scisubmit.com",
+                        PasswordHash = HashPassword("Reviewer@123"),
+                        FullName = "PGS.TS. Lê Thị W",
+                        Affiliation = "Đại học GHI",
+                        Role = Models.Enums.UserRole.Reviewer,
+                        EmailConfirmed = true,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                // Reviewer 5: dương thị thanh thảo
+                if (!existingReviewers.Any(r => r.Email == "reviewer5@scisubmit.com"))
+                {
+                    reviewers.Add(new Models.Identity.User
+                    {
+                        Email = "reviewer5@scisubmit.com",
+                        PasswordHash = HashPassword("Reviewer@123"),
+                        FullName = "dương thị thanh thảo",
+                        Affiliation = "Đại học JKL",
+                        Role = Models.Enums.UserRole.Reviewer,
+                        EmailConfirmed = true,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                if (reviewers.Any())
+                {
+                    _context.Users.AddRange(reviewers);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = $"Đã thêm {reviewers.Count} reviewers vào database thành công!";
+                }
+                else
+                {
+                    TempData["InfoMessage"] = "Tất cả reviewers test đã tồn tại trong hệ thống.";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding test reviewers");
+                TempData["ErrorMessage"] = $"Lỗi khi thêm reviewers: {ex.Message}";
+            }
+
             return RedirectToAction(nameof(FullPapers));
         }
     }

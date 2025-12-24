@@ -187,6 +187,24 @@
   max-width: 1400px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
+  pointer-events: auto !important;
+}
+
+/* Ensure all interactive elements are clickable */
+.dashboard-defi-content * {
+  pointer-events: auto !important;
+}
+
+.dashboard-defi-content .btn,
+.dashboard-defi-content a,
+.dashboard-defi-content button,
+.dashboard-defi-content input,
+.dashboard-defi-content select,
+.dashboard-defi-content textarea {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 100 !important;
+  position: relative;
 }
 
 /* Header Styles */
@@ -291,13 +309,19 @@
 
 /* Buttons in Cards */
 .dashboard-defi-content .btn-outline-success,
-.dashboard-defi-content .btn-outline-info {
+.dashboard-defi-content .btn-outline-info,
+.dashboard-defi-content .btn,
+.dashboard-defi-content button {
   border: 2px solid currentColor !important;
   color: inherit !important;
   background: transparent !important;
   transition: all 0.3s ease;
   border-radius: 12px !important;
   font-weight: 600;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative;
+  z-index: 100 !important;
 }
 
 .dashboard-defi-content .btn-outline-success:hover,
@@ -308,6 +332,29 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
+/* Ensure text is always visible on hover - override any white text issues */
+.dashboard-defi-content .btn-outline-success:hover,
+.dashboard-defi-content .btn-outline-info:hover,
+.dashboard-defi-content .btn-outline-success:hover *,
+.dashboard-defi-content .btn-outline-info:hover * {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* For btn-outline-success specifically - ensure dark green background on hover */
+.dashboard-defi-content .btn-outline-success:hover {
+  background-color: #059669 !important;
+  border-color: #059669 !important;
+  color: #ffffff !important;
+}
+
+/* For btn-outline-info specifically - ensure dark blue background on hover */
+.dashboard-defi-content .btn-outline-info:hover {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
 /* Function Grid Cards */
 .dashboard-defi-content .hover-shadow {
   background: #ffffff !important;
@@ -316,6 +363,10 @@
   color: #1f2937 !important;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative;
+  z-index: 100 !important;
 }
 
 .dashboard-defi-content .hover-shadow:hover {
@@ -392,6 +443,42 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
+/* Ensure all cards and buttons are interactive */
+.dashboard-defi-content .card {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 100 !important;
+}
+
+.dashboard-defi-content .card .btn,
+.dashboard-defi-content .card button,
+.dashboard-defi-content .card a {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 101 !important;
+  position: relative;
+}
+
+/* Fix for all pages - ensure buttons are always clickable */
+body .btn,
+body button:not([disabled]),
+body a:not([disabled]),
+body .card .btn-group button,
+body .edit-field-btn,
+body .dropdown-item {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 1000 !important;
+  position: relative;
+}
+
+/* Ensure dropdown menus are interactive */
+.dropdown-menu,
+.dropdown-menu * {
+  pointer-events: auto !important;
+  z-index: 1050 !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .dashboard-defi-content {
@@ -402,4 +489,5 @@
     margin-bottom: 1rem;
   }
 }
+
 

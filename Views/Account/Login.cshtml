@@ -1,6 +1,11 @@
 @model SciSubmit.Controllers.LoginViewModel
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 @{
     ViewData["Title"] = "Đăng nhập";
+    var googleClientId = Configuration["Authentication:Google:ClientId"];
+    var googleClientSecret = Configuration["Authentication:Google:ClientSecret"];
+    var isGoogleOAuthConfigured = !string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret);
 }
 
 <div class="auth-container">
@@ -83,10 +88,20 @@
                             </button>
 
                             <!-- Google OAuth Button -->
-                            <button type="button" class="btn btn-outline-danger btn-lg w-100 mb-3" disabled>
-                                <i class="fab fa-google me-2"></i>Đăng nhập với Google
-                                <small class="d-block text-muted mt-1" style="font-size: 0.75rem;">(Sắp có)</small>
-                            </button>
+                            @if (isGoogleOAuthConfigured)
+                            {
+                                <a asp-action="GoogleLogin" asp-route-returnUrl="@ViewData["ReturnUrl"]" 
+                                   class="btn btn-outline-danger btn-lg w-100 mb-3 text-decoration-none">
+                                    <i class="fab fa-google me-2"></i>Đăng nhập với Google
+                                </a>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-outline-danger btn-lg w-100 mb-3" disabled>
+                                    <i class="fab fa-google me-2"></i>Đăng nhập với Google
+                                    <small class="d-block text-muted mt-1" style="font-size: 0.75rem;">(Sắp có)</small>
+                                </button>
+                            }
                         </form>
 
                         <!-- Register Link -->

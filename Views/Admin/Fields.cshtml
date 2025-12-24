@@ -3,6 +3,8 @@
     ViewData["Title"] = "Quản lý lĩnh vực";
 }
 
+<link rel="stylesheet" href="~/css/fields-fix.css" asp-append-version="true" />
+
 @Html.AntiForgeryToken()
 
 <div class="container-fluid my-4">
@@ -32,7 +34,10 @@
                 <p class="text-muted mb-0">Quản lý các lĩnh vực nghiên cứu (Topics) cho bài nộp</p>
             </div>
             <div>
-                <button class="btn btn-primary" onclick="showAddFieldModal()">
+                <button type="button" 
+                        class="btn btn-primary" 
+                        id="addFieldBtn"
+                        style="pointer-events: auto !important; cursor: pointer !important; z-index: 10000 !important; position: relative !important;">
                     <i class="fas fa-plus me-2"></i>Thêm lĩnh vực
                 </button>
             </div>
@@ -51,10 +56,20 @@
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <h5 class="mb-0">@topic.Name</h5>
                                 <div class="btn-group">
-                                    <button class="btn btn-sm btn-outline-warning" onclick="editField(@topic.Id, @Html.Raw(Json.Serialize(topic.Name)), @Html.Raw(Json.Serialize(topic.Description ?? "")), @topic.OrderIndex, @topic.IsActive.ToString().ToLower())" title="Chỉnh sửa">
+                                    <button class="btn btn-sm btn-outline-warning edit-field-btn" 
+                                            data-id="@topic.Id" 
+                                            data-name="@Html.Raw(Json.Serialize(topic.Name))" 
+                                            data-description="@Html.Raw(Json.Serialize(topic.Description ?? ""))" 
+                                            data-order-index="@topic.OrderIndex" 
+                                            data-is-active="@(topic.IsActive ? "true" : "false")" 
+                                            title="Chỉnh sửa"
+                                            style="pointer-events: auto !important; cursor: pointer !important; z-index: 1000 !important; position: relative;">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteField(@topic.Id)" title="Xóa">
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                            onclick="window.deleteField ? window.deleteField(@topic.Id) : deleteField(@topic.Id)" 
+                                            title="Xóa"
+                                            style="pointer-events: auto !important; cursor: pointer !important; z-index: 1000 !important; position: relative;">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -86,8 +101,8 @@
 </div>
 
 <!-- Add/Edit Field Modal -->
-<div class="modal fade" id="fieldModal" tabindex="-1">
-    <div class="modal-dialog">
+<div class="modal fade modal-dialog-centered" id="fieldModal" tabindex="-1" aria-labelledby="fieldModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="fieldModalTitle">Thêm lĩnh vực mới</h5>
@@ -128,27 +143,113 @@
 
 @section Scripts {
     <script>
+        // Ensure functions are available immediately
+        console.log('Fields page script loading...');
+        
         function getToken() {
-            return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            return token ? token.value : '';
         }
 
         function showAddFieldModal() {
-            document.getElementById('fieldModalTitle').textContent = 'Thêm lĩnh vực mới';
-            document.getElementById('fieldForm').reset();
-            document.getElementById('fieldId').value = '';
-            document.getElementById('fieldIsActive').checked = true;
-            new bootstrap.Modal(document.getElementById('fieldModal')).show();
+            console.log('showAddFieldModal called');
+            try {
+                document.getElementById('fieldModalTitle').textContent = 'Thêm lĩnh vực mới';
+                document.getElementById('fieldForm').reset();
+                document.getElementById('fieldId').value = '';
+                document.getElementById('fieldIsActive').checked = true;
+                const modalElement = document.getElementById('fieldModal');
+                if (!modalElement) {
+                    alert('Không tìm thấy modal. Vui lòng tải lại trang.');
+                    return;
+                }
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                    modal.show();
+                } else if (typeof $ !== 'undefined') {
+                    $('#fieldModal').modal('show');
+                } else {
+                    // Fallback
+                    modalElement.style.display = 'block';
+                    modalElement.classList.add('show');
+                    document.body.classList.add('modal-open');
+                }
+            } catch (error) {
+                console.error('Error in showAddFieldModal:', error);
+                alert('Lỗi: ' + error.message);
+            }
         }
 
         function editField(id, name, description, orderIndex, isActive) {
-            document.getElementById('fieldModalTitle').textContent = 'Chỉnh sửa lĩnh vực';
-            document.getElementById('fieldId').value = id;
-            // No need to escape, just use the value directly
-            document.getElementById('fieldName').value = name || '';
-            document.getElementById('fieldDescription').value = description || '';
-            document.getElementById('fieldOrderIndex').value = orderIndex;
-            document.getElementById('fieldIsActive').checked = isActive === 'true' || isActive === true;
-            new bootstrap.Modal(document.getElementById('fieldModal')).show();
+            console.log('editField called with:', { id, name, description, orderIndex, isActive });
+            try {
+                const modalElement = document.getElementById('fieldModal');
+                console.log('Modal element:', modalElement);
+                if (!modalElement) {
+                    alert('Không tìm thấy modal. Vui lòng tải lại trang.');
+                    console.error('Modal element not found');
+                    return;
+                }
+
+                // Set form values
+                document.getElementById('fieldModalTitle').textContent = 'Chỉnh sửa lĩnh vực';
+                document.getElementById('fieldId').value = id || '';
+                document.getElementById('fieldName').value = name || '';
+                document.getElementById('fieldDescription').value = description || '';
+                document.getElementById('fieldOrderIndex').value = orderIndex || 0;
+                
+                // Handle boolean value - can be string "true"/"false" or boolean
+                const isActiveValue = isActive === 'true' || isActive === true || isActive === 'True' || isActive === 1;
+                document.getElementById('fieldIsActive').checked = isActiveValue;
+                console.log('isActive value:', isActive, 'converted to:', isActiveValue);
+                
+                // Check if Bootstrap is available
+                console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
+                if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+                    alert('Bootstrap chưa được tải. Vui lòng tải lại trang.');
+                    console.error('Bootstrap.Modal is not available');
+                    // Fallback: show modal using jQuery if available, or direct style manipulation
+                    if (typeof $ !== 'undefined') {
+                        $('#fieldModal').modal('show');
+                        return;
+                    }
+                    // Last resort: show modal by manipulating classes
+                    modalElement.classList.remove('fade');
+                    modalElement.style.display = 'block';
+                    modalElement.classList.add('show');
+                    document.body.classList.add('modal-open');
+                    const backdrop = document.createElement('div');
+                    backdrop.className = 'modal-backdrop fade show';
+                    backdrop.id = 'modalBackdrop';
+                    document.body.appendChild(backdrop);
+                    return;
+                }
+
+                // Get existing modal instance or create new one
+                let modal = bootstrap.Modal.getInstance(modalElement);
+                if (!modal) {
+                    console.log('Creating new Bootstrap modal instance');
+                    modal = new bootstrap.Modal(modalElement, {
+                        backdrop: true,
+                        keyboard: true,
+                        focus: true
+                    });
+                }
+                console.log('Showing modal');
+                modal.show();
+                
+                // Ensure modal is visible
+                setTimeout(() => {
+                    if (!modalElement.classList.contains('show')) {
+                        console.warn('Modal not showing, forcing display');
+                        modalElement.classList.add('show');
+                        modalElement.style.display = 'block';
+                    }
+                }, 100);
+            } catch (error) {
+                console.error('Error showing edit modal:', error);
+                alert('Có lỗi xảy ra khi mở form chỉnh sửa: ' + error.message);
+            }
         }
 
         function deleteField(id) {
@@ -243,5 +344,151 @@
                 alert('Có lỗi xảy ra khi lưu lĩnh vực: ' + error.message);
             });
         }
+
+        // Make functions globally available IMMEDIATELY
+        // This ensures they're available even if event listeners fail
+        if (typeof window !== 'undefined') {
+            window.getToken = getToken;
+            window.showAddFieldModal = showAddFieldModal;
+            window.editField = editField;
+            window.deleteField = deleteField;
+            window.saveField = saveField;
+            console.log('Functions attached to window:', {
+                getToken: typeof window.getToken,
+                showAddFieldModal: typeof window.showAddFieldModal,
+                editField: typeof window.editField,
+                deleteField: typeof window.deleteField,
+                saveField: typeof window.saveField
+            });
+        }
+
+        // Attach event listeners to edit buttons using data attributes
+        // Use both DOMContentLoaded and immediate execution to ensure it works
+        function attachEventListeners() {
+            console.log('Attaching event listeners...');
+            
+            // Check if Bootstrap is available
+            if (typeof bootstrap === 'undefined') {
+                console.warn('Bootstrap is not loaded. Some features may not work correctly.');
+            }
+
+            // Attach event listeners to edit buttons using data attributes
+            const editButtons = document.querySelectorAll('.edit-field-btn');
+            console.log('Found edit buttons:', editButtons.length);
+            
+            editButtons.forEach(function(btn, index) {
+                // Remove any existing event listeners by cloning
+                const newBtn = btn.cloneNode(true);
+                if (btn.parentNode) {
+                    btn.parentNode.replaceChild(newBtn, btn);
+                }
+                
+                // Add click event listener
+                newBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    
+                    console.log('Edit button clicked, index:', index);
+                    
+                    const id = parseInt(this.getAttribute('data-id')) || 0;
+                    // Parse JSON values to handle Unicode characters correctly
+                    let name = '';
+                    let description = '';
+                    try {
+                        const nameAttr = this.getAttribute('data-name') || '';
+                        name = nameAttr.startsWith('"') ? JSON.parse(nameAttr) : nameAttr;
+                    } catch (err) {
+                        name = this.getAttribute('data-name') || '';
+                    }
+                    try {
+                        const descAttr = this.getAttribute('data-description') || '';
+                        description = descAttr.startsWith('"') ? JSON.parse(descAttr) : descAttr;
+                    } catch (err) {
+                        description = this.getAttribute('data-description') || '';
+                    }
+                    const orderIndex = parseInt(this.getAttribute('data-order-index')) || 0;
+                    const isActive = this.getAttribute('data-is-active') === 'true';
+                    
+                    console.log('Edit button data:', { id, name, description, orderIndex, isActive });
+                    
+                    if (typeof window.editField === 'function') {
+                        window.editField(id, name, description, orderIndex, isActive);
+                    } else {
+                        console.error('editField function not found on window');
+                        alert('Lỗi: Không tìm thấy hàm editField. Vui lòng tải lại trang.');
+                    }
+                }, true); // Use capture phase to ensure it fires
+            });
+            
+            // Also ensure onclick handlers work
+            const addButton = document.getElementById('addFieldBtn');
+            if (addButton) {
+                console.log('Add button found, attaching listener');
+                addButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Add button clicked');
+                    if (typeof window.showAddFieldModal === 'function') {
+                        window.showAddFieldModal();
+                    } else if (typeof showAddFieldModal === 'function') {
+                        showAddFieldModal();
+                    } else {
+                        alert('Lỗi: Không tìm thấy hàm showAddFieldModal');
+                    }
+                }, true);
+                addButton.style.pointerEvents = 'auto';
+                addButton.style.cursor = 'pointer';
+                addButton.style.zIndex = '10000';
+                addButton.style.position = 'relative';
+            } else {
+                console.warn('Add button not found!');
+            }
+            
+            const deleteButtons = document.querySelectorAll('button[onclick*="deleteField"]');
+            console.log('Delete buttons found:', deleteButtons.length);
+            deleteButtons.forEach(function(btn, index) {
+                console.log('Setting up delete button', index);
+                btn.style.pointerEvents = 'auto';
+                btn.style.cursor = 'pointer';
+                btn.style.zIndex = '10000';
+                btn.style.position = 'relative';
+                // Also add event listener as backup
+                const onclickAttr = btn.getAttribute('onclick');
+                if (onclickAttr) {
+                    const match = onclickAttr.match(/deleteField\((\d+)\)/);
+                    if (match) {
+                        const topicId = parseInt(match[1]);
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (typeof window.deleteField === 'function') {
+                                window.deleteField(topicId);
+                            } else if (typeof deleteField === 'function') {
+                                deleteField(topicId);
+                            }
+                        }, true);
+                    }
+                }
+            });
+        }
+
+        // Attach listeners when DOM is ready - multiple strategies
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOMContentLoaded fired');
+                attachEventListeners();
+            });
+        } else {
+            // DOM is already ready
+            console.log('DOM already ready, attaching listeners immediately');
+            attachEventListeners();
+        }
+        
+        // Also try after a short delay to ensure everything is loaded
+        setTimeout(function() {
+            console.log('Delayed attachment of event listeners');
+            attachEventListeners();
+        }, 500);
     </script>
 }

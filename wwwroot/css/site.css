@@ -1438,31 +1438,50 @@ a:hover {
    FOOTER
    ======================================== */
 .footer-custom {
-  background: linear-gradient(135deg, var(--color-gray-100) 0%, var(--color-gray-200) 100%);
-  color: var(--color-gray-800);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+  color: #212529 !important;
   padding: var(--spacing-8) 0 var(--spacing-6);
   border-top: 3px solid var(--color-primary);
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 10;
 }
 
 .footer-custom h5,
 .footer-custom h6 {
-  color: var(--color-gray-900);
+  color: #1a1d20 !important;
   margin-bottom: var(--spacing-3);
+  font-weight: 700 !important;
+  text-shadow: none !important;
 }
 
 .footer-custom p {
-  color: var(--color-gray-700);
+  color: #343a40 !important;
   margin-bottom: var(--spacing-2);
+  font-weight: 500 !important;
+  text-shadow: none !important;
 }
 
 .footer-custom hr {
-  border-color: var(--color-gray-300);
-  opacity: 0.5;
+  border-color: #6c757d !important;
+  opacity: 0.8 !important;
+  border-width: 1px !important;
 }
 
 .footer-custom i {
-  color: var(--color-primary);
+  color: var(--color-primary) !important;
+  opacity: 1 !important;
+}
+
+/* Ensure all footer text is visible and not faded */
+.footer-custom * {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+.footer-custom .text-muted {
+  color: #495057 !important;
+  opacity: 1 !important;
 }
 
 /* ========================================

@@ -13,9 +13,9 @@
                     <strong>Tóm tắt đã được chấp nhận!</strong> Bạn có thể nộp bài đầy đủ (Full Paper) bây giờ.
                 </div>
                 <h2 class="text-gradient mb-2">
-                    <i class="fas fa-file-pdf me-2"></i>Nộp bài đầy đủ
+                    <i class="fas fa-file-word me-2"></i>Nộp bài đầy đủ
                 </h2>
-                <p class="text-muted">Upload file bài báo đầy đủ của bạn (PDF hoặc DOCX)</p>
+                <p class="text-muted">Upload file bài báo đầy đủ của bạn (DOC hoặc DOCX)</p>
             </div>
 
             <!-- Deadline Countdown -->
@@ -58,8 +58,8 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <i class="fas fa-file-pdf text-danger me-2"></i>
-                                            <strong id="currentFileName">paper_v1.pdf</strong>
+                                            <i class="fas fa-file-word text-primary me-2"></i>
+                                            <strong id="currentFileName">paper_v1.doc</strong>
                                             <span class="text-muted ms-2">(2.5 MB)</span>
                                             <br>
                                             <small class="text-muted">
@@ -94,11 +94,11 @@
                                 <div class="text-center py-5">
                                     <i class="fas fa-cloud-upload-alt fa-4x text-primary mb-3"></i>
                                     <h5>Kéo thả file vào đây hoặc click để chọn</h5>
-                                    <p class="text-muted mb-0">PDF, DOCX (Tối đa 10MB)</p>
+                                    <p class="text-muted mb-0">DOC, DOCX (Tối đa 10MB)</p>
                                 </div>
                             </div>
                             <input type="file" id="fileInput" name="File" class="d-none" 
-                                   accept=".pdf,.docx" required />
+                                   accept=".doc,.docx" required />
                             <div id="filePreview" class="mt-3"></div>
                         </div>
 
@@ -112,7 +112,7 @@
                                     <div class="timeline-marker bg-success"></div>
                                     <div class="timeline-content">
                                         <h6 class="mb-1">Phiên bản 2</h6>
-                                        <p class="text-muted mb-1 small">paper_v2.pdf (2.5 MB)</p>
+                                        <p class="text-muted mb-1 small">paper_v2.doc (2.5 MB)</p>
                                         <small class="text-muted">
                                             <i class="fas fa-calendar me-1"></i>20/01/2025 14:30
                                         </small>
@@ -122,7 +122,7 @@
                                     <div class="timeline-marker bg-primary"></div>
                                     <div class="timeline-content">
                                         <h6 class="mb-1">Phiên bản 1</h6>
-                                        <p class="text-muted mb-1 small">paper_v1.pdf (2.3 MB)</p>
+                                        <p class="text-muted mb-1 small">paper_v1.doc (2.3 MB)</p>
                                         <small class="text-muted">
                                             <i class="fas fa-calendar me-1"></i>15/01/2025 10:30
                                         </small>
@@ -159,7 +159,7 @@
                 </div>
                 <div class="card-body">
                     <ul class="mb-0">
-                        <li>File phải là PDF hoặc DOCX</li>
+                        <li>File phải là DOC hoặc DOCX</li>
                         <li>Kích thước tối đa: 10MB</li>
                         <li>Bạn có thể upload lại nhiều lần trước deadline</li>
                         <li>Hệ thống sẽ chỉ lấy phiên bản cuối cùng để đưa vào phản biện</li>
@@ -201,6 +201,18 @@
             const file = e.target.files[0];
             if (!file) return;
 
+            // Validate file extension
+            const allowedExtensions = ['.doc', '.docx'];
+            const fileName = file.name.toLowerCase();
+            const isValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+            
+            if (!isValidExtension) {
+                alert('Chỉ chấp nhận file DOC hoặc DOCX. Vui lòng chọn lại file.');
+                this.value = '';
+                document.getElementById('filePreview').innerHTML = '';
+                return;
+            }
+
             if (file.size > 10 * 1024 * 1024) {
                 alert('File không được vượt quá 10MB');
                 this.value = '';
@@ -209,12 +221,13 @@
             }
 
             const preview = document.getElementById('filePreview');
+            const fileIcon = fileName.endsWith('.docx') ? 'fa-file-word' : 'fa-file-word';
             preview.innerHTML = `
                 <div class="card border-primary">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <i class="fas fa-file-pdf text-danger fa-2x me-3"></i>
+                                <i class="fas ${fileIcon} text-primary fa-2x me-3"></i>
                                 <div class="d-inline-block">
                                     <strong>${file.name}</strong>
                                     <br>
@@ -241,6 +254,17 @@
             if (!file) {
                 e.preventDefault();
                 alert('Vui lòng chọn file để upload');
+                return false;
+            }
+            
+            // Validate file extension on submit
+            const allowedExtensions = ['.doc', '.docx'];
+            const fileName = file.name.toLowerCase();
+            const isValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+            
+            if (!isValidExtension) {
+                e.preventDefault();
+                alert('Chỉ chấp nhận file DOC hoặc DOCX. Vui lòng chọn lại file.');
                 return false;
             }
         });

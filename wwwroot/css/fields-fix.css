@@ -1,0 +1,96 @@
+/* ========================================
+   FIELDS PAGE FIX - Ensure all buttons are clickable
+   ======================================== */
+
+/* CRITICAL: Ensure main content area is interactive */
+main,
+main *,
+.container-fluid,
+.container-fluid * {
+  pointer-events: auto !important;
+}
+
+/* Override any pointer-events that might block interactions */
+.container-fluid .btn,
+.container-fluid button:not([disabled]),
+.container-fluid .card .btn-group button,
+.container-fluid .edit-field-btn,
+.container-fluid .card a,
+.container-fluid a {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 10000 !important;
+  position: relative !important;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  touch-action: manipulation;
+}
+
+/* Ensure cards are interactive */
+.container-fluid .card {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 100 !important;
+}
+
+/* Ensure all buttons have proper styling */
+button.btn,
+button[type="button"],
+button[onclick],
+a.btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 10000 !important;
+  position: relative !important;
+}
+
+/* Ensure modal is always on top */
+.modal {
+  z-index: 1055 !important;
+  pointer-events: auto !important;
+}
+
+.modal-backdrop {
+  z-index: 1050 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure dropdown menus work */
+.dropdown-menu {
+  pointer-events: auto !important;
+  z-index: 1050 !important;
+}
+
+/* Fix for any overlay that might block - ensure background layers don't interfere */
+.dashboard-defi-background,
+.dashboard-particles,
+.dashboard-light-streaks {
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+/* Ensure navbar is clickable */
+.navbar,
+.navbar * {
+  pointer-events: auto !important;
+  z-index: 1030 !important;
+}
+
+/* CRITICAL: Ensure no element blocks interactions */
+* {
+  /* Don't override, but ensure buttons work */
+}
+
+/* Force interactive elements to be on top */
+button,
+a,
+input[type="button"],
+input[type="submit"],
+.btn,
+.dropdown-toggle {
+  position: relative !important;
+  z-index: 10000 !important;
+}
+
