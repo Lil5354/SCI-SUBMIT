@@ -36,6 +36,8 @@ namespace SciSubmit.Models.Conference
         public virtual ICollection<Models.Payment.PaymentConfiguration> PaymentConfigurations { get; set; } = new List<Models.Payment.PaymentConfiguration>();
         public virtual ICollection<Models.Notification.EmailTemplate> EmailTemplates { get; set; } = new List<Models.Notification.EmailTemplate>();
         public virtual ICollection<SystemSetting> SystemSettings { get; set; } = new List<SystemSetting>();
+        public virtual ICollection<KeynoteSpeaker> KeynoteSpeakers { get; set; } = new List<KeynoteSpeaker>();
+        public virtual ICollection<ConferenceLocation> ConferenceLocations { get; set; } = new List<ConferenceLocation>();
     }
 }
 

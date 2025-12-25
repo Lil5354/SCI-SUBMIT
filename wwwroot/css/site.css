@@ -581,7 +581,7 @@ a:hover {
   background-position: center center;
   background-attachment: fixed;
   background-blend-mode: soft-light;
-  padding: var(--spacing-20) 0 var(--spacing-16);
+  padding: 8rem 0 6rem;
   color: var(--color-white);
   position: relative;
   overflow: hidden;
@@ -1252,7 +1252,7 @@ a:hover {
 
 @media (max-width: 768px) {
   .hero-section {
-    padding: var(--spacing-10) 0;
+    padding: 4rem 0 3rem;
   }
   
   .hero-title {
@@ -1741,6 +1741,16 @@ a:hover {
 
 .progress-step-icon {
   font-size: 1.25rem;
+}
+
+.progress-step-icon.progress-step-icon-doc {
+  width: 1.25rem;
+  height: 1.25rem;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 @media (max-width: 768px) {

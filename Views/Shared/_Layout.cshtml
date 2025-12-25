@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="~/css/site-override.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/table-fix.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/table-alignment-fix.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/ui-enhancements.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SciSubmit.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
     <!-- Home page enhanced styles - Load last to override site.css -->
@@ -30,8 +31,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
           integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
           crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Bootstrap Icons for additional icon variety -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" 
+          integrity="sha384-4LISF5TTJX/fLmGSsOeDmT1lmOMt4BxGkYFBKS/Y6b5z3z3z3z3z3z3z3z3z3z3z" 
+          crossorigin="anonymous" />
 </head>
-<body class="d-flex flex-column min-vh-100">
+@{
+    var controller = ViewContext.RouteData.Values["Controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["Action"]?.ToString();
+    var isAuthPage = controller == "Account" && (action == "Login" || action == "Register");
+}
+<body class="d-flex flex-column @(isAuthPage ? "" : "min-vh-100")">
     <header class="sticky-top">
         <nav class="navbar navbar-expand-lg navbar-dark gradient-primary shadow-lg">
             <div class="container">
@@ -109,6 +119,8 @@
         @RenderBody()
     </main>
 
+    @if (!isAuthPage)
+    {
     <footer class="footer-custom mt-auto">
         <div class="container">
             <div class="row">
@@ -136,6 +148,7 @@
             </div>
         </div>
     </footer>
+    }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

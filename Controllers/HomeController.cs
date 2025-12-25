@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using SciSubmit.Models;
 using SciSubmit.Data;
 using SciSubmit.Models.Admin;
@@ -22,6 +23,8 @@ namespace SciSubmit.Controllers
 
         public IActionResult Index()
         {
+            // Pass Google Maps API Key to view
+            ViewBag.GoogleMapsApiKey = HttpContext.RequestServices.GetRequiredService<IConfiguration>()["GoogleMaps:ApiKey"] ?? "";
             return View();
         }
 
@@ -92,6 +95,42 @@ namespace SciSubmit.Controllers
                 }
             }
 
+            // Load Keynote Speakers
+            var keynoteSpeakers = await _context.KeynoteSpeakers
+                .Where(k => k.ConferenceId == activeConference.Id && k.IsActive)
+                .OrderBy(k => k.OrderIndex)
+                .ThenBy(k => k.Id)
+                .Select(k => new
+                {
+                    id = k.Id,
+                    name = k.Name,
+                    title = k.Title,
+                    affiliation = k.Affiliation,
+                    biography = k.Biography,
+                    topic = k.Topic,
+                    photoUrl = k.PhotoUrl,
+                    orderIndex = k.OrderIndex
+                })
+                .ToListAsync();
+
+            // Load Conference Location
+            var conferenceLocation = await _context.ConferenceLocations
+                .Where(l => l.ConferenceId == activeConference.Id && l.IsActive)
+                .FirstOrDefaultAsync();
+
+            var locationData = conferenceLocation != null ? new
+            {
+                id = conferenceLocation.Id,
+                name = conferenceLocation.Name,
+                address = conferenceLocation.Address,
+                city = conferenceLocation.City,
+                country = conferenceLocation.Country,
+                latitude = conferenceLocation.Latitude,
+                longitude = conferenceLocation.Longitude,
+                googleMapsEmbedUrl = conferenceLocation.GoogleMapsEmbedUrl,
+                description = conferenceLocation.Description
+            } : null;
+
             return Json(new
             {
                 heroTitle = settings.GetValueOrDefault("Interface.HeroTitle", "Welcome to Scientific Conference Management System"),
@@ -108,7 +147,14 @@ namespace SciSubmit.Controllers
                 lightIntensity = settings.GetValueOrDefault("Interface.LightIntensity", "medium"),
                 gradientColor = settings.GetValueOrDefault("Interface.GradientColor", "#3b82f6"),
                 statistics = stats,
-                timeline = timelineItems
+                timeline = timelineItems,
+                keynoteSpeakers = keynoteSpeakers,
+                location = locationData,
+                conferenceName = activeConference.Name,
+                conferenceDescription = activeConference.Description,
+                conferenceStartDate = activeConference.StartDate?.ToString("yyyy-MM-ddTHH:mm:ss"),
+                conferenceEndDate = activeConference.EndDate?.ToString("yyyy-MM-ddTHH:mm:ss"),
+                googleMapsApiKey = HttpContext.RequestServices.GetRequiredService<IConfiguration>()["GoogleMaps:ApiKey"] ?? ""
             });
         }
 

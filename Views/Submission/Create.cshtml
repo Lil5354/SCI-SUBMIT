@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Nộp tóm tắt bài báo";
+    ViewData["Title"] = "Submit Abstract";
 }
 
 <div class="container my-5">
@@ -8,15 +8,15 @@
             <!-- Header -->
             <div class="mb-4">
                 <h2 class="text-gradient mb-2">
-                    <i class="fas fa-file-alt me-2"></i>Nộp tóm tắt bài báo
+                    <i class="fas fa-file-upload me-2"></i>Submit Abstract
                 </h2>
-                <p class="text-muted">Điền đầy đủ thông tin để nộp tóm tắt (Abstract) bài báo của bạn</p>
+                <p class="text-muted">Fill in all information to submit your paper abstract</p>
             </div>
 
             <!-- Auto-save Indicator -->
             <div id="autoSaveIndicator" class="alert alert-info alert-dismissible fade show" role="alert" style="display: none;">
                 <i class="fas fa-save me-2"></i>
-                <span id="autoSaveMessage">Đang lưu nháp tự động...</span>
+                <span id="autoSaveMessage">Auto-saving draft...</span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
@@ -24,20 +24,20 @@
             <form id="submissionForm" asp-action="Create" method="post" enctype="multipart/form-data">
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin bài báo</h5>
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Paper Information</h5>
                     </div>
                     <div class="card-body p-4">
                         <!-- Title -->
                         <div class="mb-4">
                             <label class="form-label fw-semibold">
-                                <i class="fas fa-heading me-2 text-primary"></i>Tiêu đề <span class="text-danger">*</span>
+                                <i class="fas fa-heading me-2 text-primary"></i>Title <span class="text-danger">*</span>
                             </label>
                             <input type="text" id="titleInput" name="Title" class="form-control form-control-lg" 
-                                   placeholder="Nhập tiêu đề bài báo" maxlength="200" required />
+                                   placeholder="Enter paper title" maxlength="200" required />
                             <div class="d-flex justify-content-between mt-1">
-                                <small class="form-text text-muted">Tiêu đề phải ngắn gọn và mô tả đúng nội dung nghiên cứu</small>
+                                <small class="form-text text-muted">Title should be concise and accurately describe the research content</small>
                                 <small class="text-muted">
-                                    <span id="titleCharCount">0</span>/200 ký tự
+                                    <span id="titleCharCount">0</span>/200 characters
                                 </small>
                             </div>
                             <span class="text-danger small" id="titleError"></span>
@@ -46,15 +46,15 @@
                         <!-- Abstract -->
                         <div class="mb-4">
                             <label class="form-label fw-semibold">
-                                <i class="fas fa-align-left me-2 text-primary"></i>Tóm tắt (Abstract) <span class="text-danger">*</span>
+                                <i class="fas fa-align-left me-2 text-primary"></i>Abstract <span class="text-danger">*</span>
                             </label>
                             <textarea id="abstractInput" name="Abstract" class="form-control" rows="8" 
-                                      placeholder="Nhập tóm tắt bài báo (150-300 từ)" required></textarea>
+                                      placeholder="Enter paper abstract (150-300 words)" required></textarea>
                             <div class="d-flex justify-content-between mt-1">
-                                <small class="form-text text-muted">Tóm tắt phải từ 150-300 từ</small>
+                                <small class="form-text text-muted">Abstract must be 150-300 words</small>
                                 <small class="text-muted">
-                                    <span id="abstractWordCount">0</span> từ / 
-                                    <span id="abstractCharCount">0</span> ký tự
+                                    <span id="abstractWordCount">0</span> words / 
+                                    <span id="abstractCharCount">0</span> characters
                                 </small>
                             </div>
                             <span class="text-danger small" id="abstractError"></span>
@@ -63,27 +63,27 @@
                         <!-- Keywords (Tag Input) -->
                         <div class="mb-4">
                             <label class="form-label fw-semibold">
-                                <i class="fas fa-tags me-2 text-primary"></i>Từ khóa (Keywords) <span class="text-danger">*</span>
+                                <i class="fas fa-tags me-2 text-primary"></i>Keywords <span class="text-danger">*</span>
                             </label>
                             <div id="keywordsContainer" class="mb-2 p-3 border rounded" style="min-height: 60px; background: var(--color-gray-50);">
                                 <!-- Tags will be added here -->
                             </div>
                             <div class="input-group">
                                 <input type="text" id="keywordInput" class="form-control" 
-                                       placeholder="Nhập từ khóa và nhấn Enter (tối đa 5-6 từ)" 
+                                       placeholder="Enter keyword and press Enter (max 5-6 keywords)" 
                                        autocomplete="off" />
                                 <button type="button" class="btn btn-outline-primary" onclick="addKeyword()">
-                                    <i class="fas fa-plus"></i> Thêm
+                                    <i class="fas fa-plus"></i> Add
                                 </button>
                             </div>
                             <div class="d-flex justify-content-between mt-1">
-                                <small class="form-text text-muted">Gõ từ khóa và nhấn Enter để thêm. Tối đa 5-6 từ khóa.</small>
+                                <small class="form-text text-muted">Type keyword and press Enter to add. Maximum 5-6 keywords.</small>
                                 <small class="text-muted">
-                                    <span id="keywordCount">0</span>/6 từ khóa
+                                    <span id="keywordCount">0</span>/6 keywords
                                 </small>
                             </div>
                             <div id="keywordSuggestions" class="mt-2" style="display: none;">
-                                <small class="text-muted">Gợi ý:</small>
+                                <small class="text-muted"><i class="fas fa-lightbulb me-1"></i>Suggestions:</small>
                                 <div id="suggestionsList" class="d-flex flex-wrap gap-2 mt-1"></div>
                             </div>
                             <input type="hidden" id="keywordsInput" name="Keywords" value="" />
@@ -93,10 +93,10 @@
                         <!-- Topic (Dropdown) -->
                         <div class="mb-4">
                             <label class="form-label fw-semibold">
-                                <i class="fas fa-list me-2 text-primary"></i>Chủ đề (Topic) <span class="text-danger">*</span>
+                                <i class="fas fa-list me-2 text-primary"></i>Topic <span class="text-danger">*</span>
                             </label>
                             <select id="topicSelect" name="Topic" class="form-select form-select-lg" required>
-                                <option value="">-- Chọn chủ đề --</option>
+                                <option value="">-- Select Topic --</option>
                                 <option value="Kinh tế">Kinh tế</option>
                                 <option value="Tài chính & Kế toán">Tài chính & Kế toán</option>
                                 <option value="Thương mại">Thương mại</option>
@@ -105,41 +105,41 @@
                                 <option value="Du lịch & Môi trường">Du lịch & Môi trường</option>
                                 <option value="Tích hợp quốc tế">Tích hợp quốc tế</option>
                             </select>
-                            <small class="form-text text-muted mt-1">Chủ đề do Admin quy định</small>
+                            <small class="form-text text-muted mt-1"><i class="fas fa-info-circle me-1"></i>Topic is defined by Admin</small>
                             <span class="text-danger small" id="topicError"></span>
                         </div>
 
                         <!-- Authors (Dynamic) -->
                         <div class="mb-4">
                             <label class="form-label fw-semibold">
-                                <i class="fas fa-users me-2 text-primary"></i>Thông tin Tác giả <span class="text-danger">*</span>
+                                <i class="fas fa-users me-2 text-primary"></i>Author Information <span class="text-danger">*</span>
                             </label>
                             <div id="authorsContainer">
                                 <!-- Authors will be added here -->
                             </div>
                             <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addAuthor()">
-                                <i class="fas fa-plus me-1"></i>Thêm tác giả
+                                <i class="fas fa-plus me-1"></i>Add Author
                             </button>
-                            <small class="form-text text-muted d-block mt-2">Phải có ít nhất một tác giả chính (corresponding author)</small>
+                            <small class="form-text text-muted d-block mt-2"><i class="fas fa-info-circle me-1"></i>Must have at least one corresponding author</small>
                             <span class="text-danger small" id="authorsError"></span>
                         </div>
 
                         <!-- Optional File Upload -->
                         <div class="mb-4">
                             <label class="form-label fw-semibold">
-                                <i class="fas fa-file-upload me-2 text-primary"></i>File hỗ trợ (Tùy chọn)
+                                <i class="fas fa-file-upload me-2 text-primary"></i>Support File (Optional)
                             </label>
                             <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
                                 <div class="text-center py-4">
                                     <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-                                    <h6>Kéo thả file vào đây hoặc click để chọn</h6>
-                                    <p class="text-muted mb-0">PDF, DOCX (Tối đa 10MB)</p>
+                                    <h6>Drag and drop file here or click to select</h6>
+                                    <p class="text-muted mb-0">PDF, DOCX (Max 10MB)</p>
                                 </div>
                             </div>
                             <input type="file" id="fileInput" name="SupportFile" class="d-none" 
                                    accept=".pdf,.doc,.docx" />
                             <div id="fileList" class="mt-3"></div>
-                            <small class="form-text text-muted">File hỗ trợ là tùy chọn, không bắt buộc</small>
+                            <small class="form-text text-muted"><i class="fas fa-info-circle me-1"></i>Support file is optional</small>
                         </div>
                     </div>
                 </div>
@@ -149,14 +149,14 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <button type="button" class="btn btn-outline-primary" id="btnSaveDraft" onclick="saveDraft()">
-                                <i class="fas fa-save me-2"></i>Lưu nháp
+                                <i class="fas fa-save me-2"></i>Save Draft
                             </button>
                             <div class="ms-auto">
                                 <a href="/Submission/Index" class="btn btn-outline-secondary me-2">
-                                    <i class="fas fa-times me-2"></i>Hủy
+                                    <i class="fas fa-times me-2"></i>Cancel
                                 </a>
                                 <button type="submit" class="btn btn-primary btn-lg" id="btnSubmit">
-                                    <i class="fas fa-paper-plane me-2"></i>Nộp bài
+                                    <i class="fas fa-paper-plane me-2"></i>Submit
                                 </button>
                             </div>
                         </div>
@@ -222,7 +222,7 @@
             document.getElementById('titleCharCount').textContent = count;
             
             if (count > 200) {
-                document.getElementById('titleError').textContent = 'Tiêu đề không được vượt quá 200 ký tự';
+                document.getElementById('titleError').textContent = 'Title cannot exceed 200 characters';
                 input.classList.add('is-invalid');
             } else {
                 document.getElementById('titleError').textContent = '';
@@ -242,10 +242,10 @@
             document.getElementById('abstractCharCount').textContent = charCount;
 
             if (wordCount < 150) {
-                document.getElementById('abstractError').textContent = 'Tóm tắt phải có ít nhất 150 từ';
+                document.getElementById('abstractError').textContent = 'Abstract must have at least 150 words';
                 textarea.classList.add('is-invalid');
             } else if (wordCount > 300) {
-                document.getElementById('abstractError').textContent = 'Tóm tắt không được vượt quá 300 từ';
+                document.getElementById('abstractError').textContent = 'Abstract cannot exceed 300 words';
                 textarea.classList.add('is-invalid');
             } else {
                 document.getElementById('abstractError').textContent = '';
@@ -261,12 +261,12 @@
             if (!keyword) return;
 
             if (keywords.length >= 6) {
-                alert('Tối đa 6 từ khóa');
+                alert('Maximum 6 keywords');
                 return;
             }
 
             if (keywords.includes(keyword)) {
-                alert('Từ khóa đã tồn tại');
+                alert('Keyword already exists');
                 return;
             }
 
@@ -287,7 +287,7 @@
             const countSpan = document.getElementById('keywordCount');
 
             if (keywords.length === 0) {
-                container.innerHTML = '<p class="text-muted mb-0 text-center py-2">Chưa có từ khóa nào</p>';
+                container.innerHTML = '<p class="text-muted mb-0 text-center py-2"><i class="fas fa-info-circle me-1"></i>No keywords added yet</p>';
             } else {
                 container.innerHTML = keywords.map(keyword => `
                     <span class="badge bg-primary me-2 mb-2" style="font-size: 0.875rem; padding: 0.5rem 0.75rem;">
@@ -319,13 +319,13 @@
             authorDiv.innerHTML = `
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="mb-0"><i class="fas fa-user me-2 text-primary"></i>Tác giả ${authors.length}</h6>
+                        <h6 class="mb-0"><i class="fas fa-user me-2 text-primary"></i>Author ${authors.length}</h6>
                         <div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" id="corresponding-${authors[authors.length - 1].id}" 
                                        onchange="toggleCorresponding(${authors[authors.length - 1].id})">
                                 <label class="form-check-label" for="corresponding-${authors[authors.length - 1].id}">
-                                    Tác giả chính
+                                    <i class="fas fa-star me-1 text-warning"></i>Corresponding Author
                                 </label>
                             </div>
                             ${authors.length > 1 ? `<button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeAuthor(${authors[authors.length - 1].id})">
@@ -335,21 +335,21 @@
                     </div>
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                            <label class="form-label"><i class="fas fa-user me-1"></i>Full Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control author-fullname" 
-                                   placeholder="Nhập họ và tên" required 
+                                   placeholder="Enter full name" required 
                                    data-author-id="${authors[authors.length - 1].id}" />
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <label class="form-label"><i class="fas fa-envelope me-1"></i>Email <span class="text-danger">*</span></label>
                             <input type="email" class="form-control author-email" 
                                    placeholder="email@example.com" required 
                                    data-author-id="${authors[authors.length - 1].id}" />
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Đơn vị</label>
+                            <label class="form-label"><i class="fas fa-building me-1"></i>Affiliation</label>
                             <input type="text" class="form-control author-affiliation" 
-                                   placeholder="Tên đơn vị công tác" 
+                                   placeholder="Organization/Institution" 
                                    data-author-id="${authors[authors.length - 1].id}" />
                         </div>
                     </div>
@@ -367,7 +367,7 @@
 
         function removeAuthor(authorId) {
             if (authors.length <= 1) {
-                alert('Phải có ít nhất một tác giả');
+                alert('Must have at least one author');
                 return;
             }
 
@@ -430,7 +430,7 @@
             if (!file) return;
 
             if (file.size > 10 * 1024 * 1024) {
-                alert('File không được vượt quá 10MB');
+                alert('File cannot exceed 10MB');
                 this.value = '';
                 return;
             }
@@ -475,9 +475,9 @@
             lastSaveTime = new Date();
 
             if (!isAuto) {
-                showAutoSaveMessage('Đã lưu nháp thành công!', 'success');
+                showAutoSaveMessage('Draft saved successfully!', 'success');
             } else {
-                showAutoSaveMessage('Đã tự động lưu nháp', 'info');
+                showAutoSaveMessage('Auto-saved draft', 'info');
             }
         }
 
@@ -524,7 +524,7 @@
             // Validate title
             const title = document.getElementById('titleInput')?.value.trim();
             if (!title || title.length > 200) {
-                document.getElementById('titleError').textContent = 'Tiêu đề là bắt buộc và không được vượt quá 200 ký tự';
+                document.getElementById('titleError').textContent = 'Title is required and cannot exceed 200 characters';
                 isValid = false;
             }
 
@@ -532,20 +532,20 @@
             const abstract = document.getElementById('abstractInput')?.value.trim();
             const wordCount = abstract ? abstract.split(/\s+/).filter(w => w.length > 0).length : 0;
             if (!abstract || wordCount < 150 || wordCount > 300) {
-                document.getElementById('abstractError').textContent = 'Tóm tắt phải từ 150-300 từ';
+                document.getElementById('abstractError').textContent = 'Abstract must be 150-300 words';
                 isValid = false;
             }
 
             // Validate keywords
             if (keywords.length === 0 || keywords.length > 6) {
-                document.getElementById('keywordsError').textContent = 'Phải có từ 1-6 từ khóa';
+                document.getElementById('keywordsError').textContent = 'Must have 1-6 keywords';
                 isValid = false;
             }
 
             // Validate topic
             const topic = document.getElementById('topicSelect')?.value;
             if (!topic) {
-                document.getElementById('topicError').textContent = 'Vui lòng chọn chủ đề';
+                document.getElementById('topicError').textContent = 'Please select a topic';
                 isValid = false;
             }
 
@@ -554,15 +554,15 @@
             const allAuthorsValid = authors.every(a => a.fullName && a.email);
             
             if (authors.length === 0 || !allAuthorsValid) {
-                document.getElementById('authorsError').textContent = 'Vui lòng điền đầy đủ thông tin tất cả tác giả';
+                document.getElementById('authorsError').textContent = 'Please fill in all author information';
                 isValid = false;
             } else if (!hasCorresponding) {
-                document.getElementById('authorsError').textContent = 'Phải có ít nhất một tác giả chính';
+                document.getElementById('authorsError').textContent = 'Must have at least one corresponding author';
                 isValid = false;
             }
 
             if (!isValid) {
-                alert('Vui lòng kiểm tra lại các trường bắt buộc');
+                alert('Please check all required fields');
             }
 
             return isValid;
@@ -574,7 +574,7 @@
             if (draft) {
                 try {
                     const data = JSON.parse(draft);
-                    if (confirm('Bạn có muốn khôi phục bản nháp đã lưu không?')) {
+                    if (confirm('Do you want to restore the saved draft?')) {
                         loadDraft(data);
                     }
                 } catch (e) {

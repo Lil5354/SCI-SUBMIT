@@ -14,13 +14,6 @@ namespace SciSubmit.Data
     {
         public static async Task SeedAsync(ApplicationDbContext context)
         {
-            // Check if data already exists
-            if (await context.Users.AnyAsync())
-            {
-                return; // Data already seeded
-            }
-
-            // 1. Create Users
             // Simple password hashing (for development only)
             string HashPassword(string password)
             {
@@ -31,17 +24,69 @@ namespace SciSubmit.Data
                 }
             }
 
-            var admin = new User
+            // Ensure admin user exists (create if not exists)
+            var adminEmail = "admin@scisubmit.com";
+            var adminPassword = "Admin@123";
+            var admin = await context.Users.FirstOrDefaultAsync(u => u.Email == adminEmail);
+            
+            if (admin == null)
             {
-                Email = "admin@scisubmit.com",
-                PasswordHash = HashPassword("Admin@123"),
-                FullName = "Admin User",
-                Affiliation = "SciSubmit Organization",
-                Role = UserRole.Admin,
-                EmailConfirmed = true,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
+                admin = new User
+                {
+                    Email = adminEmail,
+                    PhoneNumber = "0123456789",
+                    PasswordHash = HashPassword(adminPassword),
+                    FullName = "System Administrator",
+                    Affiliation = "SciSubmit Organization",
+                    Role = UserRole.Admin,
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+                context.Users.Add(admin);
+                await context.SaveChangesAsync();
+                System.Diagnostics.Debug.WriteLine($"Admin user created: {adminEmail} with role {admin.Role}");
+            }
+            else
+            {
+                // Ensure admin user has correct role and is active
+                bool needsUpdate = false;
+                if (admin.Role != UserRole.Admin)
+                {
+                    admin.Role = UserRole.Admin;
+                    needsUpdate = true;
+                }
+                if (!admin.IsActive)
+                {
+                    admin.IsActive = true;
+                    needsUpdate = true;
+                }
+                // Update password if needed (in case it was changed)
+                if (string.IsNullOrEmpty(admin.PhoneNumber))
+                {
+                    admin.PhoneNumber = "0123456789";
+                    needsUpdate = true;
+                }
+                // Reset password to default if needed
+                var testHash = HashPassword(adminPassword);
+                if (admin.PasswordHash != testHash)
+                {
+                    admin.PasswordHash = testHash;
+                    needsUpdate = true;
+                }
+                if (needsUpdate)
+                {
+                    await context.SaveChangesAsync();
+                    System.Diagnostics.Debug.WriteLine($"Admin user updated: {adminEmail} with role {admin.Role}");
+                }
+            }
+
+            // Check if data already exists (for other seed data)
+            if (await context.Users.CountAsync() > 1)
+            {
+                return; // Other data already seeded
+            }
 
             var reviewer1 = new User
             {
@@ -422,6 +467,11 @@ namespace SciSubmit.Data
         }
     }
 }
+
+
+
+
+
 
 
 

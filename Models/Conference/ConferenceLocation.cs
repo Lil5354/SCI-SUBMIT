@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SciSubmit.Models.Conference
 {
-    public class SystemSetting
+    public class ConferenceLocation
     {
         [Key]
         public int Id { get; set; }
@@ -12,13 +12,31 @@ namespace SciSubmit.Models.Conference
         public int ConferenceId { get; set; }
 
         [Required]
-        [MaxLength(255)]
-        public string Key { get; set; } = string.Empty;
+        [MaxLength(500)]
+        public string Name { get; set; } = string.Empty;
 
-        public string? Value { get; set; }
+        [MaxLength(1000)]
+        public string? Address { get; set; }
 
         [MaxLength(500)]
+        public string? City { get; set; }
+
+        [MaxLength(500)]
+        public string? Country { get; set; }
+
+        [MaxLength(50)]
+        public string? Latitude { get; set; }
+
+        [MaxLength(50)]
+        public string? Longitude { get; set; }
+
+        [MaxLength(2000)]
+        public string? GoogleMapsEmbedUrl { get; set; }
+
+        [MaxLength(2000)]
         public string? Description { get; set; }
+
+        public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -29,15 +47,5 @@ namespace SciSubmit.Models.Conference
         public virtual Conference Conference { get; set; } = null!;
     }
 }
-
-
-
-
-
-
-
-
-
-
 
 

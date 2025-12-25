@@ -115,12 +115,123 @@
     </div>
 </section>
 
-<!-- Timeline Section -->
-<section class="section position-relative" id="timelineSection" style="display: none;">
+<!-- Conference Overview Section -->
+<section class="section position-relative bg-light" id="conferenceOverviewSection">
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="section-title text-center mb-5">
+            <h2 id="conferenceOverviewTitle" class="display-5 fw-bold mb-3" style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Conference Overview</h2>
+            <p id="conferenceOverviewSubtitle" class="text-muted fs-5">General information about the conference</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-10 mx-auto">
+                <div class="conference-overview-card">
+                    <div class="conference-header">
+                        <div class="conference-title-wrapper">
+                            <h3 class="conference-title" id="conferenceName">Loading...</h3>
+                            <div class="conference-accent-line"></div>
+                                    </div>
+                        <p class="conference-description" id="conferenceDescription">Loading...</p>
+                                </div>
+                    
+                    <div class="conference-details-grid">
+                        <div class="detail-item detail-item-time">
+                            <div class="detail-icon-wrapper">
+                                <svg class="detail-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2"/>
+                                    <circle cx="12" cy="15" r="1" fill="currentColor"/>
+                                    <path d="M12 12v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Event Date</div>
+                                <div class="detail-value" id="conferenceDateRange">Loading...</div>
+                                    </div>
+                                </div>
+                        
+                        <div class="detail-item detail-item-location">
+                            <div class="detail-icon-wrapper">
+                                <svg class="detail-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                                </svg>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Venue</div>
+                                <div class="detail-value" id="conferenceLocationText">Loading...</div>
+                        </div>
+                            </div>
+                        </div>
+                    
+                    <div class="conference-topics-section">
+                        <div class="topics-header">
+                            <svg class="topics-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <h5 class="topics-title">Main Topics (Call for Papers)</h5>
+                        </div>
+                        <div id="conferenceTopics" class="topics-container">
+                            <div class="topic-skeleton">
+                                <div class="skeleton-badge"></div>
+                                <div class="skeleton-badge"></div>
+                                <div class="skeleton-badge"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Keynote Speakers Section -->
+<section class="section position-relative" id="keynoteSpeakersSection" style="display: none;">
     <div class="container position-relative" style="z-index: 1;">
         <div class="section-title">
-            <h2>Conference Timeline</h2>
-            <p>Important dates and milestones for the conference</p>
+            <h2><i class="fas fa-microphone-alt me-2"></i>Keynote Speakers</h2>
+            <p>Prominent speakers of the conference</p>
+        </div>
+        <div class="row g-4" id="keynoteSpeakersContainer">
+            <!-- Keynote speakers will be loaded here via JavaScript -->
+        </div>
+    </div>
+</section>
+
+<!-- Conference Location Section - Moved to end of body -->
+
+<!-- Timeline Section -->
+<section class="section position-relative timeline-hero-section" id="timelineSection" style="display: none;">
+    <!-- Background Image Layer -->
+    <div class="timeline-background-image"></div>
+    
+    <!-- Animated Background Layers (similar to hero section) -->
+    <div class="timeline-dark-overlay"></div>
+    <div class="timeline-mesh-gradient"></div>
+    <div class="timeline-gradient-overlay"></div>
+    <div class="timeline-grid-overlay"></div>
+    
+    <!-- Light Streaks -->
+    <div class="timeline-light-streaks">
+        <div class="timeline-light-streak timeline-light-left"></div>
+        <div class="timeline-light-streak timeline-light-right"></div>
+    </div>
+    
+    <!-- Particle Effects -->
+    <div class="timeline-particles">
+        <div class="timeline-particle"></div>
+        <div class="timeline-particle"></div>
+        <div class="timeline-particle"></div>
+        <div class="timeline-particle"></div>
+        <div class="timeline-particle"></div>
+        <div class="timeline-particle"></div>
+        <div class="timeline-particle"></div>
+        <div class="timeline-particle"></div>
+    </div>
+    
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="section-title text-center mb-5">
+            <h2 class="timeline-section-title">Conference Timeline</h2>
+            <p class="timeline-section-subtitle">Important dates and milestones for the conference</p>
         </div>
         <div class="timeline-container">
             <div class="timeline-wrapper" id="timelineWrapper">
@@ -152,7 +263,11 @@
                     
                     <div class="progress-step" data-step="2">
                         <div class="progress-step-circle">
-                            <i class="fas fa-file-pdf progress-step-icon"></i>
+                            <svg class="progress-step-icon progress-step-icon-doc" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M14 2v6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
                         </div>
                         <div class="progress-step-label">Full Paper</div>
                     </div>
@@ -330,7 +445,110 @@
     </div>
 </section>
 
+<!-- Conference Location Section - At the end of body -->
+<section class="section position-relative" id="conferenceLocationSection" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 80px 0;">
+    <!-- Decorative background elements -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="overflow: hidden; pointer-events: none; z-index: 0; opacity: 0.1;">
+        <svg class="position-absolute" style="top: -10%; right: -5%; width: 400px; height: 400px;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M40.8,-57.2C52.2,-46.9,60.1,-32.6,63.5,-17.8C66.9,-3,65.8,12.3,60.9,26.1C56,39.9,47.3,52.2,36.1,60.3C24.9,68.4,11.1,72.3,-2.6,75.9C-16.3,79.5,-32.6,82.8,-45.3,77.2C-58,71.6,-67.1,57.1,-73.2,41.2C-79.3,25.3,-82.4,8,-79.4,-8.4C-76.4,-24.8,-67.3,-40.4,-55.2,-50.7C-43.1,-61,-28,-66,-13.5,-63.5C1,-61,2,-51,14.1,-42.6Z" transform="translate(100 100)" fill="#ffffff"/>
+        </svg>
+    </div>
+    
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="text-center mb-5">
+            <h2 id="locationTitle" class="text-white mb-3" style="font-size: 2.5rem; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                <i class="fas fa-map-marker-alt me-3"></i>Conference Location
+            </h2>
+            <p id="locationSubtitle" class="text-white-50" style="font-size: 1.1rem;">Detailed information about the venue</p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Location Info Card -->
+            <div class="col-lg-5">
+                <div class="location-info-card">
+                    <div class="location-card-header">
+                        <div class="location-venue-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9 9v0M9 12v0M9 15v0M9 18v0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            </div>
+                        <div class="location-venue-info">
+                            <h3 class="location-venue-name" id="locationName">Loading...</h3>
+                            <span class="location-venue-label">Conference Venue</span>
+                            </div>
+                        </div>
+                        
+                    <div class="location-details">
+                        <div class="location-detail-item">
+                            <div class="location-detail-icon location-icon-address">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                                </svg>
+                                </div>
+                            <div class="location-detail-content">
+                                <div class="location-detail-label">Address</div>
+                                <div class="location-detail-value" id="locationAddress">Loading...</div>
+                            </div>
+                        </div>
+                        
+                        <div class="location-detail-item">
+                            <div class="location-detail-icon location-icon-city">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M9 9v0M9 12v0M9 15v0M9 18v0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                </div>
+                            <div class="location-detail-content">
+                                <div class="location-detail-label">City / Country</div>
+                                <div class="location-detail-value" id="locationCityCountry">Loading...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    <div class="location-description-section">
+                        <div class="location-description-header">
+                            <svg class="location-description-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <span class="location-description-label">Description</span>
+                        </div>
+                        <div class="location-description-text" id="locationDescription">
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Map Card -->
+            <div class="col-lg-7">
+                <div class="card shadow-lg h-100 border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="card-body p-0 position-relative">
+                        <div id="googleMapContainer" style="width: 100%; height: 500px; position: relative;">
+                            <!-- OpenStreetMap will be loaded here via Leaflet.js -->
+                            <div id="googleMapPlaceholder" class="d-flex align-items-center justify-content-center h-100" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index: 10;">
+                                <div class="text-center text-white">
+                                    <div class="spinner-border text-white mb-3" role="status" style="width: 3rem; height: 3rem;">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <h5 class="mb-2">Loading map...</h5>
+                                    <p class="mb-0 text-white-50">Using OpenStreetMap (Free)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 @section Scripts {
+    <!-- OpenStreetMap with Leaflet.js (Free, no API key needed) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // Helper function to convert hex to rgba
         function hexToRgba(hex, alpha) {
@@ -530,9 +748,409 @@
                     
                     // Render timeline
                     renderTimeline(data.timeline || []);
+                    
+                    // Render conference overview
+                    renderConferenceOverview(data);
+                    
+                    // Render keynote speakers
+                    renderKeynoteSpeakers(data.keynoteSpeakers || []);
+                    
+                    // Render location
+                    renderConferenceLocation(data.location);
                 }
             } catch (error) {
                 console.error('Error loading interface settings:', error);
+            }
+        }
+        
+        // Render Conference Overview
+        function renderConferenceOverview(data) {
+            const overviewSection = document.getElementById('conferenceOverviewSection');
+            if (!overviewSection) return;
+            
+            if (data.conferenceName) {
+                const nameEl = document.getElementById('conferenceName');
+                if (nameEl) nameEl.textContent = data.conferenceName;
+            }
+            
+            if (data.conferenceDescription) {
+                const descEl = document.getElementById('conferenceDescription');
+                if (descEl) descEl.textContent = data.conferenceDescription;
+            }
+            
+            // Date range - Format in English
+            if (data.conferenceStartDate || data.conferenceEndDate) {
+                const dateRangeEl = document.getElementById('conferenceDateRange');
+                if (dateRangeEl) {
+                    let dateText = '';
+                    if (data.conferenceStartDate) {
+                        const startDate = new Date(data.conferenceStartDate);
+                        dateText = startDate.toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        });
+                    }
+                    if (data.conferenceEndDate) {
+                        const endDate = new Date(data.conferenceEndDate);
+                        const endText = endDate.toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        });
+                        if (dateText) {
+                            dateText += ' - ' + endText;
+                        } else {
+                            dateText = endText;
+                        }
+                    }
+                    dateRangeEl.textContent = dateText || 'To be announced';
+                }
+            }
+            
+            // Location
+            if (data.conferenceLocation) {
+                const locationEl = document.getElementById('conferenceLocationText');
+                if (locationEl) locationEl.textContent = data.conferenceLocation;
+            }
+            
+            // Topics - Load and render topics
+            const topicsContainer = document.getElementById('conferenceTopics');
+            if (topicsContainer) {
+                if (data.topics && data.topics.length > 0) {
+                    topicsContainer.innerHTML = data.topics.map(topic => 
+                        `<span class="badge bg-primary">${escapeHtml(topic.name || topic)}</span>`
+                    ).join('');
+                } else {
+                    // Try to load topics from API
+                    fetch('/Home/GetTopics')
+                        .then(response => response.json())
+                        .then(topics => {
+                            if (topics && topics.length > 0) {
+                                topicsContainer.innerHTML = topics.map(topic => 
+                                    `<span class="badge bg-primary">${escapeHtml(topic.name || topic)}</span>`
+                                ).join('');
+                            } else {
+                                topicsContainer.innerHTML = '<span class="text-muted">No topics available</span>';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error loading topics:', error);
+                            topicsContainer.innerHTML = '<span class="text-muted">Topics coming soon</span>';
+                        });
+                }
+            }
+        }
+        
+        // Render Keynote Speakers
+        function renderKeynoteSpeakers(speakers) {
+            const speakersSection = document.getElementById('keynoteSpeakersSection');
+            const speakersContainer = document.getElementById('keynoteSpeakersContainer');
+            
+            if (!speakersSection || !speakersContainer) return;
+            
+            if (!speakers || speakers.length === 0) {
+                speakersSection.style.display = 'none';
+                return;
+            }
+            
+            speakersSection.style.display = 'block';
+            speakersContainer.innerHTML = '';
+            
+            speakers.forEach((speaker, index) => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4';
+                
+                const photoHtml = speaker.photoUrl ? 
+                    `<img src="${escapeHtml(speaker.photoUrl)}" alt="${escapeHtml(speaker.name)}" class="card-img-top" style="height: 250px; object-fit: cover;">` :
+                    `<div class="card-img-top bg-primary d-flex align-items-center justify-content-center" style="height: 250px;">
+                        <i class="fas fa-user fa-5x text-white"></i>
+                    </div>`;
+                
+                col.innerHTML = `
+                    <div class="card h-100 shadow-sm">
+                        ${photoHtml}
+                        <div class="card-body">
+                            <h5 class="card-title">${escapeHtml(speaker.name || '')}</h5>
+                            ${speaker.title ? `<p class="text-muted mb-2"><small>${escapeHtml(speaker.title)}</small></p>` : ''}
+                            ${speaker.affiliation ? `<p class="text-muted mb-2"><i class="fas fa-building me-1"></i>${escapeHtml(speaker.affiliation)}</p>` : ''}
+                            ${speaker.topic ? `<div class="mt-3">
+                                <strong>Topic:</strong>
+                                <p class="mb-0">${escapeHtml(speaker.topic)}</p>
+                            </div>` : ''}
+                            ${speaker.biography ? `<p class="card-text mt-3"><small class="text-muted">${escapeHtml(speaker.biography)}</small></p>` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                speakersContainer.appendChild(col);
+            });
+        }
+        
+        // OpenStreetMap with Leaflet instance (Free, no API key needed)
+        let leafletMap = null;
+        let leafletMarker = null;
+
+        // Initialize Google Map (called by Google Maps API callback)
+        function initGoogleMap() {
+            // This function is called when Google Maps API is loaded
+            console.log('Google Maps API loaded');
+        }
+
+        // Render Conference Location
+        function renderConferenceLocation(location) {
+            console.log('Rendering conference location:', location);
+            
+            const locationSection = document.getElementById('conferenceLocationSection');
+            if (!locationSection) {
+                console.warn('Location section not found');
+                return;
+            }
+            
+            if (!location) {
+                locationSection.style.display = 'none';
+                return;
+            }
+            
+            locationSection.style.display = 'block';
+            
+            // Update location info
+            const nameEl = document.getElementById('locationName');
+            if (nameEl && location.name) nameEl.textContent = location.name;
+            
+            const addressEl = document.getElementById('locationAddress');
+            if (addressEl && location.address) addressEl.textContent = location.address;
+            
+            const cityCountryEl = document.getElementById('locationCityCountry');
+            if (cityCountryEl) {
+                let cityCountry = '';
+                if (location.city) cityCountry += location.city;
+                if (location.country) {
+                    if (cityCountry) cityCountry += ', ';
+                    cityCountry += location.country;
+                }
+                cityCountryEl.textContent = cityCountry || 'Not updated';
+            }
+            
+            const descEl = document.getElementById('locationDescription');
+            if (descEl && location.description) {
+                descEl.innerHTML = `<p>${escapeHtml(location.description)}</p>`;
+            } else if (descEl) {
+                descEl.innerHTML = '<p class="text-muted">No description available.</p>';
+            }
+            
+            // Render OpenStreetMap using Leaflet.js (Free, no API key needed)
+            const mapContainer = document.getElementById('googleMapContainer');
+            const mapPlaceholder = document.getElementById('googleMapPlaceholder');
+            
+            if (!mapContainer) {
+                console.error('Map container not found');
+                return;
+            }
+            
+            // Wait for Leaflet to load
+            if (typeof L === 'undefined') {
+                console.warn('Leaflet not loaded yet, retrying...');
+                setTimeout(() => renderConferenceLocation(location), 500);
+                return;
+            }
+
+            // Clear existing map
+            if (leafletMap) {
+                leafletMap.remove();
+                leafletMap = null;
+                leafletMarker = null;
+            }
+            
+            // Remove existing map div if any
+            const existingMapDiv = document.getElementById('openStreetMapDiv');
+            if (existingMapDiv) {
+                existingMapDiv.remove();
+            }
+            
+            let mapCenter;
+            let mapAddress = location.address || '';
+            if (location.city) mapAddress += (mapAddress ? ', ' : '') + location.city;
+            if (location.country) mapAddress += (mapAddress ? ', ' : '') + location.country;
+
+            // Determine map center
+            console.log('Location coordinates:', location.latitude, location.longitude);
+            
+            if (location.latitude && location.longitude) {
+                // Use coordinates from database (from OpenStreetMap geocoding)
+                const lat = parseFloat(location.latitude);
+                const lng = parseFloat(location.longitude);
+                
+                if (isNaN(lat) || isNaN(lng)) {
+                    console.error('Invalid coordinates:', location.latitude, location.longitude);
+                    if (mapPlaceholder) {
+                        mapPlaceholder.style.display = 'flex';
+                        mapPlaceholder.style.zIndex = '10';
+                        mapPlaceholder.innerHTML = `
+                            <div class="text-center text-white p-4">
+                                <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                                <h5 class="mb-2">Invalid Coordinates</h5>
+                                <p class="mb-2">Please update the address in Admin.</p>
+                            </div>
+                        `;
+                    }
+                    return;
+                }
+                
+                // Hide placeholder immediately (before creating map)
+                if (mapPlaceholder) {
+                    mapPlaceholder.style.display = 'none';
+                    mapPlaceholder.style.zIndex = '0';
+                    mapPlaceholder.style.visibility = 'hidden';
+                }
+                
+                // Create map element
+                const mapDiv = document.createElement('div');
+                mapDiv.id = 'openStreetMapDiv';
+                mapDiv.style.width = '100%';
+                mapDiv.style.height = '500px';
+                mapDiv.style.borderRadius = '20px';
+                mapDiv.style.zIndex = '20';
+                mapDiv.style.position = 'relative';
+                mapDiv.style.backgroundColor = '#f0f0f0';
+                mapContainer.appendChild(mapDiv);
+                
+                mapCenter = [lat, lng];
+                console.log('Initializing map with coordinates:', mapCenter);
+                initializeOpenStreetMap(mapCenter, location.name || mapAddress, mapPlaceholder);
+            } else if (mapAddress) {
+                // If no coordinates, show message to add address in admin
+                if (mapPlaceholder) {
+                    mapPlaceholder.style.display = 'flex';
+                    mapPlaceholder.style.zIndex = '10';
+                    mapPlaceholder.innerHTML = `
+                        <div class="text-center text-white p-4">
+                            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                            <h5 class="mb-2">No Coordinates Available</h5>
+                            <p class="mb-2">Please add an address in Admin to automatically get coordinates.</p>
+                            <small class="text-white-50 d-block">Address: ${escapeHtml(mapAddress)}</small>
+                        </div>
+                    `;
+                }
+                return;
+            } else {
+                // Default to Ho Chi Minh City
+                if (mapPlaceholder) {
+                    mapPlaceholder.style.display = 'none';
+                    mapPlaceholder.style.zIndex = '0';
+                }
+                
+                const mapDiv = document.createElement('div');
+                mapDiv.id = 'openStreetMapDiv';
+                mapDiv.style.width = '100%';
+                mapDiv.style.height = '500px';
+                mapDiv.style.borderRadius = '20px';
+                mapDiv.style.zIndex = '2';
+                mapDiv.style.position = 'relative';
+                mapContainer.appendChild(mapDiv);
+                
+                mapCenter = [10.8231, 106.6297];
+                initializeOpenStreetMap(mapCenter, location.name || mapAddress, mapPlaceholder);
+            }
+        }
+
+        function initializeOpenStreetMap(center, title, mapPlaceholder) {
+            const mapDiv = document.getElementById('openStreetMapDiv');
+            if (!mapDiv) {
+                console.error('Map div not found');
+                if (mapPlaceholder) {
+                    mapPlaceholder.style.display = 'flex';
+                    mapPlaceholder.style.zIndex = '10';
+                }
+                return;
+            }
+            
+            if (typeof L === 'undefined') {
+                console.error('Leaflet library not loaded');
+                if (mapPlaceholder) {
+                    mapPlaceholder.style.display = 'flex';
+                    mapPlaceholder.style.zIndex = '10';
+                }
+                return;
+            }
+
+            console.log('Initializing OpenStreetMap at:', center);
+            
+            try {
+                // Ensure map div is visible
+                mapDiv.style.display = 'block';
+                mapDiv.style.zIndex = '2';
+                
+                // Initialize Leaflet map
+                leafletMap = L.map(mapDiv, {
+                    zoomControl: true,
+                    attributionControl: true
+                }).setView(center, 15);
+
+                // Add OpenStreetMap tile layer
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    maxZoom: 19
+                }).addTo(leafletMap);
+
+                // Add marker with custom red icon
+                const customIcon = L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                });
+
+                leafletMarker = L.marker(center, { icon: customIcon })
+                    .addTo(leafletMap)
+                    .bindPopup(`<strong>${escapeHtml(title || 'Conference Location')}</strong>`)
+                    .openPopup();
+                
+                // Ensure placeholder is completely hidden
+                if (mapPlaceholder) {
+                    mapPlaceholder.style.display = 'none';
+                    mapPlaceholder.style.visibility = 'hidden';
+                    mapPlaceholder.style.zIndex = '0';
+                    mapPlaceholder.style.opacity = '0';
+                }
+                
+                // Ensure map div is visible
+                if (mapDiv) {
+                    mapDiv.style.display = 'block';
+                    mapDiv.style.visibility = 'visible';
+                    mapDiv.style.zIndex = '20';
+                }
+                
+                // Force map to invalidate size (fixes rendering issues)
+                setTimeout(() => {
+                    if (leafletMap) {
+                        leafletMap.invalidateSize();
+                        console.log('Map size invalidated');
+                    }
+                    // Double check placeholder is hidden
+                    if (mapPlaceholder) {
+                        mapPlaceholder.style.display = 'none';
+                        mapPlaceholder.style.visibility = 'hidden';
+                    }
+                }, 100);
+                
+                console.log('OpenStreetMap initialized successfully');
+            } catch (error) {
+                console.error('Error initializing OpenStreetMap:', error);
+                if (mapPlaceholder) {
+                    mapPlaceholder.style.display = 'flex';
+                    mapPlaceholder.style.zIndex = '10';
+                    mapPlaceholder.innerHTML = `
+                        <div class="text-center text-white p-4">
+                            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                            <h5 class="mb-2">Error Loading Map</h5>
+                            <p class="mb-2">Please try again later.</p>
+                            <small class="text-white-50">${escapeHtml(error.message || 'Unknown error')}</small>
+                        </div>
+                    `;
+                }
             }
         }
         
@@ -572,7 +1190,10 @@
                         });
                         dateHtml = `
                             <div class="timeline-date">
-                                <i class="fas fa-calendar-alt"></i>
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2"/>
+                                </svg>
                                 ${formattedDate}
                             </div>
                         `;
@@ -585,9 +1206,23 @@
                 const descriptionHtml = item.description ? 
                     `<p class="timeline-description">${escapeHtml(item.description)}</p>` : '';
                 
+                // Custom SVG icon based on item type or default
+                let iconSvg = '';
+                if (item.icon && item.icon.includes('svg')) {
+                    iconSvg = item.icon;
+                } else {
+                    // Default timeline icon - clock/calendar
+                    iconSvg = `
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    `;
+                }
+                
                 timelineItem.innerHTML = `
-                    <div class="timeline-icon" style="background: linear-gradient(135deg, ${item.color || '#3b82f6'} 0%, ${item.color || '#3b82f6'} 100%);">
-                        <i class="${item.icon || 'fas fa-circle'}"></i>
+                    <div class="timeline-icon" style="background: linear-gradient(135deg, ${item.color || '#3b82f6'} 0%, ${item.color || '#2563eb'} 100%);">
+                        ${iconSvg}
                     </div>
                     <div class="timeline-item-content">
                         ${dateHtml}

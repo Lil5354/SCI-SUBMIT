@@ -1310,6 +1310,519 @@ namespace SciSubmit.Controllers
 
             return RedirectToAction(nameof(FullPapers));
         }
+
+        // Keynote Speakers Management
+        public async Task<IActionResult> KeynoteSpeakers()
+        {
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy hội nghị đang hoạt động.";
+                return View(new List<Models.Conference.KeynoteSpeaker>());
+            }
+
+            var speakers = await _context.KeynoteSpeakers
+                .Where(k => k.ConferenceId == activeConference.Id)
+                .OrderBy(k => k.OrderIndex)
+                .ThenBy(k => k.Id)
+                .ToListAsync();
+
+            return View(speakers);
+        }
+
+        [HttpGet]
+        public IActionResult CreateKeynoteSpeaker()
+        {
+            return View(new Models.Conference.KeynoteSpeaker());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateKeynoteSpeaker(Models.Conference.KeynoteSpeaker model)
+        {
+            // Remove ConferenceId and Conference from validation - they will be set automatically
+            ModelState.Remove(nameof(model.ConferenceId));
+            ModelState.Remove(nameof(model.Conference));
+            
+            // Clear PhotoUrl validation if empty
+            if (string.IsNullOrWhiteSpace(model.PhotoUrl))
+            {
+                ModelState.Remove(nameof(model.PhotoUrl));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model validation failed. Errors: {Errors}", 
+                    string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+                return View(model);
+            }
+
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy hội nghị đang hoạt động.";
+                return View(model);
+            }
+
+            try
+            {
+                model.ConferenceId = activeConference.Id;
+                model.CreatedAt = DateTime.UtcNow;
+                model.IsActive = true;
+
+                _context.KeynoteSpeakers.Add(model);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Đã thêm diễn giả chính thành công!";
+                return RedirectToAction(nameof(KeynoteSpeakers));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating keynote speaker");
+                TempData["ErrorMessage"] = $"Lỗi khi thêm diễn giả: {ex.Message}";
+                return View(model);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditKeynoteSpeaker(int id)
+        {
+            var speaker = await _context.KeynoteSpeakers.FindAsync(id);
+            if (speaker == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy diễn giả.";
+                return RedirectToAction(nameof(KeynoteSpeakers));
+            }
+            return View(speaker);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditKeynoteSpeaker(Models.Conference.KeynoteSpeaker model)
+        {
+            // Clear PhotoUrl validation if empty
+            if (string.IsNullOrWhiteSpace(model.PhotoUrl))
+            {
+                ModelState.Remove(nameof(model.PhotoUrl));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model validation failed. Errors: {Errors}", 
+                    string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+                return View(model);
+            }
+
+            var speaker = await _context.KeynoteSpeakers.FindAsync(model.Id);
+            if (speaker == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy diễn giả.";
+                return RedirectToAction(nameof(KeynoteSpeakers));
+            }
+
+            try
+            {
+                speaker.Name = model.Name;
+                speaker.Title = model.Title;
+                speaker.Affiliation = model.Affiliation;
+                speaker.Biography = model.Biography;
+                speaker.Topic = model.Topic;
+                speaker.PhotoUrl = model.PhotoUrl;
+                speaker.OrderIndex = model.OrderIndex;
+                speaker.IsActive = model.IsActive;
+                speaker.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Đã cập nhật diễn giả chính thành công!";
+                return RedirectToAction(nameof(KeynoteSpeakers));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating keynote speaker");
+                TempData["ErrorMessage"] = $"Lỗi khi cập nhật diễn giả: {ex.Message}";
+                return View(model);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteKeynoteSpeaker(int id)
+        {
+            var speaker = await _context.KeynoteSpeakers.FindAsync(id);
+            if (speaker == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy diễn giả.";
+                return RedirectToAction(nameof(KeynoteSpeakers));
+            }
+
+            _context.KeynoteSpeakers.Remove(speaker);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Đã xóa diễn giả chính thành công!";
+            return RedirectToAction(nameof(KeynoteSpeakers));
+        }
+
+        // Conference Location Management
+        public async Task<IActionResult> ConferenceLocation()
+        {
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy hội nghị đang hoạt động.";
+                return View(new Models.Conference.ConferenceLocation());
+            }
+
+            var location = await _context.ConferenceLocations
+                .Where(l => l.ConferenceId == activeConference.Id)
+                .FirstOrDefaultAsync();
+
+            if (location == null)
+            {
+                return View(new Models.Conference.ConferenceLocation());
+            }
+
+            return View(location);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveConferenceLocation(Models.Conference.ConferenceLocation model)
+        {
+            // Remove ConferenceId from validation
+            ModelState.Remove(nameof(model.ConferenceId));
+            ModelState.Remove(nameof(model.Conference));
+
+            if (!ModelState.IsValid)
+            {
+                return View("ConferenceLocation", model);
+            }
+
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy hội nghị đang hoạt động.";
+                return View("ConferenceLocation", model);
+            }
+
+            // Geocode address using OpenStreetMap Nominatim API
+            if (!string.IsNullOrWhiteSpace(model.Address))
+            {
+                var geocodeResult = await GeocodeAddressAsync(model.Address, model.Name);
+                if (geocodeResult != null)
+                {
+                    model.Latitude = geocodeResult.Latitude;
+                    model.Longitude = geocodeResult.Longitude;
+                    if (!string.IsNullOrWhiteSpace(geocodeResult.City))
+                        model.City = geocodeResult.City;
+                    if (!string.IsNullOrWhiteSpace(geocodeResult.Country))
+                        model.Country = geocodeResult.Country;
+                }
+            }
+
+            if (model.Id == 0)
+            {
+                model.ConferenceId = activeConference.Id;
+                model.CreatedAt = DateTime.UtcNow;
+                model.IsActive = true;
+                _context.ConferenceLocations.Add(model);
+            }
+            else
+            {
+                var location = await _context.ConferenceLocations.FindAsync(model.Id);
+                if (location == null)
+                {
+                    TempData["ErrorMessage"] = "Không tìm thấy địa điểm.";
+                    return View("ConferenceLocation", model);
+                }
+
+                location.Name = model.Name;
+                location.Address = model.Address;
+                location.City = model.City;
+                location.Country = model.Country;
+                location.Latitude = model.Latitude;
+                location.Longitude = model.Longitude;
+                location.Description = model.Description;
+                location.IsActive = model.IsActive;
+                location.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Check if coordinates were successfully geocoded (check the saved entity)
+            var savedLocation = model.Id == 0 
+                ? await _context.ConferenceLocations.OrderByDescending(l => l.Id).FirstOrDefaultAsync()
+                : await _context.ConferenceLocations.FindAsync(model.Id);
+            
+            if (savedLocation != null && !string.IsNullOrWhiteSpace(savedLocation.Latitude) && !string.IsNullOrWhiteSpace(savedLocation.Longitude))
+            {
+                TempData["SuccessMessage"] = "Đã lưu thông tin địa điểm thành công! Tọa độ đã được tự động lấy từ địa chỉ.";
+            }
+            else
+            {
+                TempData["WarningMessage"] = "Đã lưu thông tin địa điểm, nhưng không thể lấy tọa độ tự động. Vui lòng kiểm tra lại địa chỉ hoặc thử lại sau.";
+            }
+            
+            return RedirectToAction(nameof(ConferenceLocation));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReGeocodeLocation(int id)
+        {
+            var location = await _context.ConferenceLocations.FindAsync(id);
+            if (location == null || string.IsNullOrWhiteSpace(location.Address))
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy địa điểm hoặc địa chỉ trống.";
+                return RedirectToAction(nameof(ConferenceLocation));
+            }
+
+            var geocodeResult = await GeocodeAddressAsync(location.Address, location.Name);
+            
+            if (geocodeResult != null)
+            {
+                location.Latitude = geocodeResult.Latitude;
+                location.Longitude = geocodeResult.Longitude;
+                if (!string.IsNullOrWhiteSpace(geocodeResult.City))
+                    location.City = geocodeResult.City;
+                if (!string.IsNullOrWhiteSpace(geocodeResult.Country))
+                    location.Country = geocodeResult.Country;
+                location.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                
+                _logger.LogInformation("Re-geocoding successful. Coordinates: {Lat}, {Lon}", location.Latitude, location.Longitude);
+                TempData["SuccessMessage"] = $"Đã lấy tọa độ thành công! Latitude: {location.Latitude}, Longitude: {location.Longitude}";
+            }
+            else
+            {
+                TempData["WarningMessage"] = "Không thể lấy tọa độ tự động. Vui lòng kiểm tra lại địa chỉ hoặc thử lại sau.";
+            }
+            
+            return RedirectToAction(nameof(ConferenceLocation));
+        }
+
+        // Helper method for geocoding addresses
+        private async Task<GeocodeResult?> GeocodeAddressAsync(string address, string? locationName = null)
+        {
+            if (string.IsNullOrWhiteSpace(address))
+                return null;
+
+            // Generate multiple address formats to try
+            var addressFormats = new List<string>();
+            
+            // Priority 1: Try with location name + city (most likely to work for famous places)
+            if (!string.IsNullOrWhiteSpace(locationName))
+            {
+                // Extract city from address or use common cities
+                string city = "Ho Chi Minh City";
+                if (address.Contains("Hà Nội", StringComparison.OrdinalIgnoreCase) || 
+                    address.Contains("Hanoi", StringComparison.OrdinalIgnoreCase))
+                    city = "Hanoi";
+                else if (address.Contains("Đà Nẵng", StringComparison.OrdinalIgnoreCase) || 
+                         address.Contains("Da Nang", StringComparison.OrdinalIgnoreCase))
+                    city = "Da Nang";
+                
+                // Try: "Opera House Ho Chi Minh City" format
+                addressFormats.Add($"{locationName} {city}");
+                addressFormats.Add($"{locationName}, {city}");
+            }
+            
+            // Priority 2: Translate location name to English if it's Vietnamese
+            if (!string.IsNullOrWhiteSpace(locationName))
+            {
+                var translatedName = locationName
+                    .Replace("NHÀ HÁT THÀNH PHỐ", "Opera House", StringComparison.OrdinalIgnoreCase)
+                    .Replace("NHÀ HÁT", "Opera House", StringComparison.OrdinalIgnoreCase)
+                    .Replace("THÀNH PHỐ", "City", StringComparison.OrdinalIgnoreCase);
+                
+                if (translatedName != locationName)
+                {
+                    string city = "Ho Chi Minh City";
+                    if (address.Contains("Hà Nội", StringComparison.OrdinalIgnoreCase))
+                        city = "Hanoi";
+                    else if (address.Contains("Đà Nẵng", StringComparison.OrdinalIgnoreCase))
+                        city = "Da Nang";
+                    
+                    addressFormats.Add($"{translatedName} {city}");
+                    addressFormats.Add($"{translatedName}, {city}");
+                }
+            }
+            
+            // Priority 3: Original address
+            addressFormats.Add(address);
+            
+            // Priority 4: Add Vietnam if not present
+            if (!address.Contains("Vietnam", StringComparison.OrdinalIgnoreCase) && 
+                !address.Contains("Việt Nam", StringComparison.OrdinalIgnoreCase))
+            {
+                addressFormats.Add($"{address}, Vietnam");
+            }
+            
+            // Priority 5: Try with location name + address
+            if (!string.IsNullOrWhiteSpace(locationName))
+            {
+                addressFormats.Add($"{locationName}, {address}");
+                if (!address.Contains("Vietnam", StringComparison.OrdinalIgnoreCase))
+                {
+                    addressFormats.Add($"{locationName}, {address}, Vietnam");
+                }
+            }
+            
+            // Priority 6: Translate common Vietnamese city names to English
+            var translatedAddress = address
+                .Replace("Thành phố Hồ Chí Minh", "Ho Chi Minh City", StringComparison.OrdinalIgnoreCase)
+                .Replace("TP. Hồ Chí Minh", "Ho Chi Minh City", StringComparison.OrdinalIgnoreCase)
+                .Replace("TP HCM", "Ho Chi Minh City", StringComparison.OrdinalIgnoreCase)
+                .Replace("Hà Nội", "Hanoi", StringComparison.OrdinalIgnoreCase)
+                .Replace("Đà Nẵng", "Da Nang", StringComparison.OrdinalIgnoreCase)
+                .Replace("Quận 1", "District 1", StringComparison.OrdinalIgnoreCase)
+                .Replace("Quận 2", "District 2", StringComparison.OrdinalIgnoreCase)
+                .Replace("Quận 3", "District 3", StringComparison.OrdinalIgnoreCase);
+            
+            if (translatedAddress != address)
+            {
+                addressFormats.Add(translatedAddress);
+                if (!translatedAddress.Contains("Vietnam", StringComparison.OrdinalIgnoreCase))
+                {
+                    addressFormats.Add($"{translatedAddress}, Vietnam");
+                }
+            }
+            
+            // Priority 7: Try with just main parts of address
+            var addressParts = address.Split(',');
+            if (addressParts.Length > 2)
+            {
+                var mainAddress = string.Join(",", addressParts.Take(3));
+                addressFormats.Add($"{mainAddress}, Vietnam");
+            }
+            
+            // Remove duplicates
+            addressFormats = addressFormats.Distinct().ToList();
+            
+            int maxRetries = addressFormats.Count;
+            int retryCount = 0;
+            
+            while (retryCount < maxRetries)
+            {
+                try
+                {
+                    // Add delay for rate limiting (OpenStreetMap requires 1 second between requests)
+                    if (retryCount > 0)
+                    {
+                        await Task.Delay(3000); // Wait 3 seconds before retry (be respectful to OSM)
+                    }
+                    
+                    using (var httpClient = new HttpClient())
+                    {
+                        // OpenStreetMap requires User-Agent header
+                        httpClient.DefaultRequestHeaders.Clear();
+                        httpClient.DefaultRequestHeaders.Add("User-Agent", "SciSubmit/1.0 (contact@scisubmit.com)");
+                        httpClient.DefaultRequestHeaders.Add("Accept-Language", "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7");
+                        httpClient.Timeout = TimeSpan.FromSeconds(20);
+                        
+                        string addressToGeocode = addressFormats[retryCount];
+                        var encodedAddress = Uri.EscapeDataString(addressToGeocode);
+                        var geocodeUrl = $"https://nominatim.openstreetmap.org/search?q={encodedAddress}&format=json&limit=1&addressdetails=1";
+                        
+                        _logger.LogInformation("Geocoding address (attempt {Attempt}/{Total}): {Address}", 
+                            retryCount + 1, maxRetries, addressToGeocode);
+                        
+                        var response = await httpClient.GetStringAsync(geocodeUrl);
+                        
+                        _logger.LogInformation("OpenStreetMap response (attempt {Attempt}): {Response}", retryCount + 1, 
+                            response?.Length > 300 ? response.Substring(0, 300) + "..." : response);
+                        
+                        if (string.IsNullOrWhiteSpace(response) || response.Trim() == "[]")
+                        {
+                            _logger.LogWarning("Empty or no results from OpenStreetMap geocoding (attempt {Attempt})", retryCount + 1);
+                            retryCount++;
+                            continue;
+                        }
+                        
+                        var results = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement[]>(response);
+                        
+                        if (results != null && results.Length > 0)
+                        {
+                            var firstResult = results[0];
+                            if (firstResult.TryGetProperty("lat", out var latElement) && 
+                                firstResult.TryGetProperty("lon", out var lonElement))
+                            {
+                                var lat = latElement.GetString();
+                                var lon = lonElement.GetString();
+                                
+                                if (!string.IsNullOrWhiteSpace(lat) && !string.IsNullOrWhiteSpace(lon))
+                                {
+                                    _logger.LogInformation("Geocoding successful! Coordinates: {Lat}, {Lon} (from format: {Format})", 
+                                        lat, lon, addressToGeocode);
+                                    
+                                    var result = new GeocodeResult
+                                    {
+                                        Latitude = lat,
+                                        Longitude = lon
+                                    };
+                                    
+                                    // Extract city and country from address components if available
+                                    if (firstResult.TryGetProperty("address", out var addressObj))
+                                    {
+                                        if (addressObj.TryGetProperty("city", out var cityElement))
+                                        {
+                                            result.City = cityElement.GetString();
+                                        }
+                                        else if (addressObj.TryGetProperty("town", out var townElement))
+                                        {
+                                            result.City = townElement.GetString();
+                                        }
+                                        else if (addressObj.TryGetProperty("municipality", out var municipalityElement))
+                                        {
+                                            result.City = municipalityElement.GetString();
+                                        }
+                                        
+                                        if (addressObj.TryGetProperty("country", out var countryElement))
+                                        {
+                                            result.Country = countryElement.GetString();
+                                        }
+                                    }
+                                    
+                                    return result;
+                                }
+                            }
+                        }
+                        
+                        retryCount++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to geocode address (attempt {Attempt}): {Address}", 
+                        retryCount + 1, addressFormats[retryCount]);
+                    retryCount++;
+                }
+            }
+            
+            _logger.LogError("All geocoding attempts failed for address: {Address}", address);
+            return null;
+        }
+        
+        // Helper class for geocoding result
+        private class GeocodeResult
+        {
+            public string Latitude { get; set; } = string.Empty;
+            public string Longitude { get; set; } = string.Empty;
+            public string? City { get; set; }
+            public string? Country { get; set; }
+        }
     }
 
     // Request models for JSON actions

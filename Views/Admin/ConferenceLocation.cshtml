@@ -1,0 +1,93 @@
+@model SciSubmit.Models.Conference.ConferenceLocation
+@{
+    ViewData["Title"] = "Quản lý Địa điểm Hội nghị";
+}
+
+<div class="container-fluid my-4">
+    <h2><i class="fas fa-map-marker-alt me-2"></i>Quản lý Địa điểm Hội nghị</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["WarningMessage"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["WarningMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="SaveConferenceLocation" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                @if (Model.Id > 0)
+                {
+                    <input type="hidden" asp-for="ConferenceId" />
+                    <input type="hidden" asp-for="CreatedAt" />
+                }
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Tên địa điểm <span class="text-danger">*</span></label>
+                    <input asp-for="Name" class="form-control" required placeholder="VD: International Conference Hall, Ba Na Hills" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label">Địa chỉ <span class="text-danger">*</span></label>
+                    <input asp-for="Address" class="form-control" required placeholder="VD: Ba Na Hills, An Son Village, Ba Na Commune, Da Nang, Vietnam" />
+                    <small class="form-text text-muted">Tọa độ GPS sẽ được tự động lấy từ địa chỉ này</small>
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label">Mô tả</label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Mô tả về địa điểm..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsActive" class="form-check-label">Hiển thị trên trang chủ</label>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    @if (Model.Id > 0 && !string.IsNullOrWhiteSpace(Model.Address))
+                    {
+                        <form asp-action="ReGeocodeLocation" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-map-marker-alt me-2"></i>Lấy lại tọa độ
+                            </button>
+                        </form>
+                    }
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Lưu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

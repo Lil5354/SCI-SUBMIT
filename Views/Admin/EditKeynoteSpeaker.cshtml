@@ -1,0 +1,104 @@
+@model SciSubmit.Models.Conference.KeynoteSpeaker
+@{
+    ViewData["Title"] = "Sửa Diễn giả chính";
+}
+
+<div class="container-fluid my-4">
+    <h2><i class="fas fa-edit me-2"></i>Sửa Diễn giả chính</h2>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="EditKeynoteSpeaker" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="ConferenceId" />
+                <input type="hidden" asp-for="CreatedAt" />
+                
+                <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Tên diễn giả <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control" required />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">Chức danh</label>
+                            <input asp-for="Title" class="form-control" placeholder="VD: Prof. Dr., Assoc. Prof. Dr." />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Affiliation" class="form-label">Đơn vị công tác</label>
+                    <input asp-for="Affiliation" class="form-control" placeholder="VD: University of Technology" />
+                    <span asp-validation-for="Affiliation" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Topic" class="form-label">Chủ đề trình bày</label>
+                    <input asp-for="Topic" class="form-control" placeholder="VD: Digital Economy at a Crossroads" />
+                    <span asp-validation-for="Topic" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Biography" class="form-label">Tiểu sử</label>
+                    <textarea asp-for="Biography" class="form-control" rows="4" placeholder="Mô tả về diễn giả..."></textarea>
+                    <span asp-validation-for="Biography" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="PhotoUrl" class="form-label">URL Ảnh</label>
+                            <input asp-for="PhotoUrl" class="form-control" placeholder="https://example.com/photo.jpg" />
+                            <small class="form-text text-muted">Nhập URL của ảnh diễn giả (không bắt buộc)</small>
+                            <span asp-validation-for="PhotoUrl" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="OrderIndex" class="form-label">Thứ tự hiển thị</label>
+                            <input asp-for="OrderIndex" class="form-control" type="number" />
+                            <small class="form-text text-muted">Số nhỏ hơn sẽ hiển thị trước</small>
+                            <span asp-validation-for="OrderIndex" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsActive" class="form-check-label">Hiển thị trên trang chủ</label>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="@Url.Action("KeynoteSpeakers")" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Cập nhật
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

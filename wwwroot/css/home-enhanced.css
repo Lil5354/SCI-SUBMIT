@@ -3,6 +3,720 @@
    Combining current design with DEFI conference aesthetics
    ======================================== */
 
+/* ========================================
+   CONFERENCE OVERVIEW SECTION - CUSTOM DESIGN
+   Beautiful, modern design with custom SVG icons
+   ======================================== */
+.conference-overview-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.conference-overview-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+}
+
+.conference-overview-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(59, 130, 246, 0.1);
+}
+
+.conference-header {
+    padding: 3rem 3rem 2rem;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.conference-title-wrapper {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.conference-title {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #1e293b;
+    margin: 0;
+    background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.conference-accent-line {
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+    border-radius: 2px;
+    margin-top: 1rem;
+    animation: slideInLeft 0.6s ease-out 0.3s both;
+}
+
+.conference-description {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: #64748b;
+    margin: 0;
+}
+
+.conference-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    padding: 2.5rem 3rem;
+    background: white;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border-radius: 16px;
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.detail-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, currentColor 50%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.detail-item:hover {
+    transform: translateY(-4px);
+    border-color: currentColor;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+}
+
+.detail-item:hover::before {
+    opacity: 1;
+}
+
+.detail-item-time {
+    color: #3b82f6;
+}
+
+.detail-item-location {
+    color: #ef4444;
+}
+
+.detail-icon-wrapper {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 2px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.detail-icon-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+    border-radius: 14px;
+}
+
+.detail-icon {
+    width: 28px;
+    height: 28px;
+    stroke: #1e293b;
+    stroke-width: 2;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    z-index: 1;
+    position: relative;
+}
+
+.detail-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.detail-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.detail-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.5;
+}
+
+.conference-topics-section {
+    padding: 2.5rem 3rem 3rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.topics-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.topics-icon {
+    width: 24px;
+    height: 24px;
+    stroke: #3b82f6;
+    stroke-width: 2;
+    flex-shrink: 0;
+}
+
+.topics-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.topics-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.topics-container .badge {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.topics-container .badge::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.topics-container .badge:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.topics-container .badge:hover::before {
+    opacity: 1;
+}
+
+/* Loading skeleton */
+.topic-skeleton {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.skeleton-badge {
+    width: 120px;
+    height: 40px;
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    border-radius: 12px;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .conference-header {
+        padding: 2rem 1.5rem 1.5rem;
+    }
+    
+    .conference-title {
+        font-size: 1.5rem;
+    }
+    
+    .conference-details-grid {
+        grid-template-columns: 1fr;
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+    
+    .conference-topics-section {
+        padding: 1.5rem;
+    }
+    
+    .detail-item {
+        padding: 1.25rem;
+    }
+    
+    .detail-icon-wrapper {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .detail-icon {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+@media (max-width: 576px) {
+    .conference-overview-card {
+        border-radius: 16px;
+    }
+    
+    .conference-header {
+        padding: 1.5rem 1rem 1rem;
+    }
+    
+    .conference-title {
+        font-size: 1.25rem;
+    }
+    
+    .conference-description {
+        font-size: 1rem;
+    }
+}
+
+/* ========================================
+   CONFERENCE LOCATION INFO CARD - BEAUTIFUL DESIGN
+   Modern, elegant design with custom SVG icons
+   ======================================== */
+.location-info-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.location-info-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+}
+
+.location-info-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(102, 126, 234, 0.1);
+}
+
+.location-card-header {
+    padding: 2.5rem 2.5rem 2rem;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.location-venue-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 12px 32px rgba(102, 126, 234, 0.4),
+        0 0 0 4px rgba(255, 255, 255, 0.95),
+        0 0 0 8px rgba(102, 126, 234, 0.15),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.location-venue-icon:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        0 16px 40px rgba(102, 126, 234, 0.5),
+        0 0 0 4px rgba(255, 255, 255, 0.95),
+        0 0 0 8px rgba(102, 126, 234, 0.25),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.location-venue-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+    border-radius: 20px;
+    z-index: 1;
+}
+
+.location-venue-icon svg {
+    width: 42px;
+    height: 42px;
+    stroke: white;
+    stroke-width: 3;
+    fill: none;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    z-index: 2;
+    position: relative;
+}
+
+.location-venue-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.location-venue-name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+    background: linear-gradient(135deg, #1e293b 0%, #667eea 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.location-venue-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.location-details {
+    padding: 2rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.location-detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 16px;
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.location-detail-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, currentColor 50%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.location-detail-item:hover {
+    transform: translateX(4px);
+    border-color: currentColor;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.location-detail-item:hover::before {
+    opacity: 1;
+}
+
+.location-detail-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 
+        0 8px 20px rgba(0, 0, 0, 0.25),
+        0 0 0 3px rgba(255, 255, 255, 0.95),
+        0 0 0 6px currentColor,
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.location-detail-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 
+        0 12px 28px rgba(0, 0, 0, 0.3),
+        0 0 0 3px rgba(255, 255, 255, 0.95),
+        0 0 0 8px currentColor,
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.location-detail-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+    border-radius: 14px;
+    z-index: 1;
+}
+
+.location-detail-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke: white;
+    stroke-width: 3;
+    fill: none;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+    z-index: 2;
+    position: relative;
+}
+
+.location-icon-address {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: rgba(239, 68, 68, 0.2);
+    animation: iconGlowRed 2s ease-in-out infinite;
+}
+
+.location-icon-city {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: rgba(59, 130, 246, 0.2);
+    animation: iconGlowBlue 2s ease-in-out infinite;
+}
+
+@keyframes iconGlowRed {
+    0%, 100% {
+        box-shadow: 
+            0 8px 20px rgba(0, 0, 0, 0.25),
+            0 0 0 3px rgba(255, 255, 255, 0.95),
+            0 0 0 6px rgba(239, 68, 68, 0.2),
+            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+    50% {
+        box-shadow: 
+            0 12px 28px rgba(239, 68, 68, 0.4),
+            0 0 0 3px rgba(255, 255, 255, 0.95),
+            0 0 0 10px rgba(239, 68, 68, 0.3),
+            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+}
+
+@keyframes iconGlowBlue {
+    0%, 100% {
+        box-shadow: 
+            0 8px 20px rgba(0, 0, 0, 0.25),
+            0 0 0 3px rgba(255, 255, 255, 0.95),
+            0 0 0 6px rgba(59, 130, 246, 0.2),
+            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+    50% {
+        box-shadow: 
+            0 12px 28px rgba(59, 130, 246, 0.4),
+            0 0 0 3px rgba(255, 255, 255, 0.95),
+            0 0 0 10px rgba(59, 130, 246, 0.3),
+            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+}
+
+.location-detail-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.location-detail-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+}
+
+.location-detail-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.6;
+}
+
+.location-description-section {
+    padding: 2rem 2.5rem 2.5rem;
+    border-top: 2px solid #e2e8f0;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.location-description-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.location-description-icon {
+    width: 24px;
+    height: 24px;
+    stroke: #64748b;
+    stroke-width: 2.5;
+    fill: #64748b;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.location-description-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #64748b;
+}
+
+.location-description-text {
+    font-size: 0.9375rem;
+    color: #475569;
+    line-height: 1.8;
+}
+
+.location-description-text p {
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .location-card-header {
+        padding: 2rem 1.5rem 1.5rem;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .location-venue-icon {
+        width: 72px;
+        height: 72px;
+    }
+    
+    .location-venue-icon svg {
+        width: 38px;
+        height: 38px;
+    }
+    
+    .location-detail-icon {
+        width: 52px;
+        height: 52px;
+    }
+    
+    .location-detail-icon svg {
+        width: 26px;
+        height: 26px;
+    }
+    
+    .location-venue-name {
+        font-size: 1.5rem;
+    }
+    
+    .location-details {
+        padding: 1.5rem;
+        gap: 1.25rem;
+    }
+    
+    .location-detail-item {
+        padding: 1rem;
+    }
+    
+    .location-description-section {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .location-info-card {
+        border-radius: 16px;
+    }
+    
+    .location-card-header {
+        padding: 1.5rem 1rem 1rem;
+    }
+    
+    .location-details {
+        padding: 1rem;
+    }
+    
+    .location-description-section {
+        padding: 1rem;
+    }
+}
+
 /* Enhanced Hero Section with DEFI-inspired design - HIGHEST PRIORITY */
 body .hero-section,
 body section.hero-section,
@@ -351,12 +1065,28 @@ section.hero-section .hero-subtitle,
   transition: all 0.3s ease !important;
 }
 
+.section .progress-step-icon.progress-step-icon-doc {
+  width: 1.75rem;
+  height: 1.75rem;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
 .section .progress-step.active .progress-step-icon {
   color: #ffffff !important;
 }
 
+.section .progress-step.active .progress-step-icon.progress-step-icon-doc {
+  stroke: #ffffff;
+}
+
 .section .progress-step.completed .progress-step-icon {
   color: #ffffff !important;
+}
+
+.section .progress-step.completed .progress-step-icon.progress-step-icon-doc {
+  stroke: #ffffff;
 }
 
 .section .progress-step-label {
@@ -554,5 +1284,9 @@ section.hero-section .hero-subtitle,
     padding: 1.5rem !important;
   }
 }
+
+
+
+
 
 

@@ -21,6 +21,8 @@ namespace SciSubmit.Data
         public DbSet<Conference> Conferences { get; set; }
         public DbSet<ConferencePlan> ConferencePlans { get; set; }
         public DbSet<SystemSetting> SystemSettings { get; set; }
+        public DbSet<KeynoteSpeaker> KeynoteSpeakers { get; set; }
+        public DbSet<ConferenceLocation> ConferenceLocations { get; set; }
         public DbSet<Topic> Topics { get; set; }
         public DbSet<Keyword> Keywords { get; set; }
         public DbSet<UserKeyword> UserKeywords { get; set; }
@@ -124,6 +126,16 @@ namespace SciSubmit.Data
                     .OnDelete(DeleteBehavior.Cascade);
                 
                 entity.HasMany(e => e.SystemSettings)
+                    .WithOne(e => e.Conference)
+                    .HasForeignKey(e => e.ConferenceId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasMany(e => e.KeynoteSpeakers)
+                    .WithOne(e => e.Conference)
+                    .HasForeignKey(e => e.ConferenceId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasMany(e => e.ConferenceLocations)
                     .WithOne(e => e.Conference)
                     .HasForeignKey(e => e.ConferenceId)
                     .OnDelete(DeleteBehavior.Cascade);

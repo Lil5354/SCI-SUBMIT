@@ -47,13 +47,79 @@ namespace SciSubmit.Controllers
                 return View(model);
             }
 
-            // TODO: Implement actual authentication logic
-            // For now, just redirect to home
-            if (string.IsNullOrEmpty(returnUrl))
+            try
             {
+                // Authenticate user
+                var user = await _userService.AuthenticateAsync(model.EmailOrPhone, model.Password);
+
+                if (user == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid email/phone number or password.");
+                    return View(model);
+                }
+
+                // Check if user is active
+                if (!user.IsActive)
+                {
+                    ModelState.AddModelError(string.Empty, "Your account has been deactivated. Please contact support.");
+                    return View(model);
+                }
+
+                // Set session
+                _userService.SetUserSession(HttpContext, user);
+
+                // Sign in with Cookie authentication
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Name, user.FullName),
+                    new Claim(ClaimTypes.Role, user.Role.ToString())
+                };
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = model.RememberMe,
+                    ExpiresUtc = model.RememberMe ? DateTimeOffset.UtcNow.AddDays(30) : DateTimeOffset.UtcNow.AddHours(24)
+                };
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    authProperties);
+
+                _logger.LogInformation("User {Email} with role {Role} logged in successfully", user.Email, user.Role);
+
+                // Redirect based on user role
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                    return Redirect(returnUrl);
+                }
+
+                // Redirect admin to admin dashboard
+                // Check role by enum, string, or int value (Admin = 3)
+                bool isAdmin = user.Role == UserRole.Admin || 
+                              user.Role.ToString().Equals("Admin", StringComparison.OrdinalIgnoreCase) ||
+                              (int)user.Role == 3;
+                
+                if (isAdmin)
+                {
+                    _logger.LogInformation("Redirecting admin user {Email} (Role: {Role}, RoleInt: {RoleInt}) to Admin Dashboard", 
+                        user.Email, user.Role, (int)user.Role);
+                    return RedirectToAction("Dashboard", "Admin");
+                }
+
+                _logger.LogInformation("Redirecting user {Email} with role {Role} (RoleInt: {RoleInt}) to Home", 
+                    user.Email, user.Role, (int)user.Role);
                 return RedirectToAction("Index", "Home");
             }
-            return Redirect(returnUrl);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during login for {EmailOrPhone}", model.EmailOrPhone);
+                ModelState.AddModelError(string.Empty, "An error occurred during login. Please try again.");
+                return View(model);
+            }
         }
 
         // GET: Account/Register
@@ -72,10 +138,51 @@ namespace SciSubmit.Controllers
                 return View(model);
             }
 
-            // TODO: Implement actual registration logic
-            // For now, redirect to login
-            TempData["SuccessMessage"] = "Đăng ký thành công! Vui lòng đăng nhập.";
+            try
+            {
+                // Check if email already exists
+                var existingUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Email == model.Email);
+
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError(nameof(model.Email), "This email is already registered. Please use a different email or try logging in.");
+                    return View(model);
+                }
+
+                // Check if phone number already exists
+                if (!string.IsNullOrEmpty(model.PhoneNumber))
+                {
+                    var existingPhone = await _context.Users
+                        .FirstOrDefaultAsync(u => u.PhoneNumber == model.PhoneNumber);
+
+                    if (existingPhone != null)
+                    {
+                        ModelState.AddModelError(nameof(model.PhoneNumber), "This phone number is already registered. Please use a different phone number.");
+                        return View(model);
+                    }
+                }
+
+                // Register user using UserService
+                var success = await _userService.RegisterAsync(model);
+
+                if (!success)
+                {
+                    ModelState.AddModelError(string.Empty, "Registration failed. Please try again.");
+                    return View(model);
+                }
+
+                _logger.LogInformation("New user registered: {Email}", model.Email);
+
+                TempData["SuccessMessage"] = "Registration successful! Please log in with your credentials.";
             return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during registration for {Email}", model.Email);
+                ModelState.AddModelError(string.Empty, "An error occurred during registration. Please try again.");
+                return View(model);
+            }
         }
 
         // GET: Account/ForgotPassword
@@ -214,7 +321,7 @@ namespace SciSubmit.Controllers
 
             if (string.IsNullOrEmpty(googleClientId) || string.IsNullOrEmpty(googleClientSecret))
             {
-                TempData["ErrorMessage"] = "Đăng nhập Google chưa được cấu hình.";
+                    TempData["ErrorMessage"] = "Google login is not configured.";
                 return RedirectToAction("Login", new { returnUrl });
             }
 
@@ -224,7 +331,7 @@ namespace SciSubmit.Controllers
             
             if (googleScheme == null)
             {
-                TempData["ErrorMessage"] = "Đăng nhập Google chưa được cấu hình.";
+                TempData["ErrorMessage"] = "Google login is not configured.";
                 return RedirectToAction("Login", new { returnUrl });
             }
 
@@ -247,7 +354,7 @@ namespace SciSubmit.Controllers
                 if (!result.Succeeded)
                 {
                     _logger.LogWarning("Google authentication failed");
-                    TempData["ErrorMessage"] = "Đăng nhập Google thất bại. Vui lòng thử lại.";
+                    TempData["ErrorMessage"] = "Google login failed. Please try again.";
                     return RedirectToAction("Login");
                 }
 
@@ -255,7 +362,7 @@ namespace SciSubmit.Controllers
                 if (claims == null || !claims.Any())
                 {
                     _logger.LogWarning("No claims received from Google");
-                    TempData["ErrorMessage"] = "Không nhận được thông tin từ Google.";
+                    TempData["ErrorMessage"] = "Failed to receive information from Google.";
                     return RedirectToAction("Login");
                 }
 
@@ -270,7 +377,7 @@ namespace SciSubmit.Controllers
                 if (string.IsNullOrEmpty(email))
                 {
                     _logger.LogWarning("Email not found in Google claims");
-                    TempData["ErrorMessage"] = "Không tìm thấy email từ Google.";
+                    TempData["ErrorMessage"] = "Email not found from Google.";
                     return RedirectToAction("Login");
                 }
 
@@ -351,7 +458,7 @@ namespace SciSubmit.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in GoogleCallback");
-                TempData["ErrorMessage"] = "Có lỗi xảy ra khi đăng nhập với Google. Vui lòng thử lại.";
+                TempData["ErrorMessage"] = "An error occurred during Google login. Please try again.";
                 return RedirectToAction("Login");
             }
         }
@@ -360,44 +467,44 @@ namespace SciSubmit.Controllers
     // View Models
     public class LoginViewModel
     {
-        [Required(ErrorMessage = "Email hoặc SĐT là bắt buộc")]
-        [Display(Name = "Email hoặc Số điện thoại")]
+        [Required(ErrorMessage = "Email or phone number is required")]
+        [Display(Name = "Email or Phone Number")]
         public string EmailOrPhone { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
+        [Required(ErrorMessage = "Password is required")]
         [DataType(DataType.Password)]
-        [Display(Name = "Mật khẩu")]
+        [Display(Name = "Password")]
         public string Password { get; set; } = string.Empty;
 
-        [Display(Name = "Ghi nhớ đăng nhập")]
+        [Display(Name = "Remember Me")]
         public bool RememberMe { get; set; }
     }
 
     public class RegisterViewModel
     {
-        [Required(ErrorMessage = "Email là bắt buộc")]
-        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
         [Display(Name = "Email")]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Số điện thoại là bắt buộc")]
-        [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
-        [Display(Name = "Số điện thoại")]
+        [Required(ErrorMessage = "Phone number is required")]
+        [Phone(ErrorMessage = "Invalid phone number")]
+        [Display(Name = "Phone Number")]
         public string PhoneNumber { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
-        [StringLength(100, ErrorMessage = "Mật khẩu phải có ít nhất {2} ký tự.", MinimumLength = 6)]
+        [Required(ErrorMessage = "Password is required")]
+        [StringLength(100, ErrorMessage = "Password must be at least {2} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Mật khẩu")]
+        [Display(Name = "Password")]
         public string Password { get; set; } = string.Empty;
 
         [DataType(DataType.Password)]
-        [Display(Name = "Xác nhận mật khẩu")]
-        [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp.")]
+        [Display(Name = "Confirm Password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Bạn phải đồng ý với điều khoản")]
-        [Display(Name = "Tôi đồng ý với điều khoản và điều kiện")]
+        [Required(ErrorMessage = "You must agree to the terms and conditions")]
+        [Display(Name = "I agree to the terms and conditions")]
         public bool AgreeToTerms { get; set; }
     }
 
