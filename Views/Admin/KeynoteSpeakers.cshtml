@@ -1,14 +1,28 @@
 @model List<SciSubmit.Models.Conference.KeynoteSpeaker>
 @{
-    ViewData["Title"] = "Quản lý Diễn giả chính";
+    ViewData["Title"] = "Manage Keynote Speakers";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/keynote-admin.css" asp-append-version="true" />
 }
 
 <div class="container-fluid my-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-microphone me-2"></i>Quản lý Diễn giả chính (Keynote Speakers)</h2>
-        <a href="@Url.Action("CreateKeynoteSpeaker")" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Thêm Diễn giả
-        </a>
+        <div>
+            <h2 class="text-gradient mb-2">
+                <i class="fas fa-microphone me-2"></i>Manage Keynote Speakers
+            </h2>
+            <p class="text-muted mb-0">Quản lý diễn giả chính của hội thảo</p>
+        </div>
+        <div>
+            <a href="@Url.Action("KeynoteSpeakers", "Home")" target="_blank" class="btn btn-outline-info me-2">
+                <i class="fas fa-eye me-2"></i>Xem trang công khai
+            </a>
+            <a href="@Url.Action("CreateKeynoteSpeaker")" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Thêm Diễn giả
+            </a>
+        </div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -41,73 +55,75 @@
     }
     else
     {
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Ảnh</th>
-                                <th>Tên</th>
-                                <th>Chức danh</th>
-                                <th>Đơn vị</th>
-                                <th>Chủ đề</th>
-                                <th>Thứ tự</th>
-                                <th>Trạng thái</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (int i = 0; i < Model.Count; i++)
+        <div class="row">
+            @foreach (var speaker in Model.OrderBy(s => s.OrderIndex).ThenBy(s => s.Id))
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="keynote-admin-card card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="keynote-admin-image me-3">
+                                    @if (!string.IsNullOrEmpty(speaker.PhotoUrl))
+                                    {
+                                        <img src="@speaker.PhotoUrl" alt="@speaker.Name" class="keynote-admin-img">
+                                    }
+                                    else
+                                    {
+                                        <div class="keynote-admin-placeholder">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-1">@speaker.Name</h5>
+                                    @if (!string.IsNullOrEmpty(speaker.Title))
+                                    {
+                                        <p class="text-muted small mb-0">@speaker.Title</p>
+                                    }
+                                    @if (!string.IsNullOrEmpty(speaker.Affiliation))
+                                    {
+                                        <p class="text-muted small mb-0">@speaker.Affiliation</p>
+                                    }
+                                </div>
+                            </div>
+                            
+                            @if (!string.IsNullOrEmpty(speaker.Topic))
                             {
-                                var speaker = Model[i];
-                                <tr>
-                                    <td>@(i + 1)</td>
-                                    <td>
-                                        @if (!string.IsNullOrEmpty(speaker.PhotoUrl))
-                                        {
-                                            <img src="@speaker.PhotoUrl" alt="@speaker.Name" style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%;">
-                                        }
-                                        else
-                                        {
-                                            <div class="bg-primary text-white d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; border-radius: 50%;">
-                                                <i class="fas fa-user"></i>
-                                            </div>
-                                        }
-                                    </td>
-                                    <td><strong>@speaker.Name</strong></td>
-                                    <td>@(speaker.Title ?? "-")</td>
-                                    <td>@(speaker.Affiliation ?? "-")</td>
-                                    <td>@(speaker.Topic ?? "-")</td>
-                                    <td>@speaker.OrderIndex</td>
-                                    <td>
-                                        @if (speaker.IsActive)
-                                        {
-                                            <span class="badge bg-success">Hoạt động</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">Ẩn</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <a href="@Url.Action("EditKeynoteSpeaker", new { id = speaker.Id })" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i> Sửa
-                                        </a>
-                                        <form asp-action="DeleteKeynoteSpeaker" asp-route-id="@speaker.Id" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa diễn giả này?');">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                <i class="fas fa-trash"></i> Xóa
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
+                                <div class="mb-2">
+                                    <strong class="text-danger">Topic:</strong>
+                                    <p class="mb-0 small">@speaker.Topic</p>
+                                </div>
                             }
-                        </tbody>
-                    </table>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <span class="badge bg-secondary">Thứ tự: @speaker.OrderIndex</span>
+                                    @if (speaker.IsActive)
+                                    {
+                                        <span class="badge bg-success">Hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Ẩn</span>
+                                    }
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2 mt-3">
+                                <a href="@Url.Action("EditKeynoteSpeaker", new { id = speaker.Id })" class="btn btn-sm btn-outline-primary flex-fill">
+                                    <i class="fas fa-edit me-1"></i>Sửa
+                                </a>
+                                <form asp-action="DeleteKeynoteSpeaker" asp-route-id="@speaker.Id" method="post" class="flex-fill" onsubmit="return confirm('Bạn có chắc chắn muốn xóa diễn giả này?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                        <i class="fas fa-trash me-1"></i>Xóa
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            }
         </div>
     }
 </div>

@@ -51,19 +51,15 @@
                 A professional platform for managing, submitting, and evaluating scientific research works.
                 Connect researchers and facilitate excellent academic collaboration.
             </p>
-            <div class="mt-4">
-                <a href="/Submission/Create" class="btn btn-light btn-lg me-3 shadow-lg">
-                    <i class="fas fa-plus-circle me-2"></i>Submit New Paper
-                </a>
-                <a href="/Submission/Index" class="btn btn-outline-light btn-lg shadow-lg">
-                    <i class="fas fa-file-alt me-2"></i>View My Submissions
-                </a>
-            </div>
+            <!-- Admin Dashboard Button (Hidden by default, shown only for admin) -->
+            @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+            {
             <div class="mt-3">
-                <a href="/Seed" class="btn btn-outline-warning btn-sm">
-                    <i class="fas fa-database me-2"></i>Import Sample Data (Test)
+                    <a href="/Admin/Dashboard" class="btn btn-danger btn-lg shadow-lg" id="adminDashboardBtn">
+                        <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
                 </a>
             </div>
+            }
             <!-- Countdown Timer -->
             <div class="countdown-container mb-4">
                 <h5 class="text-white mb-3">
@@ -344,7 +340,9 @@
     </div>
 </section>
 
-<!-- Quick Actions Section -->
+<!-- Quick Actions Section (Author/Reviewer Only) -->
+@if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Author") || User.IsInRole("Reviewer")))
+{
 <section class="section bg-light position-relative" style="background: linear-gradient(to bottom, #f9fafb 0%, #ffffff 100%);">
     <!-- Decorative pattern -->
     <div class="position-absolute top-0 start-0 w-100 h-100" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%232563eb&quot; fill-opacity=&quot;0.02&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); opacity: 0.5; pointer-events: none;"></div>
@@ -417,6 +415,7 @@
         </div>
     </div>
 </section>
+}
 
 <!-- Recent Submissions Section -->
 <section class="section position-relative">
@@ -1370,6 +1369,50 @@
         document.querySelectorAll('.btn, .card, .stat-card').forEach(el => {
             el.addEventListener('mouseenter', function() {
                 this.style.transition = 'all 0.3s ease';
+            });
+        });
+
+        // Check authentication before allowing access to main features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is authenticated (check for authentication cookie or session)
+            const isAuthenticated = @(User.Identity?.IsAuthenticated == true ? "true" : "false");
+            
+            // List of protected action links
+            const protectedLinks = [
+                '/Submission/Create',
+                '/Submission/Index',
+                '/Review/Index'
+            ];
+
+            // Function to check and handle protected links
+            function handleProtectedLink(event, href) {
+                if (!isAuthenticated) {
+                    event.preventDefault();
+                    // Redirect directly to login page
+                    window.location.href = '/Account/Login?returnUrl=' + encodeURIComponent(href);
+                    return false;
+                }
+                return true;
+            }
+
+            // Attach click handlers to all links that match protected paths
+            document.querySelectorAll('a[href]').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && protectedLinks.some(path => href.includes(path))) {
+                    link.addEventListener('click', function(e) {
+                        handleProtectedLink(e, href);
+                    });
+                }
+            });
+
+            // Also handle buttons that might navigate
+            document.querySelectorAll('a.btn[href]').forEach(btn => {
+                const href = btn.getAttribute('href');
+                if (href && protectedLinks.some(path => href.includes(path))) {
+                    btn.addEventListener('click', function(e) {
+                        handleProtectedLink(e, href);
+                    });
+                }
             });
         });
     </script>

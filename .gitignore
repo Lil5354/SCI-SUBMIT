@@ -317,6 +317,8 @@ healthchecksdb
 MigrationBackup/
 
 # Documentation files (excluded from repository)
+# Keep README.md
 *.md
+!README.md
 *.txt
 *.pdf

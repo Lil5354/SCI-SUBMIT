@@ -22,6 +22,7 @@
         <link rel="stylesheet" href="~/css/home-enhanced.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/css/home-animations.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/css/timeline.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/conference-nav.css" asp-append-version="true" />
     }
     <!-- Font Awesome Icons -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -55,28 +56,49 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" && ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" 
-                               asp-area="" asp-controller="Home" asp-action="Index">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" && ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" 
+                               href="#" id="homeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-home me-1"></i>Home
                             </a>
+                            <ul class="dropdown-menu conference-dropdown" aria-labelledby="homeDropdown">
+                                <li><a class="dropdown-item" href="#registration">Registration</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#news">News</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#sessions">Sessions</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#call-for-papers">Call for papers</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="forAuthorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                For authors
+                            </a>
+                            <ul class="dropdown-menu conference-dropdown" aria-labelledby="forAuthorsDropdown">
+                                <li><a class="dropdown-item" href="#submission-guidelines">Submission Guidelines and Template</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#accepted-papers">Accepted papers</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Create" && ViewContext.RouteData.Values["Controller"]?.ToString() == "Submission" ? "active" : "")" 
-                               asp-area="" asp-controller="Submission" asp-action="Create">
-                                <i class="fas fa-plus-circle me-1"></i>Submit Paper
+                            <a class="nav-link" asp-controller="Home" asp-action="Committee">
+                                Committee
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" && ViewContext.RouteData.Values["Controller"]?.ToString() == "Submission" ? "active" : "")" 
-                               asp-area="" asp-controller="Submission" asp-action="Index">
-                                <i class="fas fa-file-alt me-1"></i>My Submissions
+                            <a class="nav-link" asp-controller="Home" asp-action="KeynoteSpeakers">
+                                Keynote speakers
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Review" ? "active" : "")" 
-                               asp-area="" asp-controller="Review" asp-action="Index">
-                                <i class="fas fa-clipboard-check me-1"></i>Reviews
+                            <a class="nav-link" asp-controller="Home" asp-action="Program">
+                                Program
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#venue">
+                                Venue
                             </a>
                         </li>
                     </ul>

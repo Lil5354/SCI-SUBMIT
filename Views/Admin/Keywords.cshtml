@@ -1,7 +1,7 @@
 @model SciSubmit.Models.Admin.PagedList<SciSubmit.Models.Admin.KeywordViewModel>
 @using SciSubmit.Models.Enums
 @{
-    ViewData["Title"] = "Quản lý từ khóa";
+    ViewData["Title"] = "Manage Keywords";
     var filter = ViewBag.Filter as SciSubmit.Models.Admin.KeywordFilterViewModel ?? new SciSubmit.Models.Admin.KeywordFilterViewModel();
     var approvedKeywords = Model.Items.Where(k => k.Status == KeywordStatus.Approved).ToList();
     var pendingKeywords = Model.Items.Where(k => k.Status == KeywordStatus.Pending).ToList();
@@ -31,13 +31,13 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h2 class="text-gradient mb-2">
-                    <i class="fas fa-tags me-2"></i>Quản lý từ khóa
+                    <i class="fas fa-tags me-2"></i>Manage Keywords
                 </h2>
-                <p class="text-muted mb-0">Duyệt và quản lý từ khóa chuyên môn trong hệ thống</p>
+                <p class="text-muted mb-0">Approve and manage professional keywords in the system</p>
             </div>
             <div>
                 <button class="btn btn-primary" onclick="showAddKeywordModal()">
-                    <i class="fas fa-plus me-2"></i>Thêm từ khóa
+                    <i class="fas fa-plus me-2"></i>Add Keyword
                 </button>
             </div>
         </div>
@@ -47,12 +47,12 @@
     <ul class="nav nav-tabs mb-4" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button">
-                <i class="fas fa-check-circle me-2"></i>Đã duyệt (<span id="approvedCount">@approvedKeywords.Count</span>)
+                <i class="fas fa-check-circle me-2"></i>Approved (<span id="approvedCount">@approvedKeywords.Count</span>)
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button">
-                <i class="fas fa-clock me-2"></i>Chờ duyệt (<span id="pendingCount">@pendingKeywords.Count</span>)
+                <i class="fas fa-clock me-2"></i>Pending (<span id="pendingCount">@pendingKeywords.Count</span>)
             </button>
         </li>
     </ul>
@@ -69,7 +69,7 @@
                             {
                                 <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
                                     @keyword.Name
-                                    <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword(@keyword.Id, '@keyword.Name')" title="Xóa"></button>
+                                    <button type="button" class="btn-close btn-close-white ms-2" onclick="deleteKeyword(@keyword.Id, '@keyword.Name')" title="Delete"></button>
                                 </span>
                             }
                         </div>
@@ -78,7 +78,7 @@
                     {
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
-                            Chưa có từ khóa nào đã duyệt.
+                            No approved keywords found.
                         </div>
                     }
                         <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
@@ -124,10 +124,10 @@
                             </colgroup>
                             <thead>
                                 <tr>
-                                    <th style="width: 30%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Từ khóa</th>
-                                    <th style="width: 25%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Người đề xuất</th>
-                                    <th style="width: 20%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Ngày đề xuất</th>
-                                    <th style="width: 25%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Thao tác</th>
+                                    <th style="width: 30%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Keyword</th>
+                                    <th style="width: 25%; min-width: 150px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Proposed By</th>
+                                    <th style="width: 20%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Date Proposed</th>
+                                    <th style="width: 25%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -147,10 +147,10 @@
                                             </td>
                                             <td style="width: 25%; min-width: 150px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box; overflow: hidden;">
                                                 <div class="d-flex justify-content-center gap-1">
-                                                    <button class="btn btn-sm btn-success" onclick="approveKeyword(@keyword.Id, '@keyword.Name')" title="Duyệt">
+                                                    <button class="btn btn-sm btn-success" onclick="approveKeyword(@keyword.Id, '@keyword.Name')" title="Approve">
                                                         <i class="fas fa-check"></i>
                                                     </button>
-                                                    <button class="btn btn-sm btn-danger" onclick="rejectKeyword(@keyword.Id, '@keyword.Name')" title="Từ chối">
+                                                    <button class="btn btn-sm btn-danger" onclick="rejectKeyword(@keyword.Id, '@keyword.Name')" title="Reject">
                                                         <i class="fas fa-times"></i>
                                                     </button>
                                                 </div>
@@ -163,7 +163,7 @@
                                     <tr>
                                         <td colspan="4" class="text-center py-4">
                                             <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
-                                            <p class="text-muted mb-0">Chưa có từ khóa nào chờ duyệt</p>
+                                            <p class="text-muted mb-0">No pending keywords</p>
                                         </td>
                                     </tr>
                                 }
@@ -181,21 +181,21 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Thêm từ khóa mới</h5>
+                <h5 class="modal-title">Add New Keyword</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="keywordForm">
                     <div class="mb-3">
-                        <label class="form-label">Từ khóa <span class="text-danger">*</span></label>
+                        <label class="form-label">Keyword <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" name="Keyword" required />
-                        <small class="form-text text-muted">Từ khóa sẽ được thêm vào danh sách chuẩn ngay lập tức</small>
+                        <small class="form-text text-muted">Keyword will be added to the approved list immediately</small>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" onclick="saveKeyword()">Lưu</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveKeyword()">Save</button>
             </div>
         </div>
     </div>
@@ -213,7 +213,7 @@
         }
 
         function approveKeyword(id, name) {
-            if (confirm(`Duyệt từ khóa "${name}"?`)) {
+            if (confirm(`Approve keyword "${name}"?`)) {
                 fetch('@Url.Action("ApproveKeyword", "Admin")', {
                     method: 'POST',
                     headers: {
@@ -233,13 +233,13 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Có lỗi xảy ra khi duyệt từ khóa.');
+                    alert('Error approving keyword.');
                 });
             }
         }
 
         function rejectKeyword(id, name) {
-            if (confirm(`Từ chối từ khóa "${name}"?`)) {
+            if (confirm(`Reject keyword "${name}"?`)) {
                 fetch('@Url.Action("RejectKeyword", "Admin")', {
                     method: 'POST',
                     headers: {
@@ -259,13 +259,13 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Có lỗi xảy ra khi từ chối từ khóa.');
+                    alert('Error rejecting keyword.');
                 });
             }
         }
 
         function deleteKeyword(id, name) {
-            if (confirm(`Xóa từ khóa "${name}"?`)) {
+            if (confirm(`Delete keyword "${name}"?`)) {
                 fetch('@Url.Action("DeleteKeyword", "Admin")', {
                     method: 'POST',
                     headers: {
@@ -285,7 +285,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Có lỗi xảy ra khi xóa từ khóa.');
+                    alert('Error deleting keyword.');
                 });
             }
         }
@@ -293,7 +293,7 @@
         function saveKeyword() {
             const keywordName = document.querySelector('#keywordForm input[name="Keyword"]').value;
             if (!keywordName) {
-                alert('Vui lòng nhập tên từ khóa.');
+                alert('Please enter keyword name.');
                 return;
             }
 
@@ -317,7 +317,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Có lỗi xảy ra khi thêm từ khóa.');
+                alert('Error adding keyword.');
             });
         }
     </script>

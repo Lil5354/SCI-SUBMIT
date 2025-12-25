@@ -1,0 +1,260 @@
+@model SciSubmit.Models.Admin.ProgramViewModel
+@{
+    ViewData["Title"] = "Manage Program";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/program-admin.css" asp-append-version="true" />
+}
+
+<div class="container-fluid my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-gradient mb-2">
+                <i class="fas fa-calendar-alt me-2"></i>Manage Program
+            </h2>
+            <p class="text-muted mb-0">Quản lý lịch trình và chương trình hội thảo</p>
+        </div>
+        <div>
+            <a href="@Url.Action("Program", "Home")" target="_blank" class="btn btn-outline-info me-2">
+                <i class="fas fa-eye me-2"></i>Xem trang công khai
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Program Schedule Info -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin lịch trình</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="SaveProgramSchedule" method="post" id="scheduleForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Time" class="form-label">Thời gian</label>
+                        <input asp-for="Time" class="form-control" placeholder="VD: 08:00 - 21:30, December 20th, 2025" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Venue" class="form-label">Địa điểm</label>
+                        <input asp-for="Venue" class="form-control" placeholder="VD: Mercure, Ba Na Hills, Da Nang, Viet Nam" />
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="PresentationsLink" class="form-label">Link Presentations</label>
+                        <input asp-for="PresentationsLink" class="form-control" type="url" placeholder="https://..." />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="PapersLink" class="form-label">Link Papers</label>
+                        <input asp-for="PapersLink" class="form-control" type="url" placeholder="https://..." />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="ProgramLink" class="form-label">Link Program</label>
+                        <input asp-for="ProgramLink" class="form-control" type="url" placeholder="https://..." />
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Lưu thông tin
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Program Items -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Danh sách mục lịch trình</h5>
+            <button class="btn btn-sm btn-primary" onclick="showAddItemModal()">
+                <i class="fas fa-plus me-1"></i>Thêm mục
+            </button>
+        </div>
+        <div class="card-body">
+            @if (Model.Items == null || !Model.Items.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Chưa có mục lịch trình nào. Hãy thêm mục đầu tiên.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Thời gian</th>
+                                <th>Nội dung</th>
+                                <th>Thứ tự</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items.OrderBy(i => i.OrderIndex).ThenBy(i => i.Id))
+                            {
+                                <tr>
+                                    <td>@item.OrderIndex</td>
+                                    <td><strong>@item.Time</strong></td>
+                                    <td>@Html.Raw(item.Contents.Length > 100 ? item.Contents.Substring(0, 100) + "..." : item.Contents)</td>
+                                    <td>@item.OrderIndex</td>
+                                    <td>
+                                        @if (item.IsActive)
+                                        {
+                                            <span class="badge bg-success">Hiển thị</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Ẩn</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editItem(@item.Id, @Model.Id)">
+                                            <i class="fas fa-edit"></i> Sửa
+                                        </button>
+                                        <form asp-action="DeleteProgramItem" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa mục này?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i> Xóa
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Item Modal -->
+<div class="modal fade" id="itemModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="itemModalTitle">Thêm mục lịch trình</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="itemForm" asp-action="SaveProgramItem" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="itemId" name="Id" value="0" />
+                    <input type="hidden" id="itemProgramScheduleId" name="ProgramScheduleId" value="@Model.Id" />
+                    
+                    <div class="mb-3">
+                        <label for="itemTime" class="form-label">Thời gian <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="itemTime" name="Time" required placeholder="VD: 09:00 - 10:00" />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="itemContents" class="form-label">Nội dung <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="itemContents" name="Contents" rows="5" required placeholder="Nhập nội dung..."></textarea>
+                        <small class="form-text text-muted">Có thể sử dụng HTML để định dạng (VD: &lt;strong&gt;, &lt;em&gt;, &lt;a&gt;, &lt;ul&gt;, &lt;li&gt;)</small>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="itemOrderIndex" class="form-label">Thứ tự hiển thị</label>
+                            <input type="number" class="form-control" id="itemOrderIndex" name="OrderIndex" value="0" />
+                            <small class="form-text text-muted">Số nhỏ hơn sẽ hiển thị trước</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check mt-4">
+                                <input type="checkbox" class="form-check-input" id="itemIsActive" value="true" checked />
+                                <input type="hidden" id="itemIsActiveHidden" name="IsActive" value="true" />
+                                <label class="form-check-label" for="itemIsActive">Hiển thị trên trang công khai</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="submitItemForm()">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showAddItemModal() {
+            $('#itemId').val(0);
+            $('#itemTime').val('');
+            $('#itemContents').val('');
+            $('#itemOrderIndex').val(0);
+            $('#itemIsActive').prop('checked', true);
+            $('#itemIsActiveHidden').val('true');
+            $('#itemModalTitle').text('Thêm mục lịch trình');
+            $('#itemModal').modal('show');
+        }
+
+        function editItem(itemId, scheduleId) {
+            $.ajax({
+                url: '@Url.Action("GetProgramItem", "Admin")',
+                type: 'GET',
+                data: { id: itemId },
+                success: function(data) {
+                    $('#itemId').val(data.id);
+                    $('#itemProgramScheduleId').val(scheduleId);
+                    $('#itemTime').val(data.time);
+                    $('#itemContents').val(data.contents);
+                    $('#itemOrderIndex').val(data.orderIndex);
+                    $('#itemIsActive').prop('checked', data.isActive);
+                    $('#itemIsActiveHidden').val(data.isActive ? 'true' : 'false');
+                    $('#itemModalTitle').text('Sửa mục lịch trình');
+                    $('#itemModal').modal('show');
+                },
+                error: function() {
+                    alert('Lỗi khi tải dữ liệu mục lịch trình');
+                }
+            });
+        }
+
+        function submitItemForm() {
+            // Update hidden input value based on checkbox state
+            // ASP.NET Core expects boolean values, so we use "true"/"false" strings
+            $('#itemIsActiveHidden').val($('#itemIsActive').is(':checked') ? 'true' : 'false');
+            
+            if ($('#itemForm')[0].checkValidity()) {
+                $('#itemForm').submit();
+            } else {
+                $('#itemForm')[0].reportValidity();
+            }
+        }
+        
+        // Handle checkbox change - update hidden input value
+        $(document).on('change', '#itemIsActive', function() {
+            $('#itemIsActiveHidden').val($(this).is(':checked') ? 'true' : 'false');
+        });
+        
+        // Also update on form submit to ensure latest value
+        $('#itemForm').on('submit', function() {
+            $('#itemIsActiveHidden').val($('#itemIsActive').is(':checked') ? 'true' : 'false');
+        });
+    </script>
+}
+

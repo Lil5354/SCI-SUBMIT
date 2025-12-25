@@ -1,0 +1,282 @@
+/* Keynote Speakers Page Styles */
+
+/* Hero Section */
+.keynote-hero {
+    background: radial-gradient(circle at left top, rgba(4, 9, 34, 0.75) 39%, rgba(4, 9, 34, 0.70) 49%),
+                url('https://mcdn.wallpapersafari.com/medium/4/14/HR5BvO.jpg') center/cover;
+    background-attachment: fixed;
+    padding: 200px 0 0;
+    margin-top: -60px;
+    position: relative;
+    min-height: 400px;
+}
+
+.keynote-hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    animation: fadeInUp 0.8s ease-out;
+    color: #ffffff;
+}
+
+.keynote-hero-subtitle {
+    font-size: 1.25rem;
+    font-weight: 300;
+    opacity: 0.9;
+    animation: fadeInUp 1s ease-out;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Keynote Speakers Section */
+.keynote-speakers-section {
+    background-color: #ffffff;
+    padding: 80px 0;
+}
+
+/* Remove card border and shadow - no frame around */
+.keynote-speaker-card {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+    margin-bottom: 60px;
+    transition: none;
+}
+
+.keynote-speaker-card:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Speaker Image - Dark blue background with digital brain effect */
+.keynote-speaker-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 350px;
+    overflow: hidden;
+    background: #0a1929;
+}
+
+.keynote-speaker-image-frame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 350px;
+    background: #0a1929;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    /* Digital brain effect background */
+    background-image: 
+        /* Glowing dots pattern */
+        radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.6) 2px, transparent 2px),
+        radial-gradient(circle at 50% 50%, rgba(118, 75, 162, 0.5) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 80% 70%, rgba(102, 126, 234, 0.4) 2px, transparent 2px),
+        /* Connecting lines effect */
+        linear-gradient(45deg, transparent 48%, rgba(102, 126, 234, 0.1) 49%, rgba(102, 126, 234, 0.1) 51%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(118, 75, 162, 0.1) 49%, rgba(118, 75, 162, 0.1) 51%, transparent 52%),
+        /* Base gradient */
+        linear-gradient(135deg, #0a1929 0%, #1a2332 50%, #0f1b2e 100%);
+    background-size: 
+        200px 200px,
+        150px 150px,
+        180px 180px,
+        100px 100px,
+        100px 100px,
+        100% 100%;
+    background-position: 
+        0 0,
+        50px 50px,
+        100px 100px,
+        0 0,
+        0 0,
+        0 0;
+}
+
+.keynote-speaker-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: relative;
+    z-index: 1;
+    mix-blend-mode: normal;
+}
+
+.keynote-speaker-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Subtle overlay to blend image with background */
+    background: 
+        radial-gradient(circle at 30% 40%, rgba(102, 126, 234, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 70% 60%, rgba(118, 75, 162, 0.2) 0%, transparent 50%);
+    z-index: 2;
+    pointer-events: none;
+}
+
+.keynote-speaker-placeholder {
+    color: #ffffff;
+    font-size: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* Speaker Content - Clean white background, no padding issues */
+.keynote-speaker-content {
+    padding: 40px 50px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #ffffff;
+}
+
+/* Topic - Large, bold, dark red/maroon */
+.keynote-speaker-topic {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #8B0000;
+    margin-bottom: 25px;
+    line-height: 1.4;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: -0.5px;
+}
+
+/* Speaker Info Bar - Yellow background, black text */
+.keynote-speaker-bar {
+    background: #FFD700;
+    padding: 18px 25px;
+    border-radius: 0;
+    margin-bottom: 0;
+    display: inline-block;
+    width: auto;
+}
+
+.keynote-speaker-info {
+    color: #000000;
+    font-size: 1.15rem;
+    font-weight: 500;
+    line-height: 1.6;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.keynote-speaker-name {
+    font-weight: 600;
+    color: #000000;
+}
+
+.keynote-speaker-affiliation {
+    font-weight: 400;
+    color: #000000;
+}
+
+/* Biography */
+.keynote-speaker-biography {
+    color: #333333;
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-top: 20px;
+}
+
+.keynote-speaker-biography p {
+    margin-bottom: 0;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .keynote-speaker-content {
+        padding: 30px 40px;
+    }
+    
+    .keynote-speaker-topic {
+        font-size: 1.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .keynote-hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .keynote-hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .keynote-speaker-image-wrapper {
+        min-height: 250px;
+    }
+    
+    .keynote-speaker-image-frame {
+        min-height: 250px;
+    }
+    
+    .keynote-speaker-content {
+        padding: 25px 30px;
+    }
+    
+    .keynote-speaker-topic {
+        font-size: 1.5rem;
+    }
+    
+    .keynote-speaker-info {
+        font-size: 1rem;
+    }
+    
+    .keynote-speaker-bar {
+        padding: 15px 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .keynote-hero {
+        padding: 150px 0 0;
+        min-height: 300px;
+    }
+    
+    .keynote-hero-title {
+        font-size: 2rem;
+    }
+    
+    .keynote-speaker-topic {
+        font-size: 1.3rem;
+    }
+    
+    .keynote-speaker-bar {
+        padding: 12px 18px;
+    }
+    
+    .keynote-speaker-info {
+        font-size: 0.95rem;
+    }
+    
+    .keynote-speaker-content {
+        padding: 20px;
+    }
+}

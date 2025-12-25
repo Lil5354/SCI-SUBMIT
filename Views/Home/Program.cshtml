@@ -1,0 +1,97 @@
+@model SciSubmit.Models.Admin.ProgramViewModel
+@{
+    ViewData["Title"] = "Program";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/program.css" asp-append-version="true" />
+}
+
+<!-- Hero Section -->
+<section class="program-hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="program-hero-title">
+                    Program
+                </h1>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Program Section -->
+<section class="program-section py-5">
+    <div class="container">
+        <div class="program-content">
+            <h1 class="program-title">AGENDA AT A GLANCE</h1>
+            
+            @if (!string.IsNullOrEmpty(Model.Time))
+            {
+                <p class="program-info text-center">Time: @Html.Raw(Model.Time)</p>
+            }
+            
+            @if (!string.IsNullOrEmpty(Model.Venue))
+            {
+                <p class="program-info text-center program-venue">Venue: @Html.Raw(Model.Venue)</p>
+            }
+            
+            @if (!string.IsNullOrEmpty(Model.PresentationsLink) || !string.IsNullOrEmpty(Model.PapersLink) || !string.IsNullOrEmpty(Model.ProgramLink))
+            {
+                <p class="program-info text-center">
+                    Material Links: 
+                    @if (!string.IsNullOrEmpty(Model.PresentationsLink))
+                    {
+                        <a href="@Model.PresentationsLink" target="_blank" class="program-link">Presentations</a>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.PresentationsLink) && (!string.IsNullOrEmpty(Model.PapersLink) || !string.IsNullOrEmpty(Model.ProgramLink)))
+                    {
+                        <span>, </span>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.PapersLink))
+                    {
+                        <a href="@Model.PapersLink" target="_blank" class="program-link">Papers</a>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.PapersLink) && !string.IsNullOrEmpty(Model.ProgramLink))
+                    {
+                        <span>, </span>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ProgramLink))
+                    {
+                        <a href="@Model.ProgramLink" target="_blank" class="program-link">DEFI Program</a>
+                    }
+                </p>
+            }
+            
+            @if (Model.Items == null || !Model.Items.Any())
+            {
+                <div class="text-center py-5">
+                    <p class="text-muted">Program schedule will be available soon.</p>
+                </div>
+            }
+            else
+            {
+                <div class="program-table-wrapper">
+                    <table class="program-table" width="100%">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;" align="left">Time</th>
+                                <th style="text-align: center;" align="left">Contents</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td style="text-align: center;" align="left">@item.Time</td>
+                                    <td style="text-align: left;" align="left">@Html.Raw(item.Contents)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+

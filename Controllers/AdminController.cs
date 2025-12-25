@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SciSubmit.Services;
 using SciSubmit.Models.Admin;
 using SciSubmit.Models.Enums;
+using SciSubmit.Models.Conference;
 using SciSubmit.Data;
 using System.Text.Json;
 using System;
@@ -413,145 +414,6 @@ namespace SciSubmit.Controllers
             return RedirectToAction(nameof(Conference));
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateConferencePlan(Models.Admin.ConferencePlanViewModel model)
-        {
-            // Validate required fields
-            if (model.AbstractSubmissionOpenDate == default(DateTime) || model.AbstractSubmissionDeadline == default(DateTime))
-            {
-                TempData["ErrorMessage"] = "Vui lòng nhập đầy đủ ngày mở và deadline nộp tóm tắt.";
-                return RedirectToAction(nameof(Conference));
-            }
-
-            // Convert local datetime to UTC for storage
-            // datetime-local sends as Unspecified, treat as local time
-            // Use TimeZoneInfo to properly convert
-            TimeZoneInfo localTimeZone = TimeZoneInfo.Local;
-            
-            DateTime abstractOpen = model.AbstractSubmissionOpenDate;
-            if (abstractOpen.Kind == DateTimeKind.Unspecified)
-            {
-                // Treat as local time and convert to UTC
-                abstractOpen = TimeZoneInfo.ConvertTimeToUtc(abstractOpen, localTimeZone);
-            }
-            else if (abstractOpen.Kind == DateTimeKind.Local)
-            {
-                abstractOpen = abstractOpen.ToUniversalTime();
-            }
-            // If already UTC, keep as is
-
-            DateTime abstractDeadline = model.AbstractSubmissionDeadline;
-            if (abstractDeadline.Kind == DateTimeKind.Unspecified)
-            {
-                abstractDeadline = TimeZoneInfo.ConvertTimeToUtc(abstractDeadline, localTimeZone);
-            }
-            else if (abstractDeadline.Kind == DateTimeKind.Local)
-            {
-                abstractDeadline = abstractDeadline.ToUniversalTime();
-            }
-
-            model.AbstractSubmissionOpenDate = abstractOpen;
-            model.AbstractSubmissionDeadline = abstractDeadline;
-
-            // Handle nullable dates
-            if (model.FullPaperSubmissionOpenDate.HasValue && model.FullPaperSubmissionOpenDate.Value != default(DateTime))
-            {
-                var date = model.FullPaperSubmissionOpenDate.Value;
-                if (date.Kind == DateTimeKind.Unspecified)
-                {
-                    model.FullPaperSubmissionOpenDate = TimeZoneInfo.ConvertTimeToUtc(date, localTimeZone);
-                }
-                else if (date.Kind == DateTimeKind.Local)
-                {
-                    model.FullPaperSubmissionOpenDate = date.ToUniversalTime();
-                }
-                // If already UTC, keep as is
-            }
-            else
-            {
-                model.FullPaperSubmissionOpenDate = null;
-            }
-
-            if (model.FullPaperSubmissionDeadline.HasValue && model.FullPaperSubmissionDeadline.Value != default(DateTime))
-            {
-                var date = model.FullPaperSubmissionDeadline.Value;
-                if (date.Kind == DateTimeKind.Unspecified)
-                {
-                    model.FullPaperSubmissionDeadline = TimeZoneInfo.ConvertTimeToUtc(date, localTimeZone);
-                }
-                else if (date.Kind == DateTimeKind.Local)
-                {
-                    model.FullPaperSubmissionDeadline = date.ToUniversalTime();
-                }
-            }
-            else
-            {
-                model.FullPaperSubmissionDeadline = null;
-            }
-
-            if (model.ReviewDeadline.HasValue && model.ReviewDeadline.Value != default(DateTime))
-            {
-                var date = model.ReviewDeadline.Value;
-                if (date.Kind == DateTimeKind.Unspecified)
-                {
-                    model.ReviewDeadline = TimeZoneInfo.ConvertTimeToUtc(date, localTimeZone);
-                }
-                else if (date.Kind == DateTimeKind.Local)
-                {
-                    model.ReviewDeadline = date.ToUniversalTime();
-                }
-            }
-            else
-            {
-                model.ReviewDeadline = null;
-            }
-
-            if (model.ResultAnnouncementDate.HasValue && model.ResultAnnouncementDate.Value != default(DateTime))
-            {
-                var date = model.ResultAnnouncementDate.Value;
-                if (date.Kind == DateTimeKind.Unspecified)
-                {
-                    model.ResultAnnouncementDate = TimeZoneInfo.ConvertTimeToUtc(date, localTimeZone);
-                }
-                else if (date.Kind == DateTimeKind.Local)
-                {
-                    model.ResultAnnouncementDate = date.ToUniversalTime();
-                }
-            }
-            else
-            {
-                model.ResultAnnouncementDate = null;
-            }
-
-            if (model.ConferenceDate.HasValue && model.ConferenceDate.Value != default(DateTime))
-            {
-                var date = model.ConferenceDate.Value;
-                if (date.Kind == DateTimeKind.Unspecified)
-                {
-                    model.ConferenceDate = TimeZoneInfo.ConvertTimeToUtc(date, localTimeZone);
-                }
-                else if (date.Kind == DateTimeKind.Local)
-                {
-                    model.ConferenceDate = date.ToUniversalTime();
-                }
-            }
-            else
-            {
-                model.ConferenceDate = null;
-            }
-
-            var result = await _adminService.UpdateConferencePlanAsync(model);
-            if (result)
-            {
-                TempData["SuccessMessage"] = "Đã cập nhật lịch trình hội thảo thành công!";
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Không thể cập nhật lịch trình hội thảo.";
-            }
-            return RedirectToAction(nameof(Conference));
-        }
 
         public async Task<IActionResult> Users(UserFilterViewModel? filter)
         {
@@ -649,12 +511,12 @@ namespace SciSubmit.Controllers
         {
             if (model == null)
             {
-                return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
+                return Json(new { success = false, message = "Invalid data." });
             }
 
             if (string.IsNullOrWhiteSpace(model.Name))
             {
-                return Json(new { success = false, message = "Vui lòng nhập tên lĩnh vực." });
+                return Json(new { success = false, message = "Please enter field name." });
             }
 
             var activeConference = await _context.Conferences
@@ -663,7 +525,7 @@ namespace SciSubmit.Controllers
 
             if (activeConference == null)
             {
-                return Json(new { success = false, message = "Không tìm thấy hội nghị đang hoạt động. Vui lòng tạo hội nghị trước." });
+                return Json(new { success = false, message = "No active conference found. Please create a conference first." });
             }
 
             var topics = await _context.Topics
@@ -673,15 +535,15 @@ namespace SciSubmit.Controllers
 
             if (exists)
             {
-                return Json(new { success = false, message = "Lĩnh vực này đã tồn tại trong hội nghị đang hoạt động." });
+                return Json(new { success = false, message = "This field already exists in the active conference." });
             }
 
             var result = await _adminService.CreateTopicAsync(model);
             if (result)
             {
-                return Json(new { success = true, message = "Đã thêm lĩnh vực thành công!" });
+                return Json(new { success = true, message = "Field added successfully!" });
             }
-            return Json(new { success = false, message = "Không thể thêm lĩnh vực. Vui lòng kiểm tra lại." });
+            return Json(new { success = false, message = "Unable to add field. Please check again." });
         }
 
         [HttpPost]
@@ -690,12 +552,12 @@ namespace SciSubmit.Controllers
         {
             if (model == null || string.IsNullOrWhiteSpace(model.Name))
             {
-                return Json(new { success = false, message = "Vui lòng nhập tên lĩnh vực." });
+                return Json(new { success = false, message = "Please enter field name." });
             }
 
             if (id <= 0)
             {
-                return Json(new { success = false, message = "ID lĩnh vực không hợp lệ." });
+                return Json(new { success = false, message = "Invalid field ID." });
             }
 
             var activeConference = await _context.Conferences
@@ -704,7 +566,7 @@ namespace SciSubmit.Controllers
 
             if (activeConference == null)
             {
-                return Json(new { success = false, message = "Không tìm thấy hội nghị đang hoạt động." });
+                return Json(new { success = false, message = "No active conference found." });
             }
 
             var topics = await _context.Topics
@@ -714,15 +576,15 @@ namespace SciSubmit.Controllers
 
             if (exists)
             {
-                return Json(new { success = false, message = "Tên lĩnh vực này đã tồn tại trong hội nghị đang hoạt động." });
+                return Json(new { success = false, message = "This field name already exists in the active conference." });
             }
 
             var result = await _adminService.UpdateTopicAsync(id, model);
             if (result)
             {
-                return Json(new { success = true, message = "Đã cập nhật lĩnh vực thành công!" });
+                return Json(new { success = true, message = "Field updated successfully!" });
             }
-            return Json(new { success = false, message = "Không thể cập nhật lĩnh vực. Vui lòng kiểm tra lại." });
+            return Json(new { success = false, message = "Unable to update field. Please check again." });
         }
 
         [HttpPost]
@@ -731,15 +593,15 @@ namespace SciSubmit.Controllers
         {
             if (request == null || request.Id <= 0)
             {
-                return Json(new { success = false, message = "ID lĩnh vực không hợp lệ." });
+                return Json(new { success = false, message = "Invalid field ID." });
             }
 
             var result = await _adminService.DeleteTopicAsync(request.Id);
             if (result)
             {
-                return Json(new { success = true, message = "Đã xóa lĩnh vực thành công!" });
+                return Json(new { success = true, message = "Field deleted successfully!" });
             }
-            return Json(new { success = false, message = "Không thể xóa lĩnh vực. Lĩnh vực này đang được sử dụng." });
+            return Json(new { success = false, message = "Unable to delete field. This field is currently in use." });
         }
 
         public async Task<IActionResult> Keywords(KeywordFilterViewModel? filter)
@@ -1453,6 +1315,33 @@ namespace SciSubmit.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HttpGet]
+        public async Task<IActionResult> GetKeynoteSpeaker(int id)
+        {
+            var speaker = await _context.KeynoteSpeakers
+                .FirstOrDefaultAsync(k => k.Id == id);
+
+            if (speaker == null)
+            {
+                return NotFound("Không tìm thấy diễn giả.");
+            }
+
+            var viewModel = new
+            {
+                id = speaker.Id,
+                name = speaker.Name,
+                title = speaker.Title,
+                affiliation = speaker.Affiliation,
+                biography = speaker.Biography,
+                topic = speaker.Topic,
+                photoUrl = speaker.PhotoUrl,
+                orderIndex = speaker.OrderIndex,
+                isActive = speaker.IsActive
+            };
+
+            return Json(viewModel);
+        }
+
         public async Task<IActionResult> DeleteKeynoteSpeaker(int id)
         {
             var speaker = await _context.KeynoteSpeakers.FindAsync(id);
@@ -1823,6 +1712,520 @@ namespace SciSubmit.Controllers
             public string? City { get; set; }
             public string? Country { get; set; }
         }
+
+        // Committee Management
+        public async Task<IActionResult> Committee()
+    {
+        var activeConference = await _context.Conferences
+            .Where(c => c.IsActive)
+            .FirstOrDefaultAsync();
+
+        if (activeConference == null)
+        {
+            TempData["ErrorMessage"] = "Chưa có hội thảo nào được kích hoạt.";
+            return View(new CommitteeViewModel());
+        }
+
+        var sections = await _context.CommitteeSections
+            .Where(s => s.ConferenceId == activeConference.Id)
+            .Include(s => s.Members)
+            .OrderBy(s => s.OrderIndex)
+            .ThenBy(s => s.Id)
+            .ToListAsync();
+
+        var viewModel = new CommitteeViewModel
+        {
+            Sections = sections.Select(s => new CommitteeSectionViewModel
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Description = s.Description,
+                SectionType = s.SectionType,
+                OrderIndex = s.OrderIndex,
+                IsActive = s.IsActive,
+                Members = s.Members
+                    .OrderBy(m => m.OrderIndex)
+                    .ThenBy(m => m.Id)
+                    .Select(m => new CommitteeMemberViewModel
+                    {
+                        Id = m.Id,
+                        CommitteeSectionId = m.CommitteeSectionId,
+                        Name = m.Name,
+                        Title = m.Title,
+                        Affiliation = m.Affiliation,
+                        Country = m.Country,
+                        Description = m.Description,
+                        PhotoUrl = m.PhotoUrl,
+                        Topic = m.Topic,
+                        TrackName = m.TrackName,
+                        TrackDescription = m.TrackDescription,
+                        OrderIndex = m.OrderIndex,
+                        IsActive = m.IsActive
+                    }).ToList()
+            }).ToList()
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveCommitteeSection([FromBody] CommitteeSectionViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var activeConference = await _context.Conferences
+            .Where(c => c.IsActive)
+            .FirstOrDefaultAsync();
+
+        if (activeConference == null)
+        {
+            return BadRequest("Chưa có hội thảo nào được kích hoạt.");
+        }
+
+        CommitteeSection section;
+        if (model.Id > 0)
+        {
+            section = await _context.CommitteeSections
+                .FirstOrDefaultAsync(s => s.Id == model.Id && s.ConferenceId == activeConference.Id);
+            
+            if (section == null)
+            {
+                return NotFound("Không tìm thấy section.");
+            }
+
+            section.Title = model.Title;
+            section.Description = model.Description;
+            section.SectionType = model.SectionType;
+            section.OrderIndex = model.OrderIndex;
+            section.IsActive = model.IsActive;
+            section.UpdatedAt = DateTime.UtcNow;
+        }
+        else
+        {
+            section = new Models.Conference.CommitteeSection
+            {
+                ConferenceId = activeConference.Id,
+                Title = model.Title,
+                Description = model.Description,
+                SectionType = model.SectionType,
+                OrderIndex = model.OrderIndex,
+                IsActive = model.IsActive,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.CommitteeSections.Add(section);
+        }
+
+        await _context.SaveChangesAsync();
+        return Json(new { success = true, id = section.Id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteCommitteeSection(int id)
+    {
+        var activeConference = await _context.Conferences
+            .Where(c => c.IsActive)
+            .FirstOrDefaultAsync();
+
+        if (activeConference == null)
+        {
+            return BadRequest("Chưa có hội thảo nào được kích hoạt.");
+        }
+
+        var section = await _context.CommitteeSections
+            .FirstOrDefaultAsync(s => s.Id == id && s.ConferenceId == activeConference.Id);
+
+        if (section == null)
+        {
+            return NotFound("Không tìm thấy section.");
+        }
+
+        _context.CommitteeSections.Remove(section);
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveCommitteeMember([FromBody] CommitteeMemberViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var activeConference = await _context.Conferences
+            .Where(c => c.IsActive)
+            .FirstOrDefaultAsync();
+
+        if (activeConference == null)
+        {
+            return BadRequest("Chưa có hội thảo nào được kích hoạt.");
+        }
+
+        var section = await _context.CommitteeSections
+            .FirstOrDefaultAsync(s => s.Id == model.CommitteeSectionId && s.ConferenceId == activeConference.Id);
+
+        if (section == null)
+        {
+            return BadRequest("Không tìm thấy section.");
+        }
+
+        Models.Conference.CommitteeMember member;
+        if (model.Id > 0)
+        {
+            member = await _context.CommitteeMembers
+                .FirstOrDefaultAsync(m => m.Id == model.Id);
+
+            if (member == null)
+            {
+                return NotFound("Không tìm thấy thành viên.");
+            }
+
+            member.Name = model.Name;
+            member.Title = model.Title;
+            member.Affiliation = model.Affiliation;
+            member.Country = model.Country;
+            member.Description = model.Description;
+            member.PhotoUrl = model.PhotoUrl;
+            member.Topic = model.Topic;
+            member.TrackName = model.TrackName;
+            member.TrackDescription = model.TrackDescription;
+            member.OrderIndex = model.OrderIndex;
+            member.IsActive = model.IsActive;
+            member.UpdatedAt = DateTime.UtcNow;
+        }
+        else
+        {
+            member = new Models.Conference.CommitteeMember
+            {
+                CommitteeSectionId = model.CommitteeSectionId,
+                Name = model.Name,
+                Title = model.Title,
+                Affiliation = model.Affiliation,
+                Country = model.Country,
+                Description = model.Description,
+                PhotoUrl = model.PhotoUrl,
+                Topic = model.Topic,
+                TrackName = model.TrackName,
+                TrackDescription = model.TrackDescription,
+                OrderIndex = model.OrderIndex,
+                IsActive = model.IsActive,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.CommitteeMembers.Add(member);
+        }
+
+        await _context.SaveChangesAsync();
+        return Json(new { success = true, id = member.Id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteCommitteeMember(int id)
+    {
+        var member = await _context.CommitteeMembers
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (member == null)
+        {
+            return NotFound("Không tìm thấy thành viên.");
+        }
+
+        _context.CommitteeMembers.Remove(member);
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetCommitteeSection(int id)
+    {
+        var activeConference = await _context.Conferences
+            .Where(c => c.IsActive)
+            .FirstOrDefaultAsync();
+
+        if (activeConference == null)
+        {
+            return BadRequest("Chưa có hội thảo nào được kích hoạt.");
+        }
+
+        var section = await _context.CommitteeSections
+            .Where(s => s.Id == id && s.ConferenceId == activeConference.Id)
+            .FirstOrDefaultAsync();
+
+        if (section == null)
+        {
+            return NotFound("Không tìm thấy section.");
+        }
+
+        var viewModel = new CommitteeSectionViewModel
+        {
+            Id = section.Id,
+            Title = section.Title,
+            Description = section.Description,
+            SectionType = section.SectionType,
+            OrderIndex = section.OrderIndex,
+            IsActive = section.IsActive
+        };
+
+        return Json(viewModel);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetCommitteeMember(int id)
+    {
+        var member = await _context.CommitteeMembers
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (member == null)
+        {
+            return NotFound("Không tìm thấy thành viên.");
+        }
+
+        var viewModel = new CommitteeMemberViewModel
+        {
+            Id = member.Id,
+            CommitteeSectionId = member.CommitteeSectionId,
+            Name = member.Name,
+            Title = member.Title,
+            Affiliation = member.Affiliation,
+            Country = member.Country,
+            Description = member.Description,
+            PhotoUrl = member.PhotoUrl,
+            Topic = member.Topic,
+            TrackName = member.TrackName,
+            TrackDescription = member.TrackDescription,
+            OrderIndex = member.OrderIndex,
+            IsActive = member.IsActive
+        };
+
+        return Json(viewModel);
+    }
+
+    // Program Management
+    public async Task<IActionResult> Program()
+    {
+        var activeConference = await _context.Conferences
+            .Where(c => c.IsActive)
+            .FirstOrDefaultAsync();
+
+        if (activeConference == null)
+        {
+            TempData["ErrorMessage"] = "Chưa có hội thảo nào được kích hoạt.";
+            return View(new Models.Admin.ProgramViewModel());
+        }
+
+        var schedule = await _context.ProgramSchedules
+            .Where(p => p.ConferenceId == activeConference.Id)
+            .Include(p => p.Items.OrderBy(i => i.OrderIndex).ThenBy(i => i.Id))
+            .FirstOrDefaultAsync();
+
+        if (schedule == null)
+        {
+            return View(new Models.Admin.ProgramViewModel());
+        }
+
+        var viewModel = new Models.Admin.ProgramViewModel
+        {
+            Id = schedule.Id,
+            Time = schedule.Time,
+            Venue = schedule.Venue,
+            PresentationsLink = schedule.PresentationsLink,
+            PapersLink = schedule.PapersLink,
+            ProgramLink = schedule.ProgramLink,
+            Items = schedule.Items.Select(i => new Models.Admin.ProgramItemViewModel
+            {
+                Id = i.Id,
+                ProgramScheduleId = i.ProgramScheduleId,
+                Time = i.Time,
+                Contents = i.Contents,
+                OrderIndex = i.OrderIndex,
+                IsActive = i.IsActive
+            }).ToList()
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveProgramSchedule(Models.Admin.ProgramViewModel model)
+    {
+        var activeConference = await _context.Conferences
+            .Where(c => c.IsActive)
+            .FirstOrDefaultAsync();
+
+        if (activeConference == null)
+        {
+            TempData["ErrorMessage"] = "Chưa có hội thảo nào được kích hoạt.";
+            return RedirectToAction(nameof(Program));
+        }
+
+        try
+        {
+            ProgramSchedule? schedule;
+            if (model.Id == 0)
+            {
+                schedule = new ProgramSchedule
+                {
+                    ConferenceId = activeConference.Id,
+                    Time = model.Time,
+                    Venue = model.Venue,
+                    PresentationsLink = model.PresentationsLink,
+                    PapersLink = model.PapersLink,
+                    ProgramLink = model.ProgramLink,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.ProgramSchedules.Add(schedule);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                schedule = await _context.ProgramSchedules.FindAsync(model.Id);
+                if (schedule == null)
+                {
+                    TempData["ErrorMessage"] = "Không tìm thấy lịch trình.";
+                    return RedirectToAction(nameof(Program));
+                }
+
+                schedule.Time = model.Time;
+                schedule.Venue = model.Venue;
+                schedule.PresentationsLink = model.PresentationsLink;
+                schedule.PapersLink = model.PapersLink;
+                schedule.ProgramLink = model.ProgramLink;
+                schedule.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã lưu thông tin lịch trình thành công!";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving program schedule");
+            TempData["ErrorMessage"] = $"Lỗi khi lưu lịch trình: {ex.Message}";
+        }
+
+        return RedirectToAction(nameof(Program));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveProgramItem(Models.Admin.ProgramItemViewModel model)
+    {
+        var activeConference = await _context.Conferences
+            .Where(c => c.IsActive)
+            .FirstOrDefaultAsync();
+
+        if (activeConference == null)
+        {
+            TempData["ErrorMessage"] = "Chưa có hội thảo nào được kích hoạt.";
+            return RedirectToAction(nameof(Program));
+        }
+
+        try
+        {
+            // Get or create ProgramSchedule
+            var schedule = await _context.ProgramSchedules
+                .Where(p => p.ConferenceId == activeConference.Id)
+                .FirstOrDefaultAsync();
+
+            if (schedule == null)
+            {
+                schedule = new ProgramSchedule
+                {
+                    ConferenceId = activeConference.Id,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.ProgramSchedules.Add(schedule);
+                await _context.SaveChangesAsync();
+            }
+
+            ProgramItem? item;
+            if (model.Id == 0)
+            {
+                item = new ProgramItem
+                {
+                    ProgramScheduleId = schedule.Id,
+                    Time = model.Time,
+                    Contents = model.Contents,
+                    OrderIndex = model.OrderIndex,
+                    IsActive = model.IsActive,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.ProgramItems.Add(item);
+            }
+            else
+            {
+                item = await _context.ProgramItems.FindAsync(model.Id);
+                if (item == null)
+                {
+                    TempData["ErrorMessage"] = "Không tìm thấy mục lịch trình.";
+                    return RedirectToAction(nameof(Program));
+                }
+
+                item.Time = model.Time;
+                item.Contents = model.Contents;
+                item.OrderIndex = model.OrderIndex;
+                item.IsActive = model.IsActive;
+                item.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã lưu mục lịch trình thành công!";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving program item");
+            TempData["ErrorMessage"] = $"Lỗi khi lưu mục lịch trình: {ex.Message}";
+        }
+
+        return RedirectToAction(nameof(Program));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetProgramItem(int id)
+    {
+        var item = await _context.ProgramItems.FindAsync(id);
+        if (item == null)
+        {
+            return NotFound("Không tìm thấy mục lịch trình.");
+        }
+
+        var viewModel = new Models.Admin.ProgramItemViewModel
+        {
+            Id = item.Id,
+            ProgramScheduleId = item.ProgramScheduleId,
+            Time = item.Time,
+            Contents = item.Contents,
+            OrderIndex = item.OrderIndex,
+            IsActive = item.IsActive
+        };
+
+        return Json(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteProgramItem(int id)
+    {
+        var item = await _context.ProgramItems.FindAsync(id);
+        if (item == null)
+        {
+            TempData["ErrorMessage"] = "Không tìm thấy mục lịch trình.";
+            return RedirectToAction(nameof(Program));
+        }
+
+        _context.ProgramItems.Remove(item);
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Đã xóa mục lịch trình thành công!";
+        return RedirectToAction(nameof(Program));
     }
 
     // Request models for JSON actions
@@ -1839,5 +2242,6 @@ namespace SciSubmit.Controllers
     public class DeleteTopicRequest
     {
         public int Id { get; set; }
+    }
     }
 }

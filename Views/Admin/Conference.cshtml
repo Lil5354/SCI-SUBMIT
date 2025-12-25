@@ -1,6 +1,6 @@
 @model SciSubmit.Models.Admin.ConferenceConfigViewModel
 @{
-    ViewData["Title"] = "Cấu hình hội thảo";
+    ViewData["Title"] = "Conference Settings";
 }
 
 <div class="container-fluid my-4">
@@ -23,15 +23,15 @@
     <!-- Header -->
     <div class="mb-4">
         <h2 class="text-gradient mb-2">
-            <i class="fas fa-cog me-2"></i>Cấu hình hội thảo
+            <i class="fas fa-cog me-2"></i>Conference Settings
         </h2>
-        <p class="text-muted">Thiết lập timeline và thông tin hội thảo</p>
+        <p class="text-muted">Configure conference information</p>
     </div>
 
     <!-- Conference Info -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin hội thảo</h5>
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Conference Information</h5>
         </div>
         <div class="card-body">
             <form asp-action="EditConference" method="post">
@@ -39,294 +39,45 @@
                 <input type="hidden" asp-for="Id" />
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Tên hội thảo <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold">Conference Name <span class="text-danger">*</span></label>
                         <input type="text" asp-for="Name" class="form-control" required />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Địa điểm</label>
+                        <label class="form-label fw-semibold">Location</label>
                         <input type="text" asp-for="Location" class="form-control" />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Ngày bắt đầu</label>
+                        <label class="form-label fw-semibold">Start Date</label>
                         <input type="datetime-local" asp-for="StartDate" class="form-control" />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Ngày kết thúc</label>
+                        <label class="form-label fw-semibold">End Date</label>
                         <input type="datetime-local" asp-for="EndDate" class="form-control" />
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-semibold">Mô tả</label>
+                        <label class="form-label fw-semibold">Description</label>
                         <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                     </div>
                     <div class="col-12">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" asp-for="IsActive" />
                             <label class="form-check-label" asp-for="IsActive">
-                                Hội thảo đang active
+                                Conference is active
                             </label>
                         </div>
                     </div>
                 </div>
                 <div class="mt-4 d-flex justify-content-end">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i>Lưu thông tin hội thảo
+                        <i class="fas fa-save me-2"></i>Save Conference Information
                     </button>
                 </div>
             </form>
         </div>
     </div>
-
-    <!-- Timeline Configuration -->
-    @if (Model.Plan != null)
-    {
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Timeline hội thảo</h5>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Hệ thống sẽ tự động đóng/mở form nộp và gửi thông báo nhắc nhở dựa trên các mốc thời gian này.
-                </div>
-
-                <form asp-action="UpdateConferencePlan" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" asp-for="Plan.Id" />
-                    <input type="hidden" asp-for="Plan.ConferenceId" value="@Model.Id" />
-                    
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-calendar-check me-2 text-primary"></i>Ngày mở nộp tóm tắt <span class="text-danger">*</span>
-                            </label>
-                            <input type="datetime-local" asp-for="Plan.AbstractSubmissionOpenDate" 
-                                   value="@(Model.Plan != null && Model.Plan.AbstractSubmissionOpenDate != default(DateTime) ? Model.Plan.AbstractSubmissionOpenDate.ToString("yyyy-MM-ddTHH:mm") : "")" 
-                                   class="form-control" required />
-                            <small class="form-text text-muted">Thời điểm bắt đầu nhận bài nộp</small>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-calendar-times me-2 text-danger"></i>Deadline nộp tóm tắt <span class="text-danger">*</span>
-                            </label>
-                            <input type="datetime-local" asp-for="Plan.AbstractSubmissionDeadline" class="form-control" required />
-                            <small class="form-text text-muted">Hạn cuối nộp tóm tắt (Abstract)</small>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-calendar-check me-2 text-primary"></i>Ngày mở nộp Full-text
-                            </label>
-                            <input type="datetime-local" asp-for="Plan.FullPaperSubmissionOpenDate" 
-                                   value="@(Model.Plan != null && Model.Plan.FullPaperSubmissionOpenDate.HasValue && Model.Plan.FullPaperSubmissionOpenDate.Value != default(DateTime) ? Model.Plan.FullPaperSubmissionOpenDate.Value.ToString("yyyy-MM-ddTHH:mm") : "")" 
-                                   class="form-control" />
-                            <small class="form-text text-muted">Thời điểm bắt đầu nhận bài đầy đủ</small>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-calendar-times me-2 text-danger"></i>Deadline nộp Full-text
-                            </label>
-                            <input type="datetime-local" asp-for="Plan.FullPaperSubmissionDeadline" 
-                                   value="@(Model.Plan != null && Model.Plan.FullPaperSubmissionDeadline.HasValue && Model.Plan.FullPaperSubmissionDeadline.Value != default(DateTime) ? Model.Plan.FullPaperSubmissionDeadline.Value.ToString("yyyy-MM-ddTHH:mm") : "")" 
-                                   class="form-control" />
-                            <small class="form-text text-muted">Hạn cuối nộp bài đầy đủ</small>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-bullhorn me-2 text-warning"></i>Ngày công bố kết quả
-                            </label>
-                            <input type="datetime-local" asp-for="Plan.ResultAnnouncementDate" 
-                                   value="@(Model.Plan != null && Model.Plan.ResultAnnouncementDate.HasValue && Model.Plan.ResultAnnouncementDate.Value != default(DateTime) ? Model.Plan.ResultAnnouncementDate.Value.ToString("yyyy-MM-ddTHH:mm") : "")" 
-                                   class="form-control" />
-                            <small class="form-text text-muted">Ngày công bố kết quả phản biện</small>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-calendar-day me-2 text-success"></i>Ngày hội nghị
-                            </label>
-                            <input type="datetime-local" asp-for="Plan.ConferenceDate" 
-                                   value="@(Model.Plan != null && Model.Plan.ConferenceDate.HasValue && Model.Plan.ConferenceDate.Value != default(DateTime) ? Model.Plan.ConferenceDate.Value.ToString("yyyy-MM-ddTHH:mm") : "")" 
-                                   class="form-control" />
-                            <small class="form-text text-muted">Ngày và giờ bắt đầu hội nghị</small>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-clock me-2 text-info"></i>Deadline phản biện mặc định
-                            </label>
-                            <input type="datetime-local" asp-for="Plan.ReviewDeadline" 
-                                   value="@(Model.Plan != null && Model.Plan.ReviewDeadline.HasValue && Model.Plan.ReviewDeadline.Value != default(DateTime) ? Model.Plan.ReviewDeadline.Value.ToString("yyyy-MM-ddTHH:mm") : "")" 
-                                   class="form-control" />
-                            <small class="form-text text-muted">Deadline mặc định cho reviewer khi phân công</small>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-save me-2"></i>Lưu timeline
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Current Timeline Display -->
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="fas fa-timeline me-2"></i>Timeline hiện tại</h5>
-            </div>
-            <div class="card-body">
-                @{
-                    var now = DateTime.UtcNow;
-                    // Only process dates that are not default (01/01/0001)
-                    var abstractOpen = Model.Plan.AbstractSubmissionOpenDate != default(DateTime)
-                        ? (Model.Plan.AbstractSubmissionOpenDate.Kind == DateTimeKind.Utc 
-                            ? Model.Plan.AbstractSubmissionOpenDate 
-                            : Model.Plan.AbstractSubmissionOpenDate.ToUniversalTime())
-                        : (DateTime?)null;
-                    var abstractDeadline = Model.Plan.AbstractSubmissionDeadline != default(DateTime)
-                        ? (Model.Plan.AbstractSubmissionDeadline.Kind == DateTimeKind.Utc 
-                            ? Model.Plan.AbstractSubmissionDeadline 
-                            : Model.Plan.AbstractSubmissionDeadline.ToUniversalTime())
-                        : (DateTime?)null;
-                    var fullPaperDeadline = Model.Plan.FullPaperSubmissionDeadline.HasValue && Model.Plan.FullPaperSubmissionDeadline.Value != default(DateTime)
-                        ? (Model.Plan.FullPaperSubmissionDeadline.Value.Kind == DateTimeKind.Utc 
-                            ? Model.Plan.FullPaperSubmissionDeadline.Value 
-                            : Model.Plan.FullPaperSubmissionDeadline.Value.ToUniversalTime())
-                        : (DateTime?)null;
-                    var resultDate = Model.Plan.ResultAnnouncementDate.HasValue && Model.Plan.ResultAnnouncementDate.Value != default(DateTime)
-                        ? (Model.Plan.ResultAnnouncementDate.Value.Kind == DateTimeKind.Utc 
-                            ? Model.Plan.ResultAnnouncementDate.Value 
-                            : Model.Plan.ResultAnnouncementDate.Value.ToUniversalTime())
-                        : (DateTime?)null;
-                    var conferenceDate = Model.Plan.ConferenceDate.HasValue && Model.Plan.ConferenceDate.Value != default(DateTime)
-                        ? (Model.Plan.ConferenceDate.Value.Kind == DateTimeKind.Utc 
-                            ? Model.Plan.ConferenceDate.Value 
-                            : Model.Plan.ConferenceDate.Value.ToUniversalTime())
-                        : (DateTime?)null;
-                    
-                    var deadlines = new List<(string Title, DateTime? Date, bool IsPast, bool IsCurrent)>
-                    {
-                        ("Mở nộp tóm tắt", abstractOpen, abstractOpen.HasValue && abstractOpen.Value < now, abstractOpen.HasValue && abstractDeadline.HasValue && abstractOpen.Value <= now && abstractDeadline.Value >= now),
-                        ("Deadline nộp tóm tắt", abstractDeadline, abstractDeadline.HasValue && abstractDeadline.Value < now, false),
-                        ("Deadline nộp Full-text", fullPaperDeadline, fullPaperDeadline.HasValue && fullPaperDeadline.Value < now, false),
-                        ("Công bố kết quả", resultDate, resultDate.HasValue && resultDate.Value < now, false),
-                        ("Ngày hội nghị", conferenceDate, conferenceDate.HasValue && conferenceDate.Value < now, false)
-                    };
-                }
-                <div class="timeline-vertical">
-                    @foreach (var deadline in deadlines.Where(d => d.Date.HasValue))
-                    {
-                        var localDate = deadline.Date.Value.Kind == DateTimeKind.Utc 
-                            ? deadline.Date.Value.ToLocalTime() 
-                            : deadline.Date.Value;
-                        <div class="timeline-item @(deadline.IsPast ? "timeline-item-completed" : deadline.IsCurrent ? "timeline-item-active" : "")">
-                            <div class="timeline-marker @(deadline.IsPast ? "bg-success" : deadline.IsCurrent ? "bg-primary" : "bg-gray")">
-                                <i class="fas @(deadline.IsPast ? "fa-check" : deadline.IsCurrent ? "fa-clock" : "fa-hourglass-half")"></i>
-                            </div>
-                            <div class="timeline-content">
-                                <h6 class="mb-1">@deadline.Title</h6>
-                                <p class="text-muted mb-0 small">@localDate.ToString("dd/MM/yyyy HH:mm")</p>
-                                @if (deadline.IsPast)
-                                {
-                                    <span class="badge bg-success">Đã qua</span>
-                                }
-                                else if (deadline.IsCurrent)
-                                {
-                                    var remainingDays = (int)(deadline.Date.Value - now).TotalDays;
-                                    <span class="badge bg-warning">Còn @remainingDays ngày</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">Chưa đến</span>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            Chưa có timeline được cấu hình. Vui lòng tạo timeline mới.
-        </div>
-    }
 </div>
 
 @section Scripts {
-    <style>
-        .timeline-vertical {
-            position: relative;
-            padding-left: 3rem;
-        }
-
-        .timeline-item-completed,
-        .timeline-item-active,
-        .timeline-item {
-            position: relative;
-            padding-bottom: 2rem;
-        }
-
-        .timeline-item-completed:not(:last-child)::before,
-        .timeline-item-active:not(:last-child)::before,
-        .timeline-item:not(:last-child)::before {
-            content: '';
-            position: absolute;
-            left: -2.5rem;
-            top: 2rem;
-            width: 2px;
-            height: calc(100% - 0.5rem);
-            background: #dee2e6;
-        }
-
-        .timeline-item-completed:not(:last-child)::before {
-            background: #28a745;
-        }
-
-        .timeline-marker {
-            position: absolute;
-            left: -3rem;
-            top: 0;
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.75rem;
-            border: 3px solid white;
-            box-shadow: 0 0 0 2px #dee2e6;
-        }
-
-        .timeline-item-completed .timeline-marker {
-            background: #28a745;
-            box-shadow: 0 0 0 2px #28a745;
-        }
-
-        .timeline-item-active .timeline-marker {
-            background: #007bff;
-            box-shadow: 0 0 0 2px #007bff;
-            animation: pulse 2s infinite;
-        }
-
-        .timeline-item .timeline-marker.bg-gray {
-            background: #6c757d;
-            box-shadow: 0 0 0 2px #6c757d;
-        }
-
-        @@keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-    </style>
-
     <script>
         // Auto-hide alerts after 5 seconds
         setTimeout(function() {

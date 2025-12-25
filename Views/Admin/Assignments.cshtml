@@ -1,6 +1,6 @@
 @model SciSubmit.Models.Admin.PagedList<SciSubmit.Models.Admin.ReviewAssignmentViewModel>
 @{
-    ViewData["Title"] = "Phân công phản biện";
+    ViewData["Title"] = "Review Assignments";
     var filter = ViewBag.Filter as SciSubmit.Models.Admin.AssignmentFilterViewModel ?? new SciSubmit.Models.Admin.AssignmentFilterViewModel();
     var submissions = ViewBag.Submissions as List<dynamic> ?? new List<dynamic>();
     var statusOptions = ViewBag.StatusOptions as string[] ?? Array.Empty<string>();
@@ -28,13 +28,13 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h2 class="text-gradient mb-2">
-                    <i class="fas fa-user-tie me-2"></i>Phân công phản biện
+                    <i class="fas fa-user-tie me-2"></i>Review Assignments
                 </h2>
-                <p class="text-muted mb-0">Gán Reviewer cho các bài báo đã nộp đầy đủ</p>
+                <p class="text-muted mb-0">Assign Reviewers to fully submitted papers</p>
             </div>
             <div>
                 <a href="@Url.Action("Submissions")" class="btn btn-outline-primary">
-                    <i class="fas fa-list me-2"></i>Quản lý bài nộp
+                    <i class="fas fa-list me-2"></i>Manage Submissions
                 </a>
             </div>
         </div>
@@ -46,9 +46,9 @@
             <form method="get" action="@Url.Action("Assignments")">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label">Trạng thái</label>
+                        <label class="form-label">Status</label>
                         <select class="form-select" name="Status">
-                            <option value="">Tất cả</option>
+                            <option value="">All</option>
                             @foreach (var status in statusOptions)
                             {
                                 <option value="@status" selected="@(filter.Status == status)">@status</option>
@@ -56,9 +56,9 @@
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Bài báo</label>
+                        <label class="form-label">Paper</label>
                         <select class="form-select" name="SubmissionId">
-                            <option value="">Tất cả</option>
+                            <option value="">All</option>
                             @foreach (var sub in submissions)
                             {
                                 <option value="@sub.Id" selected="@(filter.SubmissionId == sub.Id)">@sub.Title</option>
@@ -67,7 +67,7 @@
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-filter me-2"></i>Lọc
+                            <i class="fas fa-filter me-2"></i>Filter
                         </button>
                     </div>
                 </div>
@@ -79,8 +79,8 @@
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-light">
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Danh sách phân công</h5>
-                <span class="badge bg-primary">@Model.TotalCount phân công</span>
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Assignment List</h5>
+                <span class="badge bg-primary">@Model.TotalCount assignments</span>
             </div>
         </div>
         <div class="card-body">
@@ -103,7 +103,7 @@
                                 <th class="text-center" style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Trạng thái</th>
                                 <th class="text-center" style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Ngày mời</th>
                                 <th class="text-center" style="width: 12%; min-width: 100px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Deadline</th>
-                                <th class="text-center" style="width: 14%; min-width: 80px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Thao tác</th>
+                                <th class="text-center" style="width: 14%; min-width: 80px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -164,7 +164,7 @@
                     <nav aria-label="Page navigation" class="mt-4">
                         <ul class="pagination justify-content-center">
                             <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
-                                <a class="page-link" href="@Url.Action("Assignments", new { Page = Model.Page - 1, filter.Status, filter.SubmissionId })">Trước</a>
+                                <a class="page-link" href="@Url.Action("Assignments", new { Page = Model.Page - 1, filter.Status, filter.SubmissionId })">Previous</a>
                             </li>
                             @for (int i = 1; i <= Model.TotalPages; i++)
                             {
@@ -173,7 +173,7 @@
                                 </li>
                             }
                             <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
-                                <a class="page-link" href="@Url.Action("Assignments", new { Page = Model.Page + 1, filter.Status, filter.SubmissionId })">Sau</a>
+                                <a class="page-link" href="@Url.Action("Assignments", new { Page = Model.Page + 1, filter.Status, filter.SubmissionId })">Next</a>
                             </li>
                         </ul>
                     </nav>
@@ -183,7 +183,7 @@
             {
                 <div class="text-center py-5">
                     <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">Chưa có phân công nào</p>
+                    <p class="text-muted">No assignments found</p>
                 </div>
             }
         </div>
@@ -193,9 +193,9 @@
     <div class="card shadow-sm border-0">
         <div class="card-body text-center">
             <a href="@Url.Action("Submissions")" class="btn btn-primary btn-lg">
-                <i class="fas fa-plus-circle me-2"></i>Phân công phản biện mới
+                <i class="fas fa-plus-circle me-2"></i>New Review Assignment
             </a>
-            <p class="text-muted mt-2 mb-0">Chọn bài báo từ danh sách quản lý bài nộp để phân công</p>
+            <p class="text-muted mt-2 mb-0">Select a paper from the submissions list to assign</p>
         </div>
     </div>
 </div>

@@ -904,6 +904,29 @@ section.hero-section .hero-subtitle,
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
+/* Admin Dashboard Button - Special styling */
+#adminDashboardBtn {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  border: none;
+  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+  animation: adminButtonPulse 2s ease-in-out infinite;
+}
+
+#adminDashboardBtn:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(220, 38, 38, 0.5);
+}
+
+@keyframes adminButtonPulse {
+  0%, 100% {
+    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 30px rgba(220, 38, 38, 0.6);
+  }
+}
+
 /* Enhanced Countdown Timer */
 .countdown-container {
   background: rgba(255, 255, 255, 0.15) !important;

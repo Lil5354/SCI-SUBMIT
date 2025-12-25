@@ -1,6 +1,6 @@
 @model SciSubmit.Models.Admin.EditUserViewModel
 @{
-    ViewData["Title"] = "Chỉnh sửa người dùng";
+    ViewData["Title"] = "Edit User";
     var roleOptions = ViewBag.RoleOptions as string[] ?? Array.Empty<string>();
 }
 
@@ -26,13 +26,13 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h2 class="text-gradient mb-2">
-                    <i class="fas fa-user-edit me-2"></i>Chỉnh sửa người dùng
+                    <i class="fas fa-user-edit me-2"></i>Edit User
                 </h2>
-                <p class="text-muted mb-0">Cập nhật thông tin người dùng trong hệ thống</p>
+                <p class="text-muted mb-0">Update user information in the system</p>
             </div>
             <div>
                 <a href="@Url.Action("Users")" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                    <i class="fas fa-arrow-left me-2"></i>Back
                 </a>
             </div>
         </div>
@@ -43,7 +43,7 @@
         <div class="col-lg-8">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Thông tin người dùng</h5>
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>User Information</h5>
                 </div>
                 <div class="card-body">
                     <form method="post" asp-action="UpdateUser" asp-route-id="@Model.Id">
@@ -60,31 +60,31 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label asp-for="FullName" class="form-label fw-semibold">Họ tên <span class="text-danger">*</span></label>
-                                <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" />
+                                <label asp-for="FullName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                                <input asp-for="FullName" class="form-control" placeholder="John Doe" />
                                 <span asp-validation-for="FullName" class="text-danger"></span>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label asp-for="PhoneNumber" class="form-label fw-semibold">Số điện thoại</label>
+                                <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
                                 <input asp-for="PhoneNumber" class="form-control" placeholder="0123456789" />
                                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label asp-for="Affiliation" class="form-label fw-semibold">Đơn vị</label>
-                                <input asp-for="Affiliation" class="form-control" placeholder="Đại học ABC" />
+                                <label asp-for="Affiliation" class="form-label fw-semibold">Affiliation</label>
+                                <input asp-for="Affiliation" class="form-control" placeholder="University ABC" />
                                 <span asp-validation-for="Affiliation" class="text-danger"></span>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label asp-for="Role" class="form-label fw-semibold">Vai trò <span class="text-danger">*</span></label>
+                                <label asp-for="Role" class="form-label fw-semibold">Role <span class="text-danger">*</span></label>
                                 <select asp-for="Role" class="form-select" asp-items="Html.GetEnumSelectList<SciSubmit.Models.Enums.UserRole>()">
-                                    <option value="">-- Chọn vai trò --</option>
+                                    <option value="">-- Select Role --</option>
                                 </select>
                                 <span asp-validation-for="Role" class="text-danger"></span>
                             </div>
@@ -94,20 +94,20 @@
 
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
-                            <strong>Lưu ý:</strong> Để trống các trường mật khẩu nếu không muốn thay đổi mật khẩu.
+                            <strong>Note:</strong> Leave password fields empty if you don't want to change the password.
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label asp-for="Password" class="form-label fw-semibold">Mật khẩu mới</label>
-                                <input asp-for="Password" class="form-control" type="password" placeholder="Để trống nếu không đổi" />
+                                <label asp-for="Password" class="form-label fw-semibold">New Password</label>
+                                <input asp-for="Password" class="form-control" type="password" placeholder="Leave empty if not changing" />
                                 <span asp-validation-for="Password" class="text-danger"></span>
-                                <small class="text-muted">Tối thiểu 6 ký tự (chỉ điền nếu muốn đổi mật khẩu)</small>
+                                <small class="text-muted">Minimum 6 characters (only fill if changing password)</small>
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label asp-for="ConfirmPassword" class="form-label fw-semibold">Xác nhận mật khẩu mới</label>
-                                <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="Nhập lại mật khẩu mới" />
+                                <label asp-for="ConfirmPassword" class="form-label fw-semibold">Confirm New Password</label>
+                                <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="Re-enter new password" />
                                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                             </div>
                         </div>
@@ -119,7 +119,7 @@
                                 <div class="form-check">
                                     <input asp-for="EmailConfirmed" class="form-check-input" type="checkbox" />
                                     <label asp-for="EmailConfirmed" class="form-check-label">
-                                        Xác nhận email
+                                        Email Confirmed
                                     </label>
                                 </div>
                             </div>
@@ -128,7 +128,7 @@
                                 <div class="form-check">
                                     <input asp-for="IsActive" class="form-check-input" type="checkbox" />
                                     <label asp-for="IsActive" class="form-check-label">
-                                        Kích hoạt tài khoản
+                                        Activate Account
                                     </label>
                                 </div>
                             </div>
@@ -136,10 +136,10 @@
 
                         <div class="d-flex justify-content-end gap-2 mt-4">
                             <a href="@Url.Action("Users")" class="btn btn-secondary">
-                                <i class="fas fa-times me-2"></i>Hủy
+                                <i class="fas fa-times me-2"></i>Cancel
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Cập nhật
+                                <i class="fas fa-save me-2"></i>Update
                             </button>
                         </div>
                     </form>

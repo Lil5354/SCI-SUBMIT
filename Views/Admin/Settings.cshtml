@@ -1,6 +1,6 @@
 @model SciSubmit.Models.Admin.SettingsViewModel
 @{
-    ViewData["Title"] = "Cấu hình hệ thống";
+    ViewData["Title"] = "System Settings";
 }
 
 <div class="container-fluid my-4">
@@ -23,9 +23,9 @@
     <!-- Header -->
     <div class="mb-4">
         <h2 class="text-gradient mb-2">
-            <i class="fas fa-cog me-2"></i>Cấu hình hệ thống
+            <i class="fas fa-cog me-2"></i>System Settings
         </h2>
-        <p class="text-muted mb-0">Quản lý các cài đặt hệ thống và email</p>
+        <p class="text-muted mb-0">Manage system and email settings</p>
     </div>
 
     <form asp-action="UpdateSettings" method="post">
@@ -34,7 +34,7 @@
         <!-- Email Settings -->
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>Cài đặt Email</h5>
+                <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>Email Settings</h5>
             </div>
             <div class="card-body">
                 <div class="row g-3">
@@ -66,7 +66,7 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" asp-for="SmtpUseSsl" />
                             <label class="form-check-label" asp-for="SmtpUseSsl">
-                                Sử dụng SSL/TLS
+                                Use SSL/TLS
                             </label>
                         </div>
                     </div>
@@ -77,24 +77,24 @@
         <!-- System Settings -->
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-header bg-info text-white">
-                <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Cài đặt Hệ thống</h5>
+                <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>System Settings</h5>
             </div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label">Kích thước file tối đa (MB) <span class="text-danger">*</span></label>
+                        <label class="form-label">Max File Size (MB) <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" asp-for="MaxFileSizeMB" min="1" required />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Số từ khóa tối đa mỗi bài nộp <span class="text-danger">*</span></label>
+                        <label class="form-label">Max Keywords Per Submission <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" asp-for="MaxKeywordsPerSubmission" min="1" required />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Số tác giả tối đa mỗi bài nộp <span class="text-danger">*</span></label>
+                        <label class="form-label">Max Authors Per Submission <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" asp-for="MaxAuthorsPerSubmission" min="1" required />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Deadline phản biện (ngày) <span class="text-danger">*</span></label>
+                        <label class="form-label">Review Deadline (days) <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" asp-for="ReviewDeadlineDays" min="1" required />
                     </div>
                 </div>
@@ -104,7 +104,7 @@
         <!-- Notification Settings -->
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Cài đặt Thông báo</h5>
+                <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Notification Settings</h5>
             </div>
             <div class="card-body">
                 <div class="row g-3">
@@ -112,7 +112,7 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" asp-for="EmailNotificationsEnabled" />
                             <label class="form-check-label" asp-for="EmailNotificationsEnabled">
-                                Bật thông báo email
+                                Enable Email Notifications
                             </label>
                         </div>
                     </div>
@@ -120,7 +120,7 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" asp-for="AutoAssignReviewers" />
                             <label class="form-check-label" asp-for="AutoAssignReviewers">
-                                Tự động phân công phản biện (dựa trên keywords)
+                                Auto-assign Reviewers (based on keywords)
                             </label>
                         </div>
                     </div>
@@ -131,10 +131,10 @@
         <!-- Action Buttons -->
         <div class="d-flex justify-content-end gap-2">
             <a href="@Url.Action("Dashboard")" class="btn btn-outline-secondary">
-                <i class="fas fa-times me-2"></i>Hủy
+                <i class="fas fa-times me-2"></i>Cancel
             </a>
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save me-2"></i>Lưu cài đặt
+                <i class="fas fa-save me-2"></i>Save Settings
             </button>
         </div>
     </form>
@@ -148,6 +148,7 @@
         }, 5000);
     </script>
 }
+
 
 
 

@@ -23,6 +23,10 @@ namespace SciSubmit.Data
         public DbSet<SystemSetting> SystemSettings { get; set; }
         public DbSet<KeynoteSpeaker> KeynoteSpeakers { get; set; }
         public DbSet<ConferenceLocation> ConferenceLocations { get; set; }
+        public DbSet<CommitteeSection> CommitteeSections { get; set; }
+        public DbSet<CommitteeMember> CommitteeMembers { get; set; }
+        public DbSet<ProgramSchedule> ProgramSchedules { get; set; }
+        public DbSet<ProgramItem> ProgramItems { get; set; }
         public DbSet<Topic> Topics { get; set; }
         public DbSet<Keyword> Keywords { get; set; }
         public DbSet<UserKeyword> UserKeywords { get; set; }
@@ -139,6 +143,36 @@ namespace SciSubmit.Data
                     .WithOne(e => e.Conference)
                     .HasForeignKey(e => e.ConferenceId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // CommitteeSection Configuration
+            modelBuilder.Entity<CommitteeSection>(entity =>
+            {
+                entity.HasMany(e => e.Members)
+                    .WithOne(e => e.CommitteeSection)
+                    .HasForeignKey(e => e.CommitteeSectionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // CommitteeMember Configuration
+            modelBuilder.Entity<CommitteeMember>(entity =>
+            {
+                entity.HasIndex(e => e.CommitteeSectionId);
+            });
+
+            // ProgramSchedule Configuration
+            modelBuilder.Entity<ProgramSchedule>(entity =>
+            {
+                entity.HasMany(e => e.Items)
+                    .WithOne(e => e.ProgramSchedule)
+                    .HasForeignKey(e => e.ProgramScheduleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ProgramItem Configuration
+            modelBuilder.Entity<ProgramItem>(entity =>
+            {
+                entity.HasIndex(e => e.ProgramScheduleId);
             });
 
             // Keyword Configuration

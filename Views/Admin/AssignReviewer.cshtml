@@ -1,6 +1,6 @@
 @model int
 @{
-    ViewData["Title"] = "Phân công phản biện";
+    ViewData["Title"] = "Assign Reviewer";
     var availableReviewers = ViewBag.AvailableReviewers as List<SciSubmit.Models.Admin.ReviewerViewModel> ?? new List<SciSubmit.Models.Admin.ReviewerViewModel>();
     var submission = ViewBag.Submission as SciSubmit.Models.Submission.Submission;
 }
@@ -33,23 +33,23 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h2 class="text-gradient mb-2">
-                    <i class="fas fa-user-tie me-2"></i>Phân công phản biện
+                    <i class="fas fa-user-tie me-2"></i>Assign Reviewer
                 </h2>
                 @if (submission != null)
                 {
-                    <p class="text-muted mb-0">Chọn Reviewer cho bài báo: <strong>@submission.Title</strong></p>
+                    <p class="text-muted mb-0">Select Reviewer for paper: <strong>@submission.Title</strong></p>
                 }
                 else
                 {
                     <div class="alert alert-warning mb-0">
                         <i class="fas fa-exclamation-triangle me-2"></i>
-                        Không tìm thấy thông tin bài báo. Vui lòng chọn bài báo từ danh sách.
+                        Paper information not found. Please select a paper from the list.
                     </div>
                 }
             </div>
             <div>
                 <a href="@Url.Action("SubmissionDetails", new { id = Model })" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                    <i class="fas fa-arrow-left me-2"></i>Back
                 </a>
             </div>
         </div>
@@ -62,12 +62,12 @@
             {
                 <div class="card shadow-sm border-0 mb-3">
                     <div class="card-header bg-warning text-white">
-                        <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Chọn bài báo</h5>
+                        <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Select Paper</h5>
                     </div>
                     <div class="card-body">
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
-                            Vui lòng quay lại trang <a href="@Url.Action("Submissions")">Quản lý bài nộp</a> và chọn một bài báo để phân công phản biện.
+                            Please go back to <a href="@Url.Action("Submissions")">Manage Submissions</a> and select a paper to assign a reviewer.
                         </div>
                     </div>
                 </div>
@@ -75,21 +75,21 @@
             
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Danh sách Reviewer gợi ý</h5>
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Suggested Reviewers</h5>
                 </div>
                 <div class="card-body">
                     @if (submission == null)
                     {
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            Không tìm thấy bài báo. Vui lòng quay lại và chọn bài báo trước.
+                            Paper not found. Please go back and select a paper first.
                         </div>
                     }
                     else if (availableReviewers.Any())
                     {
                         <div class="alert alert-info">
                             <i class="fas fa-robot me-2"></i>
-                            <strong>Gợi ý dựa trên từ khóa:</strong> Các Reviewer được sắp xếp theo độ phù hợp với bài báo.
+                            <strong>Keyword-based suggestions:</strong> Reviewers are sorted by relevance to the paper.
                         </div>
 
                         <form method="post" action="@Url.Action("AssignReviewer")" id="assignReviewerForm">
@@ -97,9 +97,9 @@
                             <input type="hidden" name="submissionId" id="submissionId" value="@Model" />
                             
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Chọn Reviewer <span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold">Select Reviewer <span class="text-danger">*</span></label>
                                 <select name="reviewerId" id="reviewerSelect" class="form-select" required>
-                                    <option value="">-- Chọn Reviewer --</option>
+                                    <option value="">-- Select Reviewer --</option>
                                     @foreach (var reviewer in availableReviewers)
                                     {
                                         <option value="@reviewer.Id" 
@@ -108,39 +108,39 @@
                                                 data-matchscore="@reviewer.MatchScore"
                                                 data-keywords="@string.Join(",", reviewer.Keywords)"
                                                 data-activeassignments="@reviewer.ActiveAssignments">
-                                            @reviewer.FullName (@reviewer.MatchScore% phù hợp) - @reviewer.Email
+                                            @reviewer.FullName (@reviewer.MatchScore% match) - @reviewer.Email
                                         </option>
                                     }
                                 </select>
                                 <div class="invalid-feedback" id="reviewerError" style="display: none;">
-                                    Vui lòng chọn một Reviewer.
+                                    Please select a Reviewer.
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Deadline phản biện <span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold">Review Deadline <span class="text-danger">*</span></label>
                                 <input type="datetime-local" name="deadline" id="deadlineInput" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
-                                <small class="text-muted">Chọn thời hạn để Reviewer hoàn thành phản biện (phải trong tương lai)</small>
+                                <small class="text-muted">Select deadline for Reviewer to complete review (must be in the future)</small>
                                 <div class="invalid-feedback" id="deadlineError" style="display: none;">
-                                    Vui lòng chọn deadline trong tương lai.
+                                    Please select a deadline in the future.
                                 </div>
                             </div>
 
                             <div class="d-flex justify-content-end gap-2">
-                                <a href="@Url.Action("SubmissionDetails", new { id = Model })" class="btn btn-secondary">Hủy</a>
+                                <a href="@Url.Action("SubmissionDetails", new { id = Model })" class="btn btn-secondary">Cancel</a>
                                 <button type="submit" class="btn btn-primary" id="submitBtn">
-                                    <i class="fas fa-paper-plane me-2"></i>Phân công
+                                    <i class="fas fa-paper-plane me-2"></i>Assign
                                 </button>
                             </div>
                         </form>
 
                         <hr class="my-4">
 
-                        <h6 class="mb-3">Chi tiết Reviewer:</h6>
+                        <h6 class="mb-3">Reviewer Details:</h6>
                         <div id="reviewerDetails">
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle me-2"></i>
-                                Vui lòng chọn một Reviewer từ dropdown ở trên để xem chi tiết.
+                                Please select a Reviewer from the dropdown above to view details.
                             </div>
                         </div>
                         
@@ -169,10 +169,10 @@
                                             </div>
                                             <div class="text-end">
                                                 <span class="badge @(reviewer.MatchScore >= 50 ? "bg-success" : "bg-warning")">
-                                                    @reviewer.MatchScore% phù hợp
+                                                    @reviewer.MatchScore% match
                                                 </span>
                                                 <br>
-                                                <small class="text-muted">@reviewer.ActiveAssignments assignments đang active</small>
+                                                <small class="text-muted">@reviewer.ActiveAssignments active assignments</small>
                                             </div>
                                         </div>
                                     </div>
@@ -184,13 +184,13 @@
                     {
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Không tìm thấy Reviewer nào trong hệ thống.</strong>
+                            <strong>No Reviewers found in the system.</strong>
                             <br>
-                            <small>Vui lòng:</small>
+                            <small>Please:</small>
                             <ul class="mb-0 mt-2">
-                                <li>Tạo Reviewer mới trong <a href="@Url.Action("Users")">Quản lý Người dùng</a> với role = Reviewer</li>
-                                <li>Đảm bảo Reviewer có <code>IsActive = true</code></li>
-                                <li>Thêm keywords cho Reviewer để được gợi ý tốt hơn</li>
+                                <li>Create a new Reviewer in <a href="@Url.Action("Users")">Manage Users</a> with role = Reviewer</li>
+                                <li>Ensure Reviewer has <code>IsActive = true</code></li>
+                                <li>Add keywords to Reviewer for better suggestions</li>
                             </ul>
                         </div>
                     }
@@ -244,7 +244,7 @@
                 // Validate deadline
                 if (!deadline) {
                     $('#deadlineInput').addClass('is-invalid');
-                    $('#deadlineError').text('Vui lòng chọn deadline.');
+                    $('#deadlineError').text('Please select a deadline.');
                     $('#deadlineError').show();
                     hasError = true;
                 } else {
@@ -252,7 +252,7 @@
                     const now = new Date();
                     if (deadlineDate <= now) {
                         $('#deadlineInput').addClass('is-invalid');
-                        $('#deadlineError').text('Deadline phải trong tương lai.');
+                        $('#deadlineError').text('Deadline must be in the future.');
                         $('#deadlineError').show();
                         hasError = true;
                     }
@@ -260,7 +260,7 @@
                 
                 // Validate submissionId
                 if (!submissionId || submissionId <= 0) {
-                    alert('Lỗi: Không tìm thấy bài báo. Vui lòng quay lại và thử lại.');
+                    alert('Error: Paper not found. Please go back and try again.');
                     hasError = true;
                 }
                 
@@ -276,7 +276,7 @@
                 console.log('  deadline:', deadline);
                 
                 // Show loading state
-                $('#submitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...');
+                $('#submitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Processing...');
             });
             
             // Show reviewer details when selected
@@ -285,7 +285,7 @@
                 const reviewerId = selectedOption.val();
                 
                 if (!reviewerId) {
-                    reviewerDetails.html('<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Vui lòng chọn một Reviewer từ dropdown ở trên để xem chi tiết.</div>');
+                    reviewerDetails.html('<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Please select a Reviewer from the dropdown above to view details.</div>');
                     allReviewersList.hide();
                     return;
                 }
@@ -321,10 +321,10 @@
                                 </div>
                                 <div class="text-end">
                                     <span class="badge ${matchScore >= 50 ? 'bg-success' : 'bg-warning'}">
-                                        ${matchScore}% phù hợp
+                                        ${matchScore}% match
                                     </span>
                                     <br>
-                                    <small class="text-muted">${activeAssignments} assignments đang active</small>
+                                    <small class="text-muted">${activeAssignments} active assignments</small>
                                 </div>
                             </div>
                         </div>
@@ -346,6 +346,7 @@
         });
     </script>
 }
+
 
 
 

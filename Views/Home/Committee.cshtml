@@ -1,0 +1,291 @@
+@model SciSubmit.Models.Admin.CommitteeViewModel
+@{
+    ViewData["Title"] = "Committee";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/committee.css" asp-append-version="true" />
+}
+
+<!-- Hero Section -->
+<section class="committee-hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="committee-hero-title">
+                    SCI SUBMIT Organizing <span class="gradient-text">Committee</span>
+                </h1>
+                <p class="committee-hero-subtitle">
+                    A list of key members of the organizing and scientific committees.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Committee Sections -->
+<section class="committee-content py-5">
+    <div class="container">
+        @if (Model.Sections == null || !Model.Sections.Any())
+        {
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle me-2"></i>
+                Committee information will be available soon.
+            </div>
+        }
+        else
+        {
+            @foreach (var sec in Model.Sections)
+            {
+                <div class="committee-section mb-5" data-section-type="@(sec.SectionType)">
+                    @if (sec.SectionType == "GeneralChair")
+                    {
+                        <!-- General Chair Layout: Image Left, Content Right -->
+                        <div class="row align-items-center mb-4">
+                            <div class="col-md-6 mb-4 mb-md-0">
+                                @if (!string.IsNullOrEmpty(sec.Members.FirstOrDefault()?.PhotoUrl))
+                                {
+                                    <div class="committee-image-wrapper mask-square">
+                                        <div class="committee-image-frame">
+                                            <img src="@sec.Members.FirstOrDefault()?.PhotoUrl" 
+                                                 alt="@sec.Members.FirstOrDefault()?.Name" 
+                                                 class="committee-image">
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <h3 class="committee-section-title text-center mb-3">@sec.Title</h3>
+                                <div class="committee-separator mb-4"></div>
+                                @foreach (var member in sec.Members)
+                                {
+                                    <div class="committee-member-content">
+                                        <p class="committee-member-name">
+                                            <strong>@(member.Title) @member.Name</strong>
+                                        </p>
+                                        @if (!string.IsNullOrEmpty(member.Description))
+                                        {
+                                            <p>@member.Description</p>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else if (sec.SectionType == "ProgramCommittee")
+                    {
+                        <!-- Program Committee Layout: Content Left, Image Right -->
+                        <div class="row align-items-center mb-4">
+                            <div class="col-md-6 mb-4 mb-md-0">
+                                <h3 class="committee-section-title text-center mb-3">@sec.Title</h3>
+                                <div class="committee-separator mb-4"></div>
+                                <div class="committee-member-list">
+                                    @foreach (var member in sec.Members)
+                                    {
+                                        <p class="committee-member-item">
+                                            <strong>@(member.Title) @member.Name</strong>
+                                            @if (!string.IsNullOrEmpty(member.Affiliation))
+                                            {
+                                                <span>, @member.Affiliation</span>
+                                            }
+                                            @if (!string.IsNullOrEmpty(member.Country))
+                                            {
+                                                <span>, @member.Country</span>
+                                            }
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                @if (!string.IsNullOrEmpty(sec.Members.FirstOrDefault()?.PhotoUrl))
+                                {
+                                    <div class="committee-image-wrapper mask-square">
+                                        <div class="committee-image-frame">
+                                            <img src="@sec.Members.FirstOrDefault()?.PhotoUrl" 
+                                                 alt="@sec.Title" 
+                                                 class="committee-image">
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else if (sec.SectionType == "TrackChairs")
+                    {
+                        <!-- Track Chairs Layout: Image Left, Content Right -->
+                        <div class="row align-items-center mb-4">
+                            <div class="col-md-6 mb-4 mb-md-0">
+                                @if (!string.IsNullOrEmpty(sec.Members.FirstOrDefault()?.PhotoUrl))
+                                {
+                                    <div class="committee-image-wrapper mask-square">
+                                        <div class="committee-image-frame">
+                                            <img src="@sec.Members.FirstOrDefault()?.PhotoUrl" 
+                                                 alt="@sec.Title" 
+                                                 class="committee-image">
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <h3 class="committee-section-title text-center mb-3">@sec.Title</h3>
+                                <div class="committee-separator mb-4"></div>
+                                <div class="committee-member-list">
+                                    @foreach (var member in sec.Members)
+                                    {
+                                        <p class="committee-member-item">
+                                            @if (!string.IsNullOrEmpty(member.TrackName))
+                                            {
+                                                <strong>@member.TrackName: </strong>
+                                            }
+                                            @if (!string.IsNullOrEmpty(member.TrackDescription))
+                                            {
+                                                <span>@member.TrackDescription</span>
+                                            }
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else if (sec.SectionType == "KeynoteSpeakers")
+                    {
+                        <!-- Keynote Speakers: Alternating Layout -->
+                        @for (int i = 0; i < sec.Members.Count; i++)
+                        {
+                            var member = sec.Members[i];
+                            var isEven = i % 2 == 0;
+                            <div class="row align-items-center mb-5 @(isEven ? "" : "flex-row-reverse")">
+                                <div class="col-md-6 mb-4 mb-md-0">
+                                    @if (!string.IsNullOrEmpty(member.PhotoUrl))
+                                    {
+                                        <div class="committee-image-container">
+                                            <div class="committee-image-wrapper mask-square">
+                                                <div class="committee-image-frame">
+                                            <img src="@member.PhotoUrl" 
+                                                 alt="@member.Name" 
+                                                         class="committee-image">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="col-md-6">
+                                    <h3 class="committee-section-title text-center mb-3">
+                                        @(i == 0 ? "Keynote Speaker 1" : "Keynote Speaker 2")
+                                    </h3>
+                                    <div class="committee-separator mb-4"></div>
+                                    <div class="committee-member-content">
+                                        <p class="committee-member-name">
+                                            <strong>@(member.Title) @member.Name</strong>
+                                            @if (!string.IsNullOrEmpty(member.Affiliation))
+                                            {
+                                                <span> – @member.Affiliation</span>
+                                            }
+                                        </p>
+                                        @if (!string.IsNullOrEmpty(member.Topic))
+                                        {
+                                            <p class="mt-3">
+                                                <strong>Topic: </strong>
+                                                <span>@member.Topic</span>
+                                            </p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else if (sec.SectionType == "PublicationChairs")
+                    {
+                        <!-- Publication Chairs: Image Left, Content Right -->
+                        <div class="row align-items-center mb-4">
+                            <div class="col-md-6 mb-4 mb-md-0">
+                                @if (!string.IsNullOrEmpty(sec.Members.FirstOrDefault()?.PhotoUrl))
+                                {
+                                    <div class="committee-image-wrapper mask-square">
+                                        <div class="committee-image-frame">
+                                            <img src="@sec.Members.FirstOrDefault()?.PhotoUrl" 
+                                                 alt="@sec.Title" 
+                                                 class="committee-image">
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <h3 class="committee-section-title text-center mb-3">@sec.Title</h3>
+                                <div class="committee-separator mb-4"></div>
+                                <div class="committee-member-list">
+                                    @foreach (var member in sec.Members)
+                                    {
+                                        <p class="committee-member-item">
+                                            <strong>@(member.Title) @member.Name</strong>
+                                            @if (!string.IsNullOrEmpty(member.Affiliation))
+                                            {
+                                                <span>, @member.Affiliation</span>
+                                            }
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else if (sec.SectionType == "LocalOrganizing")
+                    {
+                        <!-- Local Organizing Committee: Full Width List -->
+                        <div class="row">
+                            <div class="col-12">
+                                <h2 class="committee-section-title-large text-center mb-4">
+                                    <span class="text-white">@sec.Title</span>
+                                </h2>
+                                <ul class="committee-organizing-list">
+                                    @foreach (var member in sec.Members)
+                                    {
+                                        <li class="committee-organizing-item">
+                                            <span class="text-white">
+                                                @if (!string.IsNullOrEmpty(member.Title))
+                                                {
+                                                    <strong>@member.Title</strong>
+                                                }
+                                                @member.Name
+                                                @if (!string.IsNullOrEmpty(member.Description))
+                                                {
+                                                    <span> – @member.Description</span>
+                                                }
+                                            </span>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Default Layout -->
+                        <div class="row">
+                            <div class="col-12">
+                                <h3 class="committee-section-title text-center mb-3">@sec.Title</h3>
+                                <div class="committee-separator mb-4"></div>
+                                <div class="committee-member-list">
+                                    @foreach (var member in sec.Members)
+                                    {
+                                        <p class="committee-member-item">
+                                            <strong>@(member.Title) @member.Name</strong>
+                                            @if (!string.IsNullOrEmpty(member.Affiliation))
+                                            {
+                                                <span>, @member.Affiliation</span>
+                                            }
+                                            @if (!string.IsNullOrEmpty(member.Country))
+                                            {
+                                                <span>, @member.Country</span>
+                                            }
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>
+</section>
+

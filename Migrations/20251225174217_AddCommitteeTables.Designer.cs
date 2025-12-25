@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SciSubmit.Data;
 
@@ -11,9 +12,11 @@ using SciSubmit.Data;
 namespace SciSubmit.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251225174217_AddCommitteeTables")]
+    partial class AddCommitteeTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -331,89 +334,6 @@ namespace SciSubmit.Migrations
                     b.HasIndex("ConferenceId");
 
                     b.ToTable("KeynoteSpeakers");
-                });
-
-            modelBuilder.Entity("SciSubmit.Models.Conference.ProgramItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Contents")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("OrderIndex")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProgramScheduleId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Time")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProgramScheduleId");
-
-                    b.ToTable("ProgramItems");
-                });
-
-            modelBuilder.Entity("SciSubmit.Models.Conference.ProgramSchedule", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ConferenceId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PapersLink")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("PresentationsLink")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("ProgramLink")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("Time")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Venue")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ConferenceId");
-
-                    b.ToTable("ProgramSchedules");
                 });
 
             modelBuilder.Entity("SciSubmit.Models.Conference.SystemSetting", b =>
@@ -1293,28 +1213,6 @@ namespace SciSubmit.Migrations
                     b.Navigation("Conference");
                 });
 
-            modelBuilder.Entity("SciSubmit.Models.Conference.ProgramItem", b =>
-                {
-                    b.HasOne("SciSubmit.Models.Conference.ProgramSchedule", "ProgramSchedule")
-                        .WithMany("Items")
-                        .HasForeignKey("ProgramScheduleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ProgramSchedule");
-                });
-
-            modelBuilder.Entity("SciSubmit.Models.Conference.ProgramSchedule", b =>
-                {
-                    b.HasOne("SciSubmit.Models.Conference.Conference", "Conference")
-                        .WithMany()
-                        .HasForeignKey("ConferenceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Conference");
-                });
-
             modelBuilder.Entity("SciSubmit.Models.Conference.SystemSetting", b =>
                 {
                     b.HasOne("SciSubmit.Models.Conference.Conference", "Conference")
@@ -1651,11 +1549,6 @@ namespace SciSubmit.Migrations
                     b.Navigation("SystemSettings");
 
                     b.Navigation("Topics");
-                });
-
-            modelBuilder.Entity("SciSubmit.Models.Conference.ProgramSchedule", b =>
-                {
-                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("SciSubmit.Models.Content.Keyword", b =>

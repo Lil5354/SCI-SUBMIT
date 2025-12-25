@@ -1,0 +1,99 @@
+/* Committee Admin Styles */
+
+.committee-section-card {
+    transition: box-shadow 0.3s ease;
+}
+
+.committee-section-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.committee-members-list {
+    margin-top: 20px;
+}
+
+.committee-members-list .table {
+    margin-bottom: 0;
+}
+
+.committee-members-list .table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.committee-members-list .table td {
+    vertical-align: middle;
+}
+
+/* Modal Enhancements */
+.modal-content {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #198fd9 0%, #0dcf80 100%);
+    color: white;
+    border-radius: 10px 10px 0 0;
+    padding: 1.25rem;
+}
+
+.modal-header .btn-close {
+    filter: invert(1);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+}
+
+/* Form Enhancements */
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #198fd9;
+    box-shadow: 0 0 0 0.2rem rgba(25, 143, 217, 0.25);
+}
+
+/* Badge Styles */
+.badge {
+    font-size: 0.85rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Button Enhancements */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Empty State */
+.alert-info {
+    background-color: #e7f3ff;
+    border-color: #b8daff;
+    color: #004085;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+
+    .committee-members-list .table th,
+    .committee-members-list .table td {
+        padding: 0.5rem;
+    }
+}
+

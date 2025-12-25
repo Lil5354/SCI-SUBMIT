@@ -1,6 +1,6 @@
 @model SciSubmit.Models.Admin.FinalDecisionViewModel
 @{
-    ViewData["Title"] = "Ra quyết định cuối cùng";
+    ViewData["Title"] = "Final Decision";
 }
 
 <div class="container-fluid my-4">
@@ -24,15 +24,15 @@
             <!-- Header -->
             <div class="mb-4">
                 <h2 class="text-gradient mb-2">
-                    <i class="fas fa-gavel me-2"></i>Ra quyết định cuối cùng
+                    <i class="fas fa-gavel me-2"></i>Final Decision
                 </h2>
-                <p class="text-muted">Xem tất cả phản biện và ra quyết định cuối cùng</p>
+                <p class="text-muted">View all reviews and make final decision</p>
             </div>
 
             <!-- Submission Info -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Thông tin bài báo</h5>
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Paper Information</h5>
                 </div>
                 <div class="card-body">
                     <h5 class="mb-3">@Model.SubmissionTitle</h5>
@@ -44,7 +44,7 @@
                             }
                         </div>
                         <div class="col-md-6 text-end">
-                            <small class="text-muted">Mã bài: #@Model.SubmissionId</small>
+                            <small class="text-muted">Paper ID: #@Model.SubmissionId</small>
                         </div>
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                     {
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            Chưa có phản biện nào hoàn thành.
+                            No reviews completed yet.
                         </div>
                     }
                 </div>
@@ -104,7 +104,7 @@
             <!-- System Recommendation -->
             <div class="card shadow-sm border-0 mb-4 border-info">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fas fa-robot me-2"></i>Gợi ý từ hệ thống</h5>
+                    <h5 class="mb-0"><i class="fas fa-robot me-2"></i>System Suggestions</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -127,16 +127,16 @@
                             };
                             var recText = Model.SystemRecommendation switch
                             {
-                                "Accept" => "Chấp nhận",
-                                "MinorRevision" => "Chỉnh sửa nhỏ",
-                                "MajorRevision" => "Chỉnh sửa lớn",
-                                "Reject" => "Từ chối",
-                                _ => "Chưa có"
+                                "Accept" => "Accept",
+                                "MinorRevision" => "Minor Revision",
+                                "MajorRevision" => "Major Revision",
+                                "Reject" => "Reject",
+                                _ => "None"
                             };
                         }
                         <i class="fas @recIcon fa-2x @recClass me-3"></i>
                         <div>
-                            <h5 class="@recClass mb-1">Khuyến nghị: @recText</h5>
+                            <h5 class="@recClass mb-1">Recommendation: @recText</h5>
                             <p class="text-muted mb-0">
                                 Dựa trên điểm trung bình @Model.AverageScore.ToString("F1")/5 và @Model.CompletedReviews phản biện đã hoàn thành
                             </p>
@@ -172,12 +172,12 @@
                                 </div>
                                 <div class="col-md-3">
                                     <button type="button" class="btn btn-warning btn-lg w-100 decision-btn" data-decision="Minor">
-                                        <i class="fas fa-edit me-2"></i>Chỉnh sửa nhỏ
+                                        <i class="fas fa-edit me-2"></i>Minor Revision
                                     </button>
                                 </div>
                                 <div class="col-md-3">
                                     <button type="button" class="btn btn-warning btn-lg w-100 decision-btn" data-decision="Major">
-                                        <i class="fas fa-edit me-2"></i>Chỉnh sửa lớn
+                                        <i class="fas fa-edit me-2"></i>Major Revision
                                     </button>
                                 </div>
                                 <div class="col-md-3">
@@ -197,12 +197,12 @@
 
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            Sau khi ra quyết định, hệ thống sẽ tự động gửi email thông báo kết quả và các bình luận (ẩn danh) cho tác giả.
+                            After making a decision, the system will automatically send an email notification with the result and (anonymous) comments to the author.
                         </div>
 
                         <div class="d-flex justify-content-end">
                             <a href="/Admin/Submissions" class="btn btn-outline-secondary me-2">
-                                <i class="fas fa-times me-2"></i>Hủy
+                                <i class="fas fa-times me-2"></i>Cancel
                             </a>
                             <button type="submit" class="btn btn-primary btn-lg" id="btnSubmit" disabled="@(!Model.CanMakeDecision)">
                                 <i class="fas fa-paper-plane me-2"></i>Xác nhận quyết định
@@ -249,7 +249,7 @@
             var decision = document.getElementById('decisionInput').value;
             if (!decision) {
                 e.preventDefault();
-                alert('Vui lòng chọn một quyết định.');
+                alert('Please select a decision.');
                 return false;
             }
         });

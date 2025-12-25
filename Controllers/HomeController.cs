@@ -158,6 +158,128 @@ namespace SciSubmit.Controllers
             });
         }
 
+        public async Task<IActionResult> Committee()
+        {
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                return View(new Models.Admin.CommitteeViewModel());
+            }
+
+            var sections = await _context.CommitteeSections
+                .Where(s => s.ConferenceId == activeConference.Id && s.IsActive)
+                .Include(s => s.Members.Where(m => m.IsActive))
+                .OrderBy(s => s.OrderIndex)
+                .ThenBy(s => s.Id)
+                .ToListAsync();
+
+            var viewModel = new Models.Admin.CommitteeViewModel
+            {
+                Sections = sections.Select(s => new Models.Admin.CommitteeSectionViewModel
+                {
+                    Id = s.Id,
+                    Title = s.Title,
+                    Description = s.Description,
+                    SectionType = s.SectionType,
+                    OrderIndex = s.OrderIndex,
+                    IsActive = s.IsActive,
+                    Members = s.Members
+                        .OrderBy(m => m.OrderIndex)
+                        .ThenBy(m => m.Id)
+                        .Select(m => new Models.Admin.CommitteeMemberViewModel
+                        {
+                            Id = m.Id,
+                            CommitteeSectionId = m.CommitteeSectionId,
+                            Name = m.Name,
+                            Title = m.Title,
+                            Affiliation = m.Affiliation,
+                            Country = m.Country,
+                            Description = m.Description,
+                            PhotoUrl = m.PhotoUrl,
+                            Topic = m.Topic,
+                            TrackName = m.TrackName,
+                            TrackDescription = m.TrackDescription,
+                            OrderIndex = m.OrderIndex,
+                            IsActive = m.IsActive
+                        }).ToList()
+                }).ToList()
+            };
+
+            ViewBag.ConferenceName = activeConference.Name;
+            return View(viewModel);
+        }
+
+        public async Task<IActionResult> KeynoteSpeakers()
+        {
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                return View(new List<Models.Conference.KeynoteSpeaker>());
+            }
+
+            var speakers = await _context.KeynoteSpeakers
+                .Where(k => k.ConferenceId == activeConference.Id && k.IsActive)
+                .OrderBy(k => k.OrderIndex)
+                .ThenBy(k => k.Id)
+                .ToListAsync();
+
+            ViewBag.ConferenceName = activeConference.Name;
+            return View(speakers);
+        }
+
+        public async Task<IActionResult> Program()
+        {
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (activeConference == null)
+            {
+                return View(new Models.Admin.ProgramViewModel());
+            }
+
+            var schedule = await _context.ProgramSchedules
+                .Where(p => p.ConferenceId == activeConference.Id)
+                .Include(p => p.Items.Where(i => i.IsActive))
+                .FirstOrDefaultAsync();
+
+            if (schedule == null)
+            {
+                return View(new Models.Admin.ProgramViewModel());
+            }
+
+            var viewModel = new Models.Admin.ProgramViewModel
+            {
+                Id = schedule.Id,
+                Time = schedule.Time,
+                Venue = schedule.Venue,
+                PresentationsLink = schedule.PresentationsLink,
+                PapersLink = schedule.PapersLink,
+                ProgramLink = schedule.ProgramLink,
+                Items = schedule.Items
+                    .OrderBy(i => i.OrderIndex)
+                    .ThenBy(i => i.Id)
+                    .Select(i => new Models.Admin.ProgramItemViewModel
+                    {
+                        Id = i.Id,
+                        ProgramScheduleId = i.ProgramScheduleId,
+                        Time = i.Time,
+                        Contents = i.Contents,
+                        OrderIndex = i.OrderIndex,
+                        IsActive = i.IsActive
+                    }).ToList()
+            };
+
+            ViewBag.ConferenceName = activeConference.Name;
+            return View(viewModel);
+        }
+
         public IActionResult Privacy()
         {
             return View();

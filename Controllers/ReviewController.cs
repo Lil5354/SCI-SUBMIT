@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SciSubmit.Controllers
 {
+    [Authorize]
     public class ReviewController : Controller
     {
         private readonly ILogger<ReviewController> _logger;

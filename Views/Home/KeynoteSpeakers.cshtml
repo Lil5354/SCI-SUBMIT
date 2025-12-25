@@ -1,0 +1,108 @@
+@model List<SciSubmit.Models.Conference.KeynoteSpeaker>
+@{
+    ViewData["Title"] = "Keynote Speakers";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/keynote-speakers.css" asp-append-version="true" />
+}
+
+<!-- Hero Section -->
+<section class="keynote-hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="keynote-hero-title">
+                    Keynote <span class="gradient-text">Speakers</span>
+                </h1>
+                <p class="keynote-hero-subtitle">
+                    Distinguished speakers sharing their expertise and insights.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Keynote Speakers Section -->
+<section class="keynote-speakers-section py-5">
+    <div class="container">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-microphone fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Keynote speakers information will be available soon.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var speaker in Model)
+            {
+                <div class="keynote-speaker-card">
+                    <div class="row align-items-stretch g-0">
+                        <!-- Speaker Photo -->
+                        <div class="col-md-4 col-lg-3">
+                            <div class="keynote-speaker-image-wrapper">
+                                @if (!string.IsNullOrEmpty(speaker.PhotoUrl))
+                                {
+                                    <div class="keynote-speaker-image-frame">
+                                        <img src="@speaker.PhotoUrl" 
+                                             alt="@speaker.Name" 
+                                             class="keynote-speaker-image">
+                                        <div class="keynote-speaker-image-overlay"></div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="keynote-speaker-image-frame keynote-speaker-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        
+                        <!-- Speaker Info -->
+                        <div class="col-md-8 col-lg-9">
+                            <div class="keynote-speaker-content">
+                                <!-- Topic -->
+                                @if (!string.IsNullOrEmpty(speaker.Topic))
+                                {
+                                    <h3 class="keynote-speaker-topic">
+                                        Topic: @speaker.Topic
+                                    </h3>
+                                }
+                                
+                                <!-- Speaker Details Bar -->
+                                <div class="keynote-speaker-bar">
+                                    <div class="keynote-speaker-info">
+                                        @if (!string.IsNullOrEmpty(speaker.Title))
+                                        {
+                                            <span class="keynote-speaker-name">@speaker.Title @speaker.Name</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="keynote-speaker-name">@speaker.Name</span>
+                                        }
+                                        
+                                        @if (!string.IsNullOrEmpty(speaker.Affiliation))
+                                        {
+                                            <span class="keynote-speaker-affiliation">: @speaker.Affiliation</span>
+                                        }
+                                    </div>
+                                </div>
+                                
+                                <!-- Biography (if available) -->
+                                @if (!string.IsNullOrEmpty(speaker.Biography))
+                                {
+                                    <div class="keynote-speaker-biography">
+                                        <p>@speaker.Biography</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</section>
+

@@ -3,10 +3,18 @@
    ======================================== */
 
 /* CRITICAL: Ensure main content area is interactive */
+body,
 main,
 main *,
 .container-fluid,
-.container-fluid * {
+.container-fluid *,
+.container-fluid .row,
+.container-fluid .row * {
+  pointer-events: auto !important;
+}
+
+/* CRITICAL: Override any fixed/absolute positioned overlays that might block */
+body > *:not(.dashboard-defi-background):not(.dashboard-particles):not(.dashboard-light-streaks) {
   pointer-events: auto !important;
 }
 
@@ -46,15 +54,55 @@ a.btn {
   position: relative !important;
 }
 
-/* Ensure modal is always on top */
-.modal {
-  z-index: 1055 !important;
+/* CRITICAL: Ensure modal is ALWAYS on top of everything */
+.modal,
+.modal.fade,
+.modal.show {
+  z-index: 999999 !important;
   pointer-events: auto !important;
 }
 
-.modal-backdrop {
-  z-index: 1050 !important;
+.modal-backdrop,
+.modal-backdrop.fade,
+.modal-backdrop.show {
+  z-index: 999998 !important;
   pointer-events: auto !important;
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.modal-dialog {
+  z-index: 999999 !important;
+  pointer-events: auto !important;
+  margin: 1.75rem auto;
+}
+
+.modal-content {
+  z-index: 999999 !important;
+  pointer-events: auto !important;
+  border: none !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Ensure all modal elements are interactive */
+.modal *,
+.modal .btn,
+.modal button,
+.modal input,
+.modal select,
+.modal textarea,
+.modal a,
+.modal label {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 999999 !important;
+}
+
+.modal .btn,
+.modal button {
+  cursor: pointer !important;
 }
 
 /* Ensure dropdown menus work */
@@ -78,9 +126,33 @@ a.btn {
   z-index: 1030 !important;
 }
 
-/* CRITICAL: Ensure no element blocks interactions */
-* {
-  /* Don't override, but ensure buttons work */
+/* CRITICAL: Remove any invisible overlays that might block */
+html,
+body {
+  pointer-events: auto !important;
+  overflow-x: hidden;
+}
+
+/* Ensure no pseudo-elements are blocking */
+body::before,
+body::after,
+.container-fluid::before,
+.container-fluid::after,
+.row::before,
+.row::after {
+  display: none !important;
+  pointer-events: none !important;
+  content: none !important;
+}
+
+/* CRITICAL: Override any global pointer-events: none */
+.container-fluid,
+.container-fluid .row,
+.container-fluid .col,
+.container-fluid .col-md-6,
+.container-fluid .col-lg-4 {
+  pointer-events: auto !important;
+  position: relative !important;
 }
 
 /* Force interactive elements to be on top */
@@ -89,8 +161,88 @@ a,
 input[type="button"],
 input[type="submit"],
 .btn,
-.dropdown-toggle {
+.dropdown-toggle,
+.card,
+.card * {
   position: relative !important;
   z-index: 10000 !important;
+  pointer-events: auto !important;
 }
 
+/* CRITICAL: Ensure no invisible overlay is blocking */
+body::before,
+body::after,
+.container-fluid::before,
+.container-fluid::after {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Ensure all cards and their content are interactive */
+.card,
+.card-body,
+.card-header {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 100 !important;
+}
+
+/* Force all buttons inside cards to be clickable */
+.card .btn,
+.card button,
+.card a,
+.card .btn-group,
+.card .btn-group * {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 10001 !important;
+  position: relative !important;
+}
+
+/* CRITICAL: Remove any fixed/absolute overlays that might block the page */
+body > div[style*="position: fixed"],
+body > div[style*="position: absolute"]:not(.dashboard-defi-background):not(.dashboard-particles):not(.dashboard-light-streaks) {
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+/* Ensure all admin pages are interactive */
+body.d-flex.flex-column.min-vh-100,
+body.d-flex.flex-column.min-vh-100 > * {
+  pointer-events: auto !important;
+}
+
+/* Force all interactive elements to be above any potential overlays */
+.container-fluid .btn,
+.container-fluid button,
+.container-fluid a,
+.container-fluid .card,
+.container-fluid .card * {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 99999 !important;
+  position: relative !important;
+}
+
+/* CRITICAL: Ensure no element with high z-index is blocking without pointer-events */
+[style*="z-index"]:not([style*="pointer-events"]):not(.dashboard-defi-background):not(.dashboard-particles):not(.dashboard-light-streaks) {
+  pointer-events: auto !important;
+}
+
+/* Ensure all form elements are interactive */
+input,
+select,
+textarea,
+label {
+  pointer-events: auto !important;
+  cursor: default !important;
+  position: relative !important;
+  z-index: 100 !important;
+}
+
+input[type="button"],
+input[type="submit"],
+button,
+.btn {
+  cursor: pointer !important;
+}

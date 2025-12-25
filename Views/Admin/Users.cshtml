@@ -1,6 +1,6 @@
 @model SciSubmit.Models.Admin.PagedList<SciSubmit.Models.Admin.UserViewModel>
 @{
-    ViewData["Title"] = "Quản lý người dùng";
+    ViewData["Title"] = "Manage Users";
     var filter = ViewBag.Filter as SciSubmit.Models.Admin.UserFilterViewModel ?? new SciSubmit.Models.Admin.UserFilterViewModel();
     var roleOptions = ViewBag.RoleOptions as string[] ?? Array.Empty<string>();
 }
@@ -27,13 +27,13 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h2 class="text-gradient mb-2">
-                    <i class="fas fa-users me-2"></i>Quản lý người dùng
+                    <i class="fas fa-users me-2"></i>Manage Users
                 </h2>
-                <p class="text-muted mb-0">Quản lý tất cả người dùng trong hệ thống</p>
+                <p class="text-muted mb-0">Manage all users in the system</p>
             </div>
             <div>
                 <a href="@Url.Action("CreateUser")" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Tạo người dùng
+                    <i class="fas fa-plus me-2"></i>Create User
                 </a>
             </div>
         </div>
@@ -45,16 +45,16 @@
             <form method="get" action="@Url.Action("Users")">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label">Tìm kiếm</label>
+                        <label class="form-label">Search</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" name="SearchTerm" class="form-control" placeholder="Tên, email..." value="@filter.SearchTerm">
+                            <input type="text" name="SearchTerm" class="form-control" placeholder="Name, email..." value="@filter.SearchTerm">
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Vai trò</label>
+                        <label class="form-label">Role</label>
                         <select class="form-select" name="Role">
-                            <option value="">Tất cả</option>
+                            <option value="">All</option>
                             @foreach (var role in roleOptions)
                             {
                                 <option value="@role" selected="@(filter.Role == role)">@role</option>
@@ -62,16 +62,16 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Trạng thái</label>
+                        <label class="form-label">Status</label>
                         <select class="form-select" name="IsActive">
-                            <option value="">Tất cả</option>
-                            <option value="true" selected="@(filter.IsActive == true)">Hoạt động</option>
-                            <option value="false" selected="@(filter.IsActive == false)">Không hoạt động</option>
+                            <option value="">All</option>
+                            <option value="true" selected="@(filter.IsActive == true)">Active</option>
+                            <option value="false" selected="@(filter.IsActive == false)">Inactive</option>
                         </select>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-filter me-2"></i>Lọc
+                            <i class="fas fa-filter me-2"></i>Filter
                         </button>
                     </div>
                 </div>
@@ -88,15 +88,15 @@
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>
-                                <th>STT</th>
-                                <th>Họ tên</th>
+                                <th>#</th>
+                                <th>Full Name</th>
                                 <th>Email</th>
-                                <th>Đơn vị</th>
-                                <th class="text-center">Vai trò</th>
-                                <th class="text-center">Trạng thái</th>
-                                <th class="text-center">Số bài nộp</th>
-                                <th class="text-center">Số phản biện</th>
-                                <th class="text-center">Thao tác</th>
+                                <th>Affiliation</th>
+                                <th class="text-center">Role</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Submissions</th>
+                                <th class="text-center">Reviews</th>
+                                <th class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -124,7 +124,7 @@
                                     </td>
                                     <td class="text-center">
                                         <span class="badge @(user.IsActive ? "bg-success" : "bg-secondary")">
-                                            @(user.IsActive ? "Hoạt động" : "Không hoạt động")
+                                            @(user.IsActive ? "Active" : "Inactive")
                                         </span>
                                     </td>
                                     <td class="text-center">@user.SubmissionCount</td>
@@ -145,7 +145,7 @@
                                             {
                                                 <form method="post" action="@Url.Action("DeactivateUser", new { userId = user.Id })" class="d-inline">
                                                     @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn vô hiệu hóa người dùng này?');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to deactivate this user?');">
                                                         <i class="fas fa-ban"></i>
                                                     </button>
                                                 </form>
@@ -165,7 +165,7 @@
                     <nav aria-label="Page navigation" class="mt-4">
                         <ul class="pagination justify-content-center">
                             <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
-                                <a class="page-link" href="@Url.Action("Users", new { Page = Model.Page - 1, filter.Role, filter.SearchTerm, filter.IsActive })">Trước</a>
+                                <a class="page-link" href="@Url.Action("Users", new { Page = Model.Page - 1, filter.Role, filter.SearchTerm, filter.IsActive })">Previous</a>
                             </li>
                             @for (int i = 1; i <= Model.TotalPages; i++)
                             {
@@ -174,7 +174,7 @@
                                 </li>
                             }
                             <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
-                                <a class="page-link" href="@Url.Action("Users", new { Page = Model.Page + 1, filter.Role, filter.SearchTerm, filter.IsActive })">Sau</a>
+                                <a class="page-link" href="@Url.Action("Users", new { Page = Model.Page + 1, filter.Role, filter.SearchTerm, filter.IsActive })">Next</a>
                             </li>
                         </ul>
                     </nav>
@@ -184,7 +184,7 @@
             {
                 <div class="text-center py-5">
                     <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">Không có người dùng nào</p>
+                    <p class="text-muted">No users found</p>
                 </div>
             }
         </div>
@@ -194,7 +194,7 @@
 @section Scripts {
     <script>
         function updateRole(userId, newRole) {
-            if (confirm('Bạn có chắc chắn muốn thay đổi vai trò của người dùng này?')) {
+            if (confirm('Are you sure you want to change this user\'s role?')) {
                 var form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '@Url.Action("UpdateUserRole")';

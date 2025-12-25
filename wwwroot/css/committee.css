@@ -1,0 +1,297 @@
+/* Committee Page Styles */
+
+/* Hero Section */
+.committee-hero {
+    background: radial-gradient(circle at left top, rgba(4, 9, 34, 0.75) 39%, rgba(4, 9, 34, 0.70) 49%),
+                url('https://mcdn.wallpapersafari.com/medium/4/14/HR5BvO.jpg') center/cover;
+    background-attachment: fixed;
+    padding: 200px 0 0;
+    margin-top: -60px;
+    position: relative;
+    min-height: 400px;
+}
+
+.committee-hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+    line-height: 1.2;
+    color: #ffffff;
+}
+
+.committee-hero-title .gradient-text {
+    background: radial-gradient(circle at left top, hsla(142, 100%, 40%, 1) 16%, hsla(200, 80%, 50%, 1) 86%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.committee-hero-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.7;
+    max-width: 800px;
+    margin: 0 auto;
+    color: #ffffff;
+}
+
+/* Content Section */
+.committee-content {
+    background-color: #ffffff;
+}
+
+.committee-section {
+    padding: 60px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.committee-section:last-child {
+    border-bottom: none;
+}
+
+/* Section Titles */
+.committee-section-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #040922;
+    margin-bottom: 20px;
+}
+
+.committee-section-title-large {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+/* Separator */
+.committee-separator {
+    width: 100%;
+    max-width: 60%;
+    height: 2px;
+    background-color: #820000;
+    margin: 0 auto 20px;
+    border: none;
+}
+
+/* Image Wrapper with Mask Effect */
+.committee-image-wrapper {
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.committee-image-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50,0 L100,50 L50,100 L0,50 Z' fill='none'/%3E%3C/svg%3E") no-repeat center;
+    background-size: contain;
+    opacity: 0.1;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.committee-image-wrapper .committee-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.committee-image-wrapper:hover .committee-image {
+    transform: scale(1.05);
+}
+
+/* Mask effect for circular/square images */
+.committee-image-wrapper.mask-circle {
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.committee-image-wrapper.mask-square {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Member Content */
+.committee-member-content {
+    padding: 20px 50px;
+    text-align: center;
+}
+
+.committee-member-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #040922;
+    margin-bottom: 15px;
+}
+
+.committee-member-name strong {
+    font-weight: 700;
+}
+
+.committee-member-list {
+    padding: 20px 50px;
+}
+
+.committee-member-item {
+    font-size: 1.1rem;
+    color: #040922;
+    margin-bottom: 15px;
+    line-height: 1.8;
+    text-align: left;
+}
+
+.committee-member-item strong {
+    color: #040922;
+    font-weight: 600;
+}
+
+/* Local Organizing Committee */
+.committee-organizing-list {
+    list-style: none;
+    padding: 0;
+    background: linear-gradient(150deg, #198fd9 0%, #198fd9 25%);
+    padding: 30px;
+    border-radius: 10px;
+    margin: 0;
+}
+
+.committee-organizing-item {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 1.1rem;
+    line-height: 1.8;
+    position: relative;
+    padding-left: 40px;
+}
+
+.committee-organizing-item:last-child {
+    border-bottom: none;
+}
+
+.committee-organizing-item::before {
+    content: "✓";
+    color: #0dcf80;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+    font-size: 1.2rem;
+    width: 27.2px;
+    height: 27.2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(13, 207, 128, 0.1);
+    border-radius: 50%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .committee-hero {
+        padding: 150px 0 80px;
+    }
+
+    .committee-hero-title {
+        font-size: 2.5rem;
+    }
+
+    .committee-hero-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .committee-section-title {
+        font-size: 1.75rem;
+    }
+
+    .committee-section-title-large {
+        font-size: 2rem;
+    }
+
+    .committee-member-name {
+        font-size: 1.1rem;
+    }
+
+    .committee-member-item {
+        font-size: 1rem;
+    }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.committee-section {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Section Type Specific Styles */
+[data-section-type="LocalOrganizing"] {
+    background: linear-gradient(150deg, #198fd9 0%, #198fd9 25%);
+    padding: 55px 30px;
+    border-radius: 10px;
+    margin-top: 20px;
+    margin-bottom: 90px;
+}
+
+[data-section-type="LocalOrganizing"] .committee-section-title-large {
+    color: #ffffff;
+}
+
+/* Slant separator effect */
+.committee-slant-separator {
+    width: 100%;
+    height: 70px;
+    background: #ffffff;
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+}
+
+.committee-slant-separator::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(to bottom right, transparent 49%, #ffffff 50%);
+    transform: translateY(-30px);
+}
+
+/* Image frame with liftup effect */
+.committee-image-frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.committee-image-frame:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive image containers */
+.committee-image-container {
+    display: inline-block;
+    width: 300px;
+    max-width: 100%;
+}
+
