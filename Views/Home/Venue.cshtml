@@ -1,0 +1,190 @@
+@{
+    ViewData["Title"] = "Venue";
+    var location = ViewBag.Location as SciSubmit.Models.Conference.ConferenceLocation;
+}
+
+<!-- Venue Hero Section -->
+<section class="venue-hero-section position-relative" style="background-image: url('https://images.pexels.com/photos/2093323/pexels-photo-2093323.jpeg'); background-size: cover; background-position: center; min-height: 400px;">
+    <!-- Dark Overlay -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0, 0, 0, 0.6); z-index: 1;"></div>
+    
+    <!-- Circuit Board Pattern Overlay -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;100&quot; height=&quot;100&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cpath d=&quot;M0 0h100v100H0z&quot; fill=&quot;%23000&quot;/%3E%3Cg fill=&quot;none&quot; stroke=&quot;%233b82f6&quot; stroke-width=&quot;0.5&quot; opacity=&quot;0.3&quot;%3E%3Cpath d=&quot;M20 20h60v60H20z&quot;/%3E%3Cpath d=&quot;M30 30h40v40H30z&quot;/%3E%3Ccircle cx=&quot;50&quot; cy=&quot;50&quot; r=&quot;2&quot; fill=&quot;%23f59e0b&quot;/%3E%3C/g%3E%3C/svg%3E'); opacity: 0.2; z-index: 2;"></div>
+    
+    <div class="container position-relative" style="z-index: 3; padding-top: 120px; padding-bottom: 80px;">
+        <div class="text-center">
+            <h1 class="text-white mb-0" style="font-size: 4rem; font-weight: 700; text-shadow: 2px 2px 8px rgba(0,0,0,0.5);">
+                Venue
+            </h1>
+        </div>
+    </div>
+</section>
+
+<!-- Venue Content Section -->
+<section class="section bg-white position-relative" style="padding-top: 60px; padding-bottom: 60px;">
+    <div class="container">
+        <!-- Venue Title -->
+        <div class="mb-5">
+            <h2 class="mb-4" style="font-size: 2.5rem; font-weight: 700; color: #1e293b;">
+                International Conference Hall
+            </h2>
+            
+            <!-- Venue Details -->
+            <div class="venue-details">
+                <div class="venue-detail-item mb-3">
+                    <i class="fas fa-graduation-cap me-3" style="color: #dc2626; font-size: 1.5rem;"></i>
+                    <span style="font-size: 1.1rem; color: #334155;">
+                        @if (location != null && !string.IsNullOrEmpty(location.City) && !string.IsNullOrEmpty(location.Country))
+                        {
+                            <text>@(location.City), @(location.Country)</text>
+                        }
+                        else
+                        {
+                            <text>Ba Na Hills, Danang, Vietnam</text>
+                        }
+                    </span>
+                </div>
+                
+                <div class="venue-detail-item">
+                    <i class="fas fa-map-marker-alt me-3" style="color: #dc2626; font-size: 1.5rem;"></i>
+                    <span style="font-size: 1.1rem; color: #334155;">
+                        @if (location != null && !string.IsNullOrEmpty(location.Address))
+                        {
+                            <text>@location.Address</text>
+                        }
+                        else
+                        {
+                            <text>An Son Village, Ba Na Commune, Danang City</text>
+                        }
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Map Section - Full Width, No Card -->
+        <div class="venue-map-container" style="width: 100%; height: 600px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+            <div id="venueMapContainer" style="width: 100%; height: 100%; position: relative;">
+                <div id="venueMapPlaceholder" class="d-flex align-items-center justify-content-center h-100" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%); z-index: 10;">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h5 class="mb-2">Loading map...</h5>
+                        <p class="mb-0 text-muted">Using OpenStreetMap</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <!-- OpenStreetMap with Leaflet.js -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let venueMap = null;
+        let venueMarker = null;
+
+        function initializeVenueMap() {
+            const mapContainer = document.getElementById('venueMapContainer');
+            const mapPlaceholder = document.getElementById('venueMapPlaceholder');
+            
+            if (!mapContainer) return;
+            
+            // Wait for Leaflet to load
+            if (typeof L === 'undefined') {
+                setTimeout(() => initializeVenueMap(), 500);
+                return;
+            }
+
+            // Get location data
+            const locationData = @Html.Raw(Json.Serialize(new {
+                name = location?.Name ?? "International Conference Hall",
+                address = location?.Address ?? "An Son Village, Ba Na Commune, Danang City",
+                city = location?.City ?? "Danang",
+                country = location?.Country ?? "Vietnam",
+                latitude = location?.Latitude,
+                longitude = location?.Longitude
+            }));
+
+            let mapCenter;
+            
+            if (locationData.latitude && locationData.longitude) {
+                const lat = parseFloat(locationData.latitude);
+                const lng = parseFloat(locationData.longitude);
+                
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    mapCenter = [lat, lng];
+                } else {
+                    // Default to Ba Na Hills
+                    mapCenter = [15.9981, 107.9992];
+                }
+            } else {
+                // Default to Ba Na Hills, Danang
+                mapCenter = [15.9981, 107.9992];
+            }
+
+            // Hide placeholder
+            if (mapPlaceholder) {
+                mapPlaceholder.style.display = 'none';
+            }
+
+            // Create map element
+            const mapDiv = document.createElement('div');
+            mapDiv.id = 'venueMapDiv';
+            mapDiv.style.width = '100%';
+            mapDiv.style.height = '100%';
+            mapContainer.appendChild(mapDiv);
+
+            // Initialize map
+            venueMap = L.map(mapDiv, {
+                zoomControl: true,
+                attributionControl: true
+            }).setView(mapCenter, 15);
+
+            // Add OpenStreetMap tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            }).addTo(venueMap);
+
+            // Add marker
+            const customIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            const locationName = locationData.name || 'International Conference Hall';
+            const locationAddress = locationData.address || `${locationData.city}, ${locationData.country}`;
+
+            venueMarker = L.marker(mapCenter, { icon: customIcon })
+                .addTo(venueMap)
+                .bindPopup(`<strong>${escapeHtml(locationName)}</strong><br>${escapeHtml(locationAddress)}`)
+                .openPopup();
+
+            // Force map to invalidate size
+            setTimeout(() => {
+                if (venueMap) {
+                    venueMap.invalidateSize();
+                }
+            }, 100);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeVenueMap();
+        });
+    </script>
+}
+

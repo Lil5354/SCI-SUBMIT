@@ -336,6 +336,21 @@ namespace SciSubmit.Controllers
             }
         }
 
+        public async Task<IActionResult> Venue()
+        {
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            var conferenceLocation = await _context.ConferenceLocations
+                .Where(l => l.ConferenceId == (activeConference != null ? activeConference.Id : 0) && l.IsActive)
+                .FirstOrDefaultAsync();
+
+            ViewBag.Location = conferenceLocation;
+            ViewBag.GoogleMapsApiKey = HttpContext.RequestServices.GetRequiredService<IConfiguration>()["GoogleMaps:ApiKey"] ?? "";
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();

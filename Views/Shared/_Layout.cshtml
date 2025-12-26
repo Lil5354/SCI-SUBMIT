@@ -17,12 +17,15 @@
     <link rel="stylesheet" href="~/SciSubmit.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
     <!-- Home page enhanced styles - Load last to override site.css -->
-    @if (ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index")
+    @if (ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && (ViewContext.RouteData.Values["action"]?.ToString() == "Index" || ViewContext.RouteData.Values["action"]?.ToString() == "Venue"))
     {
         <link rel="stylesheet" href="~/css/home-enhanced.css" asp-append-version="true" />
-        <link rel="stylesheet" href="~/css/home-animations.css" asp-append-version="true" />
-        <link rel="stylesheet" href="~/css/timeline.css" asp-append-version="true" />
-        <link rel="stylesheet" href="~/css/conference-nav.css" asp-append-version="true" />
+        @if (ViewContext.RouteData.Values["action"]?.ToString() == "Index")
+        {
+            <link rel="stylesheet" href="~/css/home-animations.css" asp-append-version="true" />
+            <link rel="stylesheet" href="~/css/timeline.css" asp-append-version="true" />
+            <link rel="stylesheet" href="~/css/conference-nav.css" asp-append-version="true" />
+        }
     }
     <!-- Font Awesome Icons -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -104,7 +107,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#venue">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Venue" ? "active" : "")" asp-controller="Home" asp-action="Venue">
                                 Venue
                             </a>
                         </li>
