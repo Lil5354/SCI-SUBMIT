@@ -93,6 +93,8 @@ builder.Services.AddScoped<IMomoService, MomoService>();
 builder.Services.AddScoped<IExportService, ExportService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<ISmsService, SmsService>();
+builder.Services.AddScoped<ISubmissionService, SubmissionService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 
 // HttpClient for external APIs
 builder.Services.AddHttpClient<MomoService>();

@@ -1,7 +1,9 @@
 @{
     ViewData["Title"] = "Kết quả phản biện";
+    ViewData["HideMainHeader"] = true;
     var submissionId = ViewData["SubmissionId"] ?? 0;
 }
+@await Html.PartialAsync("_AuthorNavHeader")
 
 <div class="container my-5">
     <!-- Header -->

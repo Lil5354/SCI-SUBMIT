@@ -43,6 +43,8 @@
     var isAuthPage = controller == "Account" && (action == "Login" || action == "Register");
 }
 <body class="d-flex flex-column @(isAuthPage ? "" : "min-vh-100")">
+    @if (ViewData["HideMainHeader"] as bool? != true)
+    {
     <header class="sticky-top">
         <nav class="navbar navbar-expand-lg navbar-dark gradient-primary shadow-lg">
             <div class="container">
@@ -76,6 +78,11 @@
                                 For authors
                             </a>
                             <ul class="dropdown-menu conference-dropdown" aria-labelledby="forAuthorsDropdown">
+                                @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Author") || User.IsInRole("Admin")))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Submission" asp-action="Dashboard"><i class="fas fa-tachometer-alt me-2"></i>Author Dashboard</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                }
                                 <li><a class="dropdown-item" href="#submission-guidelines">Submission Guidelines and Template</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="#accepted-papers">Accepted papers</a></li>
@@ -110,6 +117,16 @@
                                 <span>Account</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="userDropdown">
+                                @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Author") || User.IsInRole("Admin")))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Submission" asp-action="Dashboard"><i class="fas fa-tachometer-alt me-2"></i>Author Dashboard</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                }
+                                @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard"><i class="fas fa-cog me-2"></i>Admin Dashboard</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                }
                                 <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="fas fa-user me-2"></i>Profile</a></li>
                                 <li><a class="dropdown-item" asp-controller="Account" asp-action="Settings"><i class="fas fa-cog me-2"></i>Settings</a></li>
                                 <li><hr class="dropdown-divider"></li>
@@ -136,6 +153,7 @@
             </div>
         </nav>
     </header>
+    }
 
     <main role="main" class="flex-grow-1">
         @RenderBody()

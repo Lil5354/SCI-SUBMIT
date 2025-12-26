@@ -55,4 +55,68 @@
   gap: 0.25rem !important;
 }
 
+/* ========================================
+   REVIEWER CELL LAYOUT FIX
+   Fix badge overlapping email issue
+   ======================================== */
+
+/* Reviewer cell container - use flexbox for proper spacing */
+.reviewer-cell {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  min-height: fit-content !important;
+  width: 100% !important;
+}
+
+/* Reviewer name row - ensure proper spacing */
+.reviewer-name-row {
+  display: block !important;
+  margin-bottom: 10px !important;
+  line-height: 1.6 !important;
+  min-height: 24px !important;
+}
+
+.reviewer-name-row strong {
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
+/* Reviewer email row - ensure it's below name with proper spacing */
+.reviewer-email-row {
+  display: block !important;
+  margin-top: 0 !important;
+  line-height: 1.5 !important;
+  padding-top: 0 !important;
+  clear: both !important;
+}
+
+/* Ensure badge in reviewer cell doesn't overflow */
+.reviewer-cell .badge {
+  vertical-align: middle !important;
+  margin-left: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Additional fix for table cells containing reviewer info */
+table.table tbody td:has(.reviewer-cell),
+table.table tbody td:first-child {
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+  line-height: 1.6 !important;
+  vertical-align: top !important;
+  min-height: 70px !important;
+}
+
+/* Ensure table cells have proper spacing to prevent overlap */
+table.table tbody td {
+  padding: 12px !important;
+  vertical-align: middle !important;
+}
+
+/* Prevent any badge from appearing in reviewer cell */
+.reviewer-cell .badge {
+  display: none !important;
+}
+
 

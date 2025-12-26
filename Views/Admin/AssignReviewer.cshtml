@@ -37,7 +37,16 @@
                 </h2>
                 @if (submission != null)
                 {
-                    <p class="text-muted mb-0">Select Reviewer for paper: <strong>@submission.Title</strong></p>
+                    <p class="text-muted mb-0">
+                        @if (submission.Status == SciSubmit.Models.Enums.SubmissionStatus.PendingAbstractReview)
+                        {
+                            <text>Phân công phản biện cho tóm tắt: <strong>@submission.Title</strong></text>
+                        }
+                        else
+                        {
+                            <text>Select Reviewer for paper: <strong>@submission.Title</strong></text>
+                        }
+                    </p>
                 }
                 else
                 {

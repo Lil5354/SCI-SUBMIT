@@ -196,6 +196,8 @@ namespace SciSubmit.Services
                 .Include(s => s.SubmissionKeywords)
                     .ThenInclude(sk => sk.Keyword)
                 .Include(s => s.FullPaperVersions)
+                .Include(s => s.ReviewAssignments)
+                    .ThenInclude(ra => ra.Reviewer)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (submission == null)
@@ -247,7 +249,8 @@ namespace SciSubmit.Services
                     }).ToList(),
                 CanApproveAbstract = submission.Status == SubmissionStatus.PendingAbstractReview,
                 CanRejectAbstract = submission.Status == SubmissionStatus.PendingAbstractReview,
-                CanAssignReviewer = submission.Status == SubmissionStatus.AbstractApproved ||
+                CanAssignReviewer = submission.Status == SubmissionStatus.PendingAbstractReview || // Allow assigning reviewer for abstract review
+                                   submission.Status == SubmissionStatus.AbstractApproved ||
                                    submission.Status == SubmissionStatus.FullPaperSubmitted ||
                                    submission.Status == SubmissionStatus.UnderReview
             };
@@ -260,6 +263,23 @@ namespace SciSubmit.Services
             
             viewModel.CanMakeFinalDecision = hasCompletedReviews && 
                                             submission.Status == SubmissionStatus.UnderReview;
+
+            // Load review assignments
+            viewModel.ReviewAssignments = submission.ReviewAssignments
+                .OrderByDescending(ra => ra.InvitedAt)
+                .Select(ra => new ReviewAssignmentInfoViewModel
+                {
+                    Id = ra.Id,
+                    ReviewerName = ra.Reviewer != null ? ra.Reviewer.FullName : "N/A",
+                    ReviewerEmail = ra.Reviewer != null ? ra.Reviewer.Email : "N/A",
+                    Status = ra.Status.ToString(),
+                    InvitedAt = ra.InvitedAt,
+                    Deadline = ra.Deadline,
+                    AcceptedAt = ra.AcceptedAt,
+                    RejectedAt = ra.RejectedAt,
+                    CompletedAt = ra.CompletedAt,
+                    RejectionReason = ra.RejectionReason
+                }).ToList();
 
             return viewModel;
         }
@@ -517,8 +537,10 @@ namespace SciSubmit.Services
             }
 
             // Check if submission is in valid status for assignment
+            // Allow assignment for: PendingAbstractReview (abstract review), AbstractApproved, FullPaperSubmitted, UnderReview
             var validStatuses = new[] 
             { 
+                Models.Enums.SubmissionStatus.PendingAbstractReview, // Allow reviewer assignment for abstract review
                 Models.Enums.SubmissionStatus.AbstractApproved,
                 Models.Enums.SubmissionStatus.FullPaperSubmitted,
                 Models.Enums.SubmissionStatus.UnderReview
@@ -570,12 +592,14 @@ namespace SciSubmit.Services
             _context.ReviewAssignments.Add(assignment);
 
             // Update submission status if needed
-            // Only update to UnderReview if not already UnderReview
+            // For PendingAbstractReview: Keep status as is (reviewer will review abstract)
+            // For AbstractApproved or FullPaperSubmitted: Update to UnderReview
             if (submission.Status == Models.Enums.SubmissionStatus.AbstractApproved ||
                 submission.Status == Models.Enums.SubmissionStatus.FullPaperSubmitted)
             {
                 submission.Status = Models.Enums.SubmissionStatus.UnderReview;
             }
+            // Note: If status is PendingAbstractReview, we keep it as is so admin can still see it needs abstract review
 
             // Create email notification
             var emailNotification = new Models.Notification.EmailNotification
@@ -967,6 +991,40 @@ namespace SciSubmit.Services
             return true;
         }
 
+        public async Task<bool> UpdateUserAsync(UpdateUserViewModel model)
+        {
+            var user = await _context.Users.FindAsync(model.Id);
+            if (user == null)
+            {
+                return false;
+            }
+
+            // Check if email is being changed and if new email already exists
+            if (user.Email.ToLower() != model.Email.ToLower())
+            {
+                var emailExists = await _context.Users
+                    .AnyAsync(u => u.Email.ToLower() == model.Email.ToLower() && u.Id != model.Id);
+                
+                if (emailExists)
+                {
+                    return false; // Email already exists
+                }
+            }
+
+            // Update user properties
+            user.Email = model.Email;
+            user.FullName = model.FullName;
+            user.PhoneNumber = model.PhoneNumber;
+            user.Affiliation = model.Affiliation;
+            user.Role = model.Role;
+            user.EmailConfirmed = model.EmailConfirmed;
+            user.IsActive = model.IsActive;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<bool> UpdateUserRoleAsync(int userId, string newRole)
         {
             if (!Enum.TryParse<Models.Enums.UserRole>(newRole, out var role))
@@ -981,6 +1039,21 @@ namespace SciSubmit.Services
             }
 
             user.Role = role;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> ActivateUserAsync(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.IsActive = true;
             user.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 

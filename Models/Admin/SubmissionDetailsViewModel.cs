@@ -22,6 +22,21 @@ namespace SciSubmit.Models.Admin
         public bool CanRejectAbstract { get; set; }
         public bool CanAssignReviewer { get; set; }
         public bool CanMakeFinalDecision { get; set; }
+        public List<ReviewAssignmentInfoViewModel> ReviewAssignments { get; set; } = new();
+    }
+
+    public class ReviewAssignmentInfoViewModel
+    {
+        public int Id { get; set; }
+        public string ReviewerName { get; set; } = string.Empty;
+        public string ReviewerEmail { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime InvitedAt { get; set; }
+        public DateTime Deadline { get; set; }
+        public DateTime? AcceptedAt { get; set; }
+        public DateTime? RejectedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public string? RejectionReason { get; set; }
     }
 
     public class AuthorInfoViewModel
@@ -43,6 +58,9 @@ namespace SciSubmit.Models.Admin
         public bool IsCurrentVersion { get; set; }
     }
 }
+
+
+
 
 
 

@@ -143,8 +143,14 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="@Url.Action("Submissions")" class="btn btn-outline-success w-100 text-start">
-                            <i class="fas fa-list me-2"></i>Manage Submissions
+                        <a href="@Url.Action("AbstractSubmissions")" class="btn btn-outline-success w-100 text-start">
+                            <i class="fas fa-file-alt me-2"></i>Duyệt Tóm Tắt (Abstract Review)
+                        </a>
+                        <a href="@Url.Action("FullPaperSubmissions")" class="btn btn-outline-success w-100 text-start">
+                            <i class="fas fa-file-pdf me-2"></i>Duyệt Bài Đầy Đủ (Full Paper Review)
+                        </a>
+                        <a href="@Url.Action("Submissions")" class="btn btn-outline-secondary w-100 text-start">
+                            <i class="fas fa-list me-2"></i>Tất cả Submissions
                         </a>
                         <a href="@Url.Action("Assignments")" class="btn btn-outline-success w-100 text-start">
                             <i class="fas fa-user-tie me-2"></i>Assign Reviewers
@@ -201,15 +207,39 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <!-- 1. Manage Submissions -->
+                        <!-- 1. Duyệt Tóm Tắt -->
+                        <div class="col-md-3 col-sm-6">
+                            <a href="@Url.Action("AbstractSubmissions")" class="card text-decoration-none border h-100 hover-shadow">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="fas fa-file-alt fa-2x text-primary"></i>
+                                    </div>
+                                    <h6 class="card-title mb-0">Duyệt Tóm Tắt</h6>
+                                    <small class="text-muted">Abstract Review</small>
+                                </div>
+                            </a>
+                        </div>
+                        <!-- 2. Duyệt Bài Đầy Đủ -->
+                        <div class="col-md-3 col-sm-6">
+                            <a href="@Url.Action("FullPaperSubmissions")" class="card text-decoration-none border h-100 hover-shadow">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="fas fa-file-pdf fa-2x text-danger"></i>
+                                    </div>
+                                    <h6 class="card-title mb-0">Duyệt Bài Đầy Đủ</h6>
+                                    <small class="text-muted">Full Paper Review</small>
+                                </div>
+                            </a>
+                        </div>
+                        <!-- 3. Tất cả Submissions -->
                         <div class="col-md-3 col-sm-6">
                             <a href="@Url.Action("Submissions")" class="card text-decoration-none border h-100 hover-shadow">
                                 <div class="card-body text-center">
                                     <div class="mb-3">
                                         <i class="fas fa-list fa-2x text-success"></i>
                                     </div>
-                                    <h6 class="card-title mb-0">Manage Submissions</h6>
-                                    <small class="text-muted">List, filter, pagination</small>
+                                    <h6 class="card-title mb-0">Tất cả Submissions</h6>
+                                    <small class="text-muted">All submissions</small>
                                 </div>
                             </a>
                         </div>

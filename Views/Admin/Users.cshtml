@@ -131,6 +131,9 @@
                                     <td class="text-center">@user.ReviewAssignmentCount</td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-1">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="editUser(@user.Id)" title="Chỉnh sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
                                             @if (user.Role != "Admin")
                                             {
                                                 <select class="form-select form-select-sm" style="width: auto;" onchange="updateRole(@user.Id, this.value)">
@@ -145,8 +148,17 @@
                                             {
                                                 <form method="post" action="@Url.Action("DeactivateUser", new { userId = user.Id })" class="d-inline">
                                                     @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to deactivate this user?');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to deactivate this user?');" title="Vô hiệu hóa">
                                                         <i class="fas fa-ban"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <form method="post" action="@Url.Action("ActivateUser", new { userId = user.Id })" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Are you sure you want to activate this user?');" title="Kích hoạt">
+                                                        <i class="fas fa-check-circle"></i>
                                                     </button>
                                                 </form>
                                             }
@@ -191,8 +203,114 @@
     </div>
 </div>
 
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editUserModalLabel">
+                    <i class="fas fa-user-edit me-2"></i>Chỉnh sửa người dùng
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editUserForm">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <input type="hidden" id="editUserId" name="Id" />
+                    <div id="editUserError" class="alert alert-danger" style="display: none;"></div>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="editFullName" class="form-label fw-semibold">Họ tên <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editFullName" name="FullName" required maxlength="255">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="editEmail" class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="editEmail" name="Email" required maxlength="255">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="editPhoneNumber" class="form-label fw-semibold">Số điện thoại</label>
+                            <input type="text" class="form-control" id="editPhoneNumber" name="PhoneNumber" maxlength="20">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="editAffiliation" class="form-label fw-semibold">Đơn vị</label>
+                            <input type="text" class="form-control" id="editAffiliation" name="Affiliation" maxlength="500">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="editRole" class="form-label fw-semibold">Vai trò <span class="text-danger">*</span></label>
+                            <select class="form-select" id="editRole" name="Role" required>
+                                @foreach (var role in roleOptions)
+                                {
+                                    <option value="@role">@role</option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Trạng thái</label>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="editIsActive" name="IsActive" checked>
+                                <label class="form-check-label" for="editIsActive">Kích hoạt</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Xác nhận email</label>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="editEmailConfirmed" name="EmailConfirmed" checked>
+                                <label class="form-check-label" for="editEmailConfirmed">Đã xác nhận</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary" id="editUserSubmitBtn">
+                        <i class="fas fa-save me-2"></i>Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        function editUser(userId) {
+            // Load user data
+            $.ajax({
+                url: '@Url.Action("GetUser", "Admin")',
+                type: 'GET',
+                data: { id: userId },
+                success: function(response) {
+                    if (response.success) {
+                        var user = response.user;
+                        $('#editUserId').val(user.id);
+                        $('#editFullName').val(user.fullName);
+                        $('#editEmail').val(user.email);
+                        $('#editPhoneNumber').val(user.phoneNumber || '');
+                        $('#editAffiliation').val(user.affiliation || '');
+                        $('#editRole').val(user.role);
+                        $('#editIsActive').prop('checked', user.isActive);
+                        $('#editEmailConfirmed').prop('checked', user.emailConfirmed);
+                        
+                        // Show modal
+                        var modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+                        modal.show();
+                    } else {
+                        alert('Không thể tải thông tin người dùng.');
+                    }
+                },
+                error: function() {
+                    alert('Lỗi khi tải thông tin người dùng.');
+                }
+            });
+        }
+
         function updateRole(userId, newRole) {
             if (confirm('Are you sure you want to change this user\'s role?')) {
                 var form = document.createElement('form');
@@ -221,6 +339,69 @@
                 form.submit();
             }
         }
+
+        // Handle edit user form submit
+        $('#editUserForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            // Hide previous errors
+            $('#editUserError').hide();
+            
+            // Get form data
+            var formData = {
+                Id: $('#editUserId').val(),
+                FullName: $('#editFullName').val(),
+                Email: $('#editEmail').val(),
+                PhoneNumber: $('#editPhoneNumber').val() || null,
+                Affiliation: $('#editAffiliation').val() || null,
+                Role: $('#editRole').val(),
+                IsActive: $('#editIsActive').is(':checked'),
+                EmailConfirmed: $('#editEmailConfirmed').is(':checked'),
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            };
+            
+            // Validate required fields
+            if (!formData.FullName || !formData.Email || !formData.Role) {
+                $('#editUserError').text('Vui lòng điền đầy đủ các trường bắt buộc.').show();
+                return;
+            }
+            
+            // Disable submit button
+            var submitBtn = $('#editUserSubmitBtn');
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Đang lưu...');
+            
+            // Submit via AJAX
+            $.ajax({
+                url: '@Url.Action("UpdateUser", "Admin")',
+                type: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                data: formData,
+                success: function(response) {
+                    // Close modal
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+                    modal.hide();
+                    
+                    // Reload page to show updated data
+                    location.reload();
+                },
+                error: function(xhr) {
+                    var errorMsg = 'Không thể cập nhật thông tin người dùng.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    } else if (xhr.responseText) {
+                        // Try to extract error from response
+                        var match = xhr.responseText.match(/ErrorMessage["\s]*:["\s]*([^"<]+)/i);
+                        if (match) {
+                            errorMsg = match[1];
+                        }
+                    }
+                    $('#editUserError').text(errorMsg).show();
+                    submitBtn.prop('disabled', false).html('<i class="fas fa-save me-2"></i>Lưu thay đổi');
+                }
+            });
+        });
 
         // Auto-hide alerts after 5 seconds
         setTimeout(function() {

@@ -1,6 +1,8 @@
 @{
     ViewData["Title"] = "Submit Abstract";
+    ViewData["HideMainHeader"] = true;
 }
+@await Html.PartialAsync("_AuthorNavHeader")
 
 <div class="container my-5">
     <div class="row justify-content-center">
@@ -95,15 +97,18 @@
                             <label class="form-label fw-semibold">
                                 <i class="fas fa-list me-2 text-primary"></i>Topic <span class="text-danger">*</span>
                             </label>
-                            <select id="topicSelect" name="Topic" class="form-select form-select-lg" required>
+                            <select id="topicSelect" name="TopicId" class="form-select form-select-lg" required>
                                 <option value="">-- Select Topic --</option>
-                                <option value="Kinh tế">Kinh tế</option>
-                                <option value="Tài chính & Kế toán">Tài chính & Kế toán</option>
-                                <option value="Thương mại">Thương mại</option>
-                                <option value="Quản trị kinh doanh">Quản trị kinh doanh</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Du lịch & Môi trường">Du lịch & Môi trường</option>
-                                <option value="Tích hợp quốc tế">Tích hợp quốc tế</option>
+                                @if (ViewData["Topics"] != null)
+                                {
+                                    var topics = ViewData["Topics"] as List<SciSubmit.Models.Content.Topic>;
+                                    var model = ViewData["Model"] as SciSubmit.Models.Submission.AbstractSubmissionViewModel;
+                                    @foreach (var topic in topics ?? new List<SciSubmit.Models.Content.Topic>())
+                                    {
+                                        var isSelected = model != null && model.TopicId == topic.Id;
+                                        <option value="@topic.Id" selected="@isSelected">@topic.Name</option>
+                                    }
+                                }
                             </select>
                             <small class="form-text text-muted mt-1"><i class="fas fa-info-circle me-1"></i>Topic is defined by Admin</small>
                             <span class="text-danger small" id="topicError"></span>
@@ -133,11 +138,11 @@
                                 <div class="text-center py-4">
                                     <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
                                     <h6>Drag and drop file here or click to select</h6>
-                                    <p class="text-muted mb-0">PDF, DOCX (Max 10MB)</p>
+                                    <p class="text-muted mb-0">DOC, DOCX (Max 10MB)</p>
                                 </div>
                             </div>
                             <input type="file" id="fileInput" name="SupportFile" class="d-none" 
-                                   accept=".pdf,.doc,.docx" />
+                                   accept=".doc,.docx" />
                             <div id="fileList" class="mt-3"></div>
                             <small class="form-text text-muted"><i class="fas fa-info-circle me-1"></i>Support file is optional</small>
                         </div>
@@ -206,11 +211,72 @@
             // Manual save draft button
             document.getElementById('btnSaveDraft')?.addEventListener('click', saveDraft);
 
-            // Form submission
-            document.getElementById('submissionForm')?.addEventListener('submit', function(e) {
+            // Form submission - Convert to AJAX
+            document.getElementById('submissionForm')?.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
                 if (!validateForm()) {
-                    e.preventDefault();
                     return false;
+                }
+
+                const submitButton = document.getElementById('btnSubmit');
+                const originalText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+
+                try {
+                    const formData = new FormData();
+                    
+                    // Add basic fields
+                    formData.append('Title', document.getElementById('titleInput')?.value || '');
+                    formData.append('Abstract', document.getElementById('abstractInput')?.value || '');
+                    formData.append('TopicId', document.getElementById('topicSelect')?.value || '');
+                    
+                    // Add authors with indexed notation for model binding
+                    authors.forEach((author, index) => {
+                        formData.append(`Authors[${index}].FullName`, author.fullName || '');
+                        formData.append(`Authors[${index}].Email`, author.email || '');
+                        formData.append(`Authors[${index}].Affiliation`, author.affiliation || '');
+                        formData.append(`Authors[${index}].IsCorrespondingAuthor`, author.isCorresponding ? 'true' : 'false');
+                    });
+                    
+                    // Add keywords with indexed notation
+                    keywords.forEach((keyword, index) => {
+                        formData.append(`Keywords[${index}]`, keyword);
+                    });
+                    
+                    // Add file if exists
+                    const fileInput = document.getElementById('fileInput');
+                    if (fileInput?.files[0]) {
+                        formData.append('SupportFile', fileInput.files[0]);
+                    }
+                    
+                    // Get anti-forgery token
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                    if (token) {
+                        formData.append('__RequestVerificationToken', token);
+                    }
+
+                    const response = await fetch('@Url.Action("Submit", "Submission")', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert(result.message || 'Đã nộp bài thành công!');
+                        window.location.href = '@Url.Action("Index", "Submission")';
+                    } else {
+                        alert('Lỗi: ' + (result.errors?.join(', ') || result.message || 'Không thể nộp bài'));
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalText;
+                    }
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    alert('Có lỗi xảy ra khi nộp bài. Vui lòng thử lại.');
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalText;
                 }
             });
         });
@@ -429,19 +495,30 @@
             const file = e.target.files[0];
             if (!file) return;
 
+            // Validate file type (only DOC/DOCX)
+            const allowedExtensions = ['.doc', '.docx'];
+            const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+            if (!allowedExtensions.includes(fileExtension)) {
+                alert('Chỉ chấp nhận file DOC hoặc DOCX');
+                this.value = '';
+                return;
+            }
+
+            // Validate file size
             if (file.size > 10 * 1024 * 1024) {
-                alert('File cannot exceed 10MB');
+                alert('File không được vượt quá 10MB');
                 this.value = '';
                 return;
             }
 
             const fileListDiv = document.getElementById('fileList');
+            const fileIcon = fileExtension === '.docx' ? 'fa-file-word text-primary' : 'fa-file-alt text-primary';
             fileListDiv.innerHTML = `
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <i class="fas fa-file-pdf text-danger me-2"></i>
+                                <i class="fas ${fileIcon} me-2"></i>
                                 <strong>${file.name}</strong>
                                 <span class="text-muted ms-2">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
                             </div>
@@ -466,18 +543,59 @@
             }
         }
 
-        function saveDraft(isAuto = false) {
-            const formData = collectFormData();
+        async function saveDraft(isAuto = false) {
+            const formDataObj = collectFormData();
             
-            // TODO: Send to server via AJAX
-            // For now, just save to localStorage
-            localStorage.setItem('submissionDraft', JSON.stringify(formData));
-            lastSaveTime = new Date();
+            // Also save to localStorage as backup
+            localStorage.setItem('submissionDraft', JSON.stringify(formDataObj));
+            
+            // Send to server via AJAX
+            try {
+                const formData = new FormData();
+                formData.append('Title', formDataObj.title);
+                formData.append('Abstract', formDataObj.abstract);
+                formData.append('TopicId', formDataObj.topicId);
+                formData.append('Keywords', JSON.stringify(formDataObj.keywords));
+                formData.append('Authors', JSON.stringify(formDataObj.authors));
+                formData.append('IsDraft', 'true');
+                
+                // Add file if exists
+                const fileInput = document.getElementById('fileInput');
+                if (fileInput?.files[0]) {
+                    formData.append('SupportFile', fileInput.files[0]);
+                }
 
-            if (!isAuto) {
-                showAutoSaveMessage('Draft saved successfully!', 'success');
-            } else {
-                showAutoSaveMessage('Auto-saved draft', 'info');
+                const response = await fetch('@Url.Action("SaveDraft", "Submission")', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    lastSaveTime = new Date();
+                    if (!isAuto) {
+                        showAutoSaveMessage('Draft saved successfully!', 'success');
+                    } else {
+                        showAutoSaveMessage('Auto-saved draft', 'info');
+                    }
+                    console.log('Draft saved to server. SubmissionId:', result.submissionId);
+                } else {
+                    console.error('Error saving draft:', result.errors);
+                    if (!isAuto) {
+                        showAutoSaveMessage('Error saving draft', 'danger');
+                    }
+                }
+            } catch (error) {
+                console.error('Error saving draft:', error);
+                // Still save to localStorage even if server fails
+                lastSaveTime = new Date();
+                if (!isAuto) {
+                    showAutoSaveMessage('Draft saved locally (server error)', 'warning');
+                }
             }
         }
 
@@ -486,7 +604,7 @@
                 title: document.getElementById('titleInput')?.value || '',
                 abstract: document.getElementById('abstractInput')?.value || '',
                 keywords: keywords,
-                topic: document.getElementById('topicSelect')?.value || '',
+                topicId: parseInt(document.getElementById('topicSelect')?.value || '0'),
                 authors: authors.map(a => ({
                     fullName: a.fullName,
                     email: a.email,
@@ -543,8 +661,8 @@
             }
 
             // Validate topic
-            const topic = document.getElementById('topicSelect')?.value;
-            if (!topic) {
+            const topicId = parseInt(document.getElementById('topicSelect')?.value || '0');
+            if (!topicId || topicId === 0) {
                 document.getElementById('topicError').textContent = 'Please select a topic';
                 isValid = false;
             }
@@ -586,7 +704,7 @@
         function loadDraft(data) {
             if (data.title) document.getElementById('titleInput').value = data.title;
             if (data.abstract) document.getElementById('abstractInput').value = data.abstract;
-            if (data.topic) document.getElementById('topicSelect').value = data.topic;
+            if (data.topicId) document.getElementById('topicSelect').value = data.topicId;
             if (data.keywords && data.keywords.length > 0) {
                 keywords = data.keywords;
                 updateKeywordsDisplay();

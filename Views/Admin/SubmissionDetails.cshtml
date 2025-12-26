@@ -194,6 +194,101 @@
                     </div>
                 </div>
             }
+
+            <!-- Review Assignments -->
+            @if (Model.ReviewAssignments.Any())
+            {
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Phản biện đã được phân công</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 35%; min-width: 280px;">Reviewer</th>
+                                        <th style="width: 16%; min-width: 140px;" class="text-center">Ngày mời</th>
+                                        <th style="width: 16%; min-width: 140px;" class="text-center">Deadline</th>
+                                        <th style="width: 21%; min-width: 180px;">Thao tác</th>
+                                        <th style="width: 12%; min-width: 120px;" class="text-center">Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var assignment in Model.ReviewAssignments)
+                                    {
+                                        var assignmentStatusBadgeClass = assignment.Status switch
+                                        {
+                                            "Pending" => "bg-warning",
+                                            "Accepted" => "bg-success",
+                                            "Rejected" => "bg-danger",
+                                            "Completed" => "bg-info",
+                                            _ => "bg-secondary"
+                                        };
+                                        var assignmentStatusText = assignment.Status switch
+                                        {
+                                            "Pending" => "Chờ phản hồi",
+                                            "Accepted" => "Đã chấp nhận",
+                                            "Rejected" => "Đã từ chối",
+                                            "Completed" => "Đã hoàn thành",
+                                            _ => assignment.Status
+                                        };
+                                        <tr>
+                                            <td class="align-middle">
+                                                <div class="reviewer-info">
+                                                    <div class="reviewer-name">@assignment.ReviewerName</div>
+                                                    <div class="reviewer-email">@assignment.ReviewerEmail</div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                <div class="date-time-cell">
+                                                    <div class="date-text">@assignment.InvitedAt.ToString("dd/MM/yyyy")</div>
+                                                    <div class="time-text">@assignment.InvitedAt.ToString("HH:mm")</div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                <div class="date-time-cell">
+                                                    <div class="date-text">@assignment.Deadline.ToString("dd/MM/yyyy")</div>
+                                                    <div class="time-text">@assignment.Deadline.ToString("HH:mm")</div>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="action-cell">
+                                                    @if (assignment.AcceptedAt.HasValue)
+                                                    {
+                                                        <small class="text-success d-block mb-1">
+                                                            <i class="fas fa-check me-1"></i>Chấp nhận: @assignment.AcceptedAt.Value.ToString("dd/MM/yyyy HH:mm")
+                                                        </small>
+                                                    }
+                                                    else if (assignment.RejectedAt.HasValue)
+                                                    {
+                                                        <small class="text-danger d-block mb-1">
+                                                            <i class="fas fa-times me-1"></i>Từ chối: @assignment.RejectedAt.Value.ToString("dd/MM/yyyy HH:mm")
+                                                        </small>
+                                                    }
+                                                    @if (assignment.CompletedAt.HasValue)
+                                                    {
+                                                        <small class="text-info d-block">
+                                                            <i class="fas fa-check-circle me-1"></i>Hoàn thành: @assignment.CompletedAt.Value.ToString("dd/MM/yyyy HH:mm")
+                                                        </small>
+                                                    }
+                                                    @if (!assignment.AcceptedAt.HasValue && !assignment.RejectedAt.HasValue && !assignment.CompletedAt.HasValue)
+                                                    {
+                                                        <small class="text-muted">Chờ phản hồi từ reviewer</small>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                <span class="badge @assignmentStatusBadgeClass">@assignmentStatusText</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
 
         <!-- Sidebar Actions -->
@@ -252,9 +347,17 @@
 
                         @if (Model.CanAssignReviewer)
                         {
-                            <a href="@Url.Action("AssignReviewer", new { submissionId = Model.Id })" class="btn btn-outline-primary w-100">
-                                <i class="fas fa-user-tie me-2"></i>Assign Reviewer
-                            </a>
+                            <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#assignReviewerModal" onclick="loadReviewers(@Model.Id)">
+                                <i class="fas fa-user-tie me-2"></i>
+                                @if (Model.Status == "PendingAbstractReview")
+                                {
+                                    <text>Phân công phản biện tóm tắt</text>
+                                }
+                                else
+                                {
+                                    <text>Phân công phản biện</text>
+                                }
+                            </button>
                         }
 
                         @if (Model.CanMakeFinalDecision)
@@ -270,13 +373,426 @@
     </div>
 </div>
 
+@section Styles {
+    <style>
+        /* Reviewer Info - Improved layout */
+        .reviewer-info {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 6px !important;
+            width: 100% !important;
+        }
+        
+        .reviewer-name {
+            font-weight: 600 !important;
+            font-size: 15px !important;
+            color: #212529 !important;
+            line-height: 1.4 !important;
+            margin: 0 !important;
+        }
+        
+        .reviewer-email {
+            font-size: 13px !important;
+            color: #6c757d !important;
+            line-height: 1.4 !important;
+            margin: 0 !important;
+        }
+        
+        /* Date/Time Cell - Split date and time */
+        .date-time-cell {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 2px !important;
+        }
+        
+        .date-text {
+            font-size: 14px !important;
+            color: #212529 !important;
+            font-weight: 500 !important;
+            line-height: 1.4 !important;
+        }
+        
+        .time-text {
+            font-size: 12px !important;
+            color: #6c757d !important;
+            line-height: 1.4 !important;
+        }
+        
+        /* Action Cell */
+        .action-cell {
+            line-height: 1.5 !important;
+        }
+        
+        /* Table improvements - Better alignment and spacing */
+        table.table tbody td {
+            padding: 16px 15px !important;
+            vertical-align: middle !important;
+        }
+        
+        table.table thead th {
+            padding: 12px 15px !important;
+            font-weight: 600 !important;
+            font-size: 13px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+        }
+        
+        /* Ensure proper vertical alignment for all cells */
+        table.table tbody tr td.align-middle {
+            vertical-align: middle !important;
+        }
+        
+        /* Badge improvements */
+        table.table tbody td .badge {
+            padding: 6px 12px !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            white-space: nowrap !important;
+        }
+    </style>
+}
+
 @section Scripts {
     <script>
         // Auto-hide alerts after 5 seconds
         setTimeout(function() {
             $('.alert').fadeOut('slow');
         }, 5000);
+
+        // Load reviewers when modal opens
+        function loadReviewers(submissionId) {
+            $('#assignSubmissionId').val(submissionId);
+            
+            // Update modal title and show appropriate section based on submission status
+            var status = '@Model.Status';
+            var isFullPaper = status !== 'PendingAbstractReview';
+            
+            if (status === 'PendingAbstractReview') {
+                $('#modalTitle').text('Phân công phản biện tóm tắt');
+                $('#singleReviewerSection').show();
+                $('#multipleReviewersSection').hide();
+            } else {
+                $('#modalTitle').text('Phân công phản biện bài đầy đủ');
+                $('#singleReviewerSection').hide();
+                $('#multipleReviewersSection').show();
+            }
+
+            // Reset form
+            $('.reviewer-select').html('<option value="">-- Chọn Reviewer --</option>');
+            $('#reviewDeadline').val('');
+            $('#reviewerDetails').hide();
+            $('#reviewerError').hide();
+
+            // Load available reviewers
+            $.ajax({
+                url: '@Url.Action("GetAvailableReviewers", "Admin")',
+                type: 'GET',
+                data: { submissionId: submissionId },
+                success: function(response) {
+                    if (response.success && response.reviewers) {
+                        // Populate all reviewer selects
+                        $('.reviewer-select').each(function() {
+                            var select = $(this);
+                            select.html('<option value="">-- Chọn Reviewer --</option>');
+                            response.reviewers.forEach(function(reviewer) {
+                                select.append($('<option>', {
+                                    value: reviewer.id,
+                                    text: reviewer.fullName + ' (' + reviewer.email + ')'
+                                }));
+                            });
+                        });
+                    } else {
+                        alert('Không thể tải danh sách reviewer. Vui lòng thử lại.');
+                    }
+                },
+                error: function() {
+                    alert('Lỗi khi tải danh sách reviewer.');
+                }
+            });
+        }
+
+        // Validate reviewers are not duplicated
+        function validateReviewers() {
+            var status = '@Model.Status';
+            if (status === 'PendingAbstractReview') {
+                // Single reviewer validation
+                var reviewerId = $('#reviewerSelect').val();
+                if (!reviewerId) {
+                    $('#reviewerError').text('Vui lòng chọn reviewer.').show();
+                    return false;
+                }
+                $('#reviewerError').hide();
+                return true;
+            } else {
+                // Multiple reviewers validation
+                var reviewerIds = [];
+                var hasValue = false;
+                
+                for (var i = 1; i <= 3; i++) {
+                    var reviewerId = $('#reviewerSelect' + i).val();
+                    if (reviewerId) {
+                        hasValue = true;
+                        if (reviewerIds.includes(reviewerId)) {
+                            $('#reviewerError').text('Các reviewers không được trùng nhau. Vui lòng chọn 3 reviewers khác nhau.').show();
+                            return false;
+                        }
+                        reviewerIds.push(reviewerId);
+                    }
+                }
+                
+                if (!hasValue) {
+                    $('#reviewerError').text('Vui lòng chọn ít nhất một reviewer.').show();
+                    return false;
+                }
+                
+                if (reviewerIds.length < 3) {
+                    $('#reviewerError').text('Vui lòng chọn đủ 3 reviewers.').show();
+                    return false;
+                }
+                
+                $('#reviewerError').hide();
+                return true;
+            }
+        }
+
+        // Monitor reviewer selection changes to prevent duplicates
+        $(document).on('change', '.reviewer-select', function() {
+            var status = '@Model.Status';
+            if (status !== 'PendingAbstractReview') {
+                var currentSelect = $(this);
+                var currentValue = currentSelect.val();
+                var currentId = currentSelect.attr('id');
+                
+                // Check for duplicates
+                $('.reviewer-select').not(currentSelect).each(function() {
+                    if ($(this).val() === currentValue && currentValue !== '') {
+                        $('#reviewerError').text('Reviewer này đã được chọn ở vị trí khác. Vui lòng chọn reviewer khác.').show();
+                        setTimeout(function() {
+                            $('#reviewerError').hide();
+                        }, 3000);
+                    }
+                });
+                
+                // Re-validate
+                validateReviewers();
+            }
+        });
+
+        // Show reviewer details when selected
+        $('#reviewerSelect').on('change', function() {
+            var reviewerId = $(this).val();
+            if (reviewerId) {
+                // Get reviewer details from the selected option
+                var reviewerText = $(this).find('option:selected').text();
+                var parts = reviewerText.split(' (');
+                var name = parts[0];
+                var email = parts[1] ? parts[1].replace(')', '') : '';
+
+                $('#reviewerInfo').html(
+                    '<p class="mb-1"><strong>Tên:</strong> ' + name + '</p>' +
+                    '<p class="mb-0"><strong>Email:</strong> ' + email + '</p>'
+                );
+                $('#reviewerDetails').show();
+            } else {
+                $('#reviewerDetails').hide();
+            }
+        });
+
+        // Submit assignment form
+        $('#assignReviewerForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var submissionId = $('#assignSubmissionId').val();
+            var status = '@Model.Status';
+            var isFullPaper = status !== 'PendingAbstractReview';
+            var deadline = $('#reviewDeadline').val();
+
+            // Validate deadline
+            if (!deadline) {
+                alert('Vui lòng chọn deadline.');
+                return;
+            }
+
+            // Convert deadline to UTC format
+            var deadlineDate = new Date(deadline);
+            if (deadlineDate <= new Date()) {
+                alert('Deadline phải trong tương lai.');
+                return;
+            }
+
+            // Validate reviewers
+            if (!validateReviewers()) {
+                return;
+            }
+
+            // Disable submit button
+            var submitBtn = $(this).find('button[type="submit"]');
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...');
+
+            var ajaxData = {
+                submissionId: submissionId,
+                deadline: deadline,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            };
+
+            if (isFullPaper) {
+                // Full paper: send 3 reviewers
+                var reviewerIds = [];
+                for (var i = 1; i <= 3; i++) {
+                    var reviewerId = $('#reviewerSelect' + i).val();
+                    if (reviewerId) {
+                        reviewerIds.push(reviewerId);
+                    }
+                }
+                // Convert reviewerIds to array format for ASP.NET Core model binding
+                reviewerIds.forEach(function(id, index) {
+                    ajaxData['reviewerIds[' + index + ']'] = id;
+                });
+                
+                $.ajax({
+                    url: '@Url.Action("AssignFullPaperReviewers", "Admin")',
+                    type: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    traditional: true,
+                    data: ajaxData,
+                    success: function(response) {
+                        if (response.success) {
+                            $('#assignReviewerModal').modal('hide');
+                            location.reload(); // Reload page to show updated assignment
+                        } else {
+                            alert('Lỗi: ' + (response.message || 'Không thể phân công reviewers.'));
+                            submitBtn.prop('disabled', false).html('<i class="fas fa-paper-plane me-2"></i>Phân công');
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMsg = 'Lỗi khi phân công reviewers.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        alert(errorMsg);
+                        submitBtn.prop('disabled', false).html('<i class="fas fa-paper-plane me-2"></i>Phân công');
+                    }
+                });
+            } else {
+                // Abstract review: send 1 reviewer
+                ajaxData.reviewerId = $('#reviewerSelect').val();
+                
+                $.ajax({
+                    url: '@Url.Action("AssignReviewer", "Admin")',
+                    type: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    data: ajaxData,
+                    success: function(response) {
+                        if (response.success) {
+                            $('#assignReviewerModal').modal('hide');
+                            location.reload(); // Reload page to show updated assignment
+                        } else {
+                            alert('Lỗi: ' + (response.message || 'Không thể phân công reviewer.'));
+                            submitBtn.prop('disabled', false).html('<i class="fas fa-paper-plane me-2"></i>Phân công');
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMsg = 'Lỗi khi phân công reviewer.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        alert(errorMsg);
+                        submitBtn.prop('disabled', false).html('<i class="fas fa-paper-plane me-2"></i>Phân công');
+                    }
+                });
+            }
+        });
     </script>
+}
+
+<!-- Assign Reviewer Modal -->
+@if (Model.CanAssignReviewer)
+{
+    <div class="modal fade" id="assignReviewerModal" tabindex="-1" aria-labelledby="assignReviewerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="assignReviewerModalLabel">
+                        <i class="fas fa-user-tie me-2"></i>
+                        <span id="modalTitle">Phân công phản biện</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="assignReviewerForm">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body">
+                        <input type="hidden" id="assignSubmissionId" name="submissionId" value="@Model.Id">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Tiêu đề bài báo</label>
+                            <p class="mb-0 text-muted">@Model.Title</p>
+                        </div>
+
+                        <!-- Reviewer selection - 3 reviewers for full paper, 1 for abstract -->
+                        <div id="singleReviewerSection" style="display: none;">
+                            <div class="mb-3">
+                                <label for="reviewerSelect" class="form-label fw-semibold">Chọn Reviewer <span class="text-danger">*</span></label>
+                                <select class="form-select reviewer-select" id="reviewerSelect" name="reviewerId">
+                                    <option value="">-- Chọn Reviewer --</option>
+                                </select>
+                                <div class="form-text">Vui lòng chọn reviewer từ danh sách</div>
+                            </div>
+                        </div>
+
+                        <div id="multipleReviewersSection" style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Chọn 3 Reviewers <span class="text-danger">*</span></label>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label for="reviewerSelect1" class="form-label small">Reviewer 1</label>
+                                        <select class="form-select reviewer-select" id="reviewerSelect1" name="reviewerId1">
+                                            <option value="">-- Chọn Reviewer --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="reviewerSelect2" class="form-label small">Reviewer 2</label>
+                                        <select class="form-select reviewer-select" id="reviewerSelect2" name="reviewerId2">
+                                            <option value="">-- Chọn Reviewer --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="reviewerSelect3" class="form-label small">Reviewer 3</label>
+                                        <select class="form-select reviewer-select" id="reviewerSelect3" name="reviewerId3">
+                                            <option value="">-- Chọn Reviewer --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-text mt-2">Vui lòng chọn 3 reviewers khác nhau từ danh sách</div>
+                                <div id="reviewerError" class="text-danger small mt-2" style="display: none;"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="reviewDeadline" class="form-label fw-semibold">Deadline phản biện <span class="text-danger">*</span></label>
+                            <input type="datetime-local" class="form-control" id="reviewDeadline" name="deadline" required>
+                            <div class="form-text">Chọn deadline cho reviewer hoàn thành phản biện (phải trong tương lai)</div>
+                        </div>
+
+                        <div id="reviewerDetails" class="alert alert-info" style="display: none;">
+                            <h6 class="fw-semibold mb-2"><i class="fas fa-info-circle me-2"></i>Thông tin Reviewer:</h6>
+                            <div id="reviewerInfo"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Phân công
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 }
 
 <!-- Reject Modal -->

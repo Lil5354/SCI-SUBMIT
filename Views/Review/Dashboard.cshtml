@@ -1,0 +1,441 @@
+@model SciSubmit.Models.Review.ReviewerDashboardViewModel
+@{
+    ViewData["Title"] = "Reviewer Dashboard";
+    ViewData["HideMainHeader"] = true;
+}
+
+<link rel="stylesheet" href="~/css/author-dashboard.css" />
+
+<!-- Reviewer Dashboard -->
+<div class="author-dashboard">
+    @await Html.PartialAsync("_ReviewerNavHeader")
+
+    <!-- Header Section with Background Images -->
+    <div class="dashboard-header" id="dashboardHeader" style="background-size: cover; background-position: center;">
+        <!-- Animated Background Layers -->
+        <div class="header-dark-overlay" id="headerDarkOverlay"></div>
+        <div class="header-mesh-gradient" id="headerMeshGradient"></div>
+        <div class="header-gradient-overlay" id="headerGradientOverlay"></div>
+        <div class="header-grid-overlay" id="headerGridOverlay"></div>
+        
+        <!-- Light Streaks -->
+        <div class="header-light-streaks" id="headerLightStreaks">
+            <div class="light-streak light-streak-left"></div>
+            <div class="light-streak light-streak-right"></div>
+        </div>
+        
+        <!-- Particle Effects -->
+        <div class="header-particles" id="headerParticles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+        
+        <div class="container">
+            <div class="header-content animate-fade-in-up text-center">
+                <h1 class="dashboard-title">
+                    <span class="title-primary">Reviewer</span> <span class="title-secondary">Dashboard</span>
+                </h1>
+                <p class="dashboard-subtitle">Quản lý và thực hiện phản biện bài báo</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Section -->
+    <section class="section stats-section position-relative bg-white" id="statistics">
+        <div class="container position-relative" style="z-index: 1;">
+            <!-- Quick Actions -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                <a href="#pendingReviews" class="btn btn-primary btn-lg shadow-sm hover-shadow">
+                                    <i class="fas fa-clock me-2"></i>Bài đang chờ phản biện
+                                </a>
+                                <a href="#completedReviews" class="btn btn-success btn-lg shadow-sm hover-shadow">
+                                    <i class="fas fa-check-circle me-2"></i>Bài đã hoàn thành
+                                </a>
+                                @if (Model.PendingReviews.Any())
+                                {
+                                    <a href="@Url.Action("Details", new { id = Model.PendingReviews.First().Id })" class="btn btn-warning btn-lg shadow-sm hover-shadow">
+                                        <i class="fas fa-user-secret me-2"></i>Bắt đầu phản biện ẩn danh
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card animate-fade-in-up" style="animation-delay: 0.1s;">
+                        <div class="stat-card-shine"></div>
+                        <div class="stat-card-icon bg-primary text-white">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div class="stat-card-value text-primary" id="statTotal" data-target="@Model.TotalAssignments">@Model.TotalAssignments</div>
+                        <div class="stat-card-label">TỔNG SỐ BÀI</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card animate-fade-in-up" style="animation-delay: 0.2s;">
+                        <div class="stat-card-shine"></div>
+                        <div class="stat-card-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);">
+                            <i class="fas fa-hourglass-half text-white"></i>
+                        </div>
+                        <div class="stat-card-value" style="color: #f59e0b;" id="statPending" data-target="@Model.PendingAssignments">@Model.PendingAssignments</div>
+                        <div class="stat-card-label">CHỜ PHẢN HỒI</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card animate-fade-in-up" style="animation-delay: 0.3s;">
+                        <div class="stat-card-shine"></div>
+                        <div class="stat-card-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);">
+                            <i class="fas fa-tasks text-white"></i>
+                        </div>
+                        <div class="stat-card-value" style="color: #3b82f6;" id="statAccepted" data-target="@Model.AcceptedAssignments">@Model.AcceptedAssignments</div>
+                        <div class="stat-card-label">ĐANG CHỜ PHẢN BIỆN</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card animate-fade-in-up" style="animation-delay: 0.4s;">
+                        <div class="stat-card-shine"></div>
+                        <div class="stat-card-icon" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">
+                            <i class="fas fa-check-circle text-white"></i>
+                        </div>
+                        <div class="stat-card-value" style="color: #10b981;" id="statCompleted" data-target="@Model.CompletedAssignments">@Model.CompletedAssignments</div>
+                        <div class="stat-card-label">ĐÃ HOÀN THÀNH</div>
+                    </div>
+                </div>
+            </div>
+            @if (Model.UrgentAssignments > 0)
+            {
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="alert alert-warning animate-fade-in-up" style="animation-delay: 0.5s;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Cảnh báo:</strong> Bạn có <strong>@Model.UrgentAssignments</strong> bài báo sắp hết hạn phản biện (còn dưới 3 ngày)!
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- Pending Reviews Section -->
+    <section class="section submissions-section position-relative bg-light" id="pendingReviews">
+        <div class="container position-relative" style="z-index: 1;">
+            <div class="section-title animate-fade-in-up">
+                <h2>
+                    <span class="title-primary">Bài đang chờ</span> <span class="title-secondary">phản biện</span>
+                </h2>
+                <p>Danh sách các bài báo đang chờ bạn phản biện</p>
+            </div>
+            <div class="submissions-card card animate-slide-up-delay">
+                <div class="card-body p-4">
+                    @if (Model.PendingReviews.Any())
+                    {
+                        <div class="review-list">
+                            @foreach (var review in Model.PendingReviews)
+                            {
+                                <div class="review-item card mb-3 @(review.IsUrgent ? "border-danger border-start border-3" : "border-start border-primary border-3")">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-7">
+                                                <h5 class="mb-2 fw-bold">@review.Title</h5>
+                                                <p class="text-muted small mb-2" style="max-height: 60px; overflow: hidden; text-overflow: ellipsis;">
+                                                    @(review.Abstract.Length > 150 ? review.Abstract.Substring(0, 150) + "..." : review.Abstract)
+                                                </p>
+                                                <div class="mb-2">
+                                                    @foreach (var topic in review.Topics.Take(3))
+                                                    {
+                                                        <span class="badge bg-info me-1 mb-1">@topic</span>
+                                                    }
+                                                </div>
+                                                <div class="d-flex align-items-center gap-3 flex-wrap">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-calendar-alt me-1"></i>
+                                                        <strong>Hạn phản biện:</strong> 
+                                                        <span class="@(review.IsUrgent ? "text-danger fw-bold" : "")">
+                                                            @review.Deadline.ToString("dd/MM/yyyy HH:mm")
+                                                        </span>
+                                                    </small>
+                                                    @if (review.DaysRemaining > 0)
+                                                    {
+                                                        <small class="@(review.IsUrgent ? "badge bg-danger" : "badge bg-warning")">
+                                                            <i class="fas fa-clock me-1"></i>
+                                                            Còn @review.DaysRemaining ngày
+                                                        </small>
+                                                    }
+                                                    else if (review.DaysRemaining == 0)
+                                                    {
+                                                        <small class="badge bg-danger">
+                                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                                            Hết hạn hôm nay!
+                                                        </small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <small class="badge bg-danger">
+                                                            <i class="fas fa-times-circle me-1"></i>
+                                                            Đã quá hạn @Math.Abs(review.DaysRemaining) ngày
+                                                        </small>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5 text-end">
+                                                <div class="mb-3">
+                                                    <span class="badge @(review.IsUrgent ? "bg-danger" : "bg-warning") fs-6 px-3 py-2">
+                                                        @(review.IsUrgent ? "Sắp hết hạn" : "Đang chờ phản biện")
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex gap-2 justify-content-end flex-wrap">
+                                                    @if (!string.IsNullOrEmpty(review.AbstractFileUrl))
+                                                    {
+                                                        <a href="@review.AbstractFileUrl" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-file-pdf me-1"></i>Xem Abstract
+                                                        </a>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(review.FullPaperFileUrl))
+                                                    {
+                                                        <a href="@review.FullPaperFileUrl" target="_blank" class="btn btn-sm btn-outline-info">
+                                                            <i class="fas fa-file-alt me-1"></i>Xem Full Paper
+                                                        </a>
+                                                    }
+                                                    <a href="@Url.Action("Details", new { id = review.Id })" class="btn btn-success btn-lg shadow-sm hover-shadow">
+                                                        <i class="fas fa-user-secret me-2"></i>Phản biện ẩn danh
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Hiện tại không có bài báo nào đang chờ phản biện.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Completed Reviews Section -->
+    <section class="section submissions-section position-relative bg-white" id="completedReviews">
+        <div class="container position-relative" style="z-index: 1;">
+            <div class="section-title animate-fade-in-up">
+                <h2>
+                    <span class="title-primary">Bài đã</span> <span class="title-secondary">hoàn thành</span>
+                </h2>
+                <p>Danh sách các bài báo bạn đã hoàn thành phản biện</p>
+            </div>
+            <div class="submissions-card card animate-slide-up-delay">
+                <div class="card-body p-4">
+                    @if (Model.CompletedReviews.Any())
+                    {
+                        <div class="review-list">
+                            @foreach (var review in Model.CompletedReviews)
+                            {
+                                <div class="review-item card mb-3 border-start border-success border-3">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-7">
+                                                <h5 class="mb-2 fw-bold">@review.Title</h5>
+                                                <p class="text-muted small mb-2" style="max-height: 60px; overflow: hidden; text-overflow: ellipsis;">
+                                                    @(review.Abstract.Length > 150 ? review.Abstract.Substring(0, 150) + "..." : review.Abstract)
+                                                </p>
+                                                <div class="mb-2">
+                                                    @foreach (var topic in review.Topics.Take(3))
+                                                    {
+                                                        <span class="badge bg-info me-1 mb-1">@topic</span>
+                                                    }
+                                                </div>
+                                                <div class="d-flex align-items-center gap-3 flex-wrap">
+                                                    <small class="text-success">
+                                                        <i class="fas fa-check-circle me-1"></i>
+                                                        <strong>Đã hoàn thành:</strong> 
+                                                        @(review.CompletedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5 text-end">
+                                                <div class="mb-3">
+                                                    <span class="badge bg-success fs-6 px-3 py-2">
+                                                        Đã hoàn thành
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex gap-2 justify-content-end flex-wrap">
+                                                    <a href="@review.AbstractFileUrl" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-file-pdf me-1"></i>Xem lại Abstract
+                                                    </a>
+                                                    <a href="@Url.Action("Details", new { id = review.Id })" class="btn btn-info btn-lg shadow-sm hover-shadow">
+                                                        <i class="fas fa-eye me-2"></i>Xem đánh giá
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Bạn chưa hoàn thành phản biện bài báo nào.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Scroll to Top Button -->
+<button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+@section Styles {
+    <style>
+        .hover-shadow {
+            transition: all 0.3s ease;
+        }
+        .hover-shadow:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+        }
+        .review-item {
+            transition: all 0.3s ease;
+        }
+        .review-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+        }
+        .btn-lg {
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            min-width: 200px;
+        }
+        @@media (max-width: 768px) {
+            .btn-lg {
+                min-width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set background image (alternate between 2 images)
+            setupBackgroundImage();
+            
+            // Animate statistics
+            animateStatistics();
+            
+            // Scroll to top button
+            setupScrollToTop();
+            
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    if (href !== '#' && href.startsWith('#')) {
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    }
+                });
+            });
+        });
+
+        function setupBackgroundImage() {
+            const header = document.getElementById('dashboardHeader');
+            if (header) {
+                // Alternate between 2 background images
+                const images = [
+                    'https://images.pexels.com/photos/2093323/pexels-photo-2093323.jpeg',
+                    'https://images.pexels.com/photos/2725479/pexels-photo-2725479.jpeg'
+                ];
+                // Use first image by default, or alternate based on time
+                const imageIndex = Math.floor(Date.now() / 1000) % 2;
+                header.style.backgroundImage = `url('${images[imageIndex]}')`;
+            }
+        }
+
+        function animateStatistics() {
+            const observerOptions = {
+                threshold: 0.5,
+                rootMargin: '0px'
+            };
+
+            const statsObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const cards = entry.target.querySelectorAll('.stat-card-value');
+                        cards.forEach(card => {
+                            const target = parseInt(card.getAttribute('data-target') || '0');
+                            animateValue(card, 0, target, 2000);
+                        });
+                        statsObserver.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            const statsSection = document.querySelector('.stats-section');
+            if (statsSection) {
+                statsObserver.observe(statsSection);
+            }
+        }
+
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const current = Math.floor(progress * (end - start) + start);
+                element.textContent = current;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function setupScrollToTop() {
+            const scrollToTopBtn = document.getElementById('scrollToTop');
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    scrollToTopBtn?.classList.add('show');
+                } else {
+                    scrollToTopBtn?.classList.remove('show');
+                }
+            });
+
+            scrollToTopBtn?.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+    </script>
+}
+

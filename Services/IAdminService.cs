@@ -23,7 +23,9 @@ namespace SciSubmit.Services
         Task<ReviewStatisticsViewModel> GetReviewStatisticsAsync();
         Task<PagedList<UserViewModel>> GetUsersAsync(UserFilterViewModel filter);
         Task<bool> CreateUserAsync(CreateUserViewModel model);
+        Task<bool> UpdateUserAsync(UpdateUserViewModel model);
         Task<bool> UpdateUserRoleAsync(int userId, string newRole);
+        Task<bool> ActivateUserAsync(int userId);
         Task<bool> DeactivateUserAsync(int userId);
         
         // Final Decision

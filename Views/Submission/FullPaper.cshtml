@@ -1,7 +1,9 @@
 @{
     ViewData["Title"] = "Nộp bài đầy đủ";
+    ViewData["HideMainHeader"] = true;
     var submissionId = ViewData["SubmissionId"] ?? 0;
 }
+@await Html.PartialAsync("_AuthorNavHeader")
 
 <div class="container my-5">
     <div class="row justify-content-center">

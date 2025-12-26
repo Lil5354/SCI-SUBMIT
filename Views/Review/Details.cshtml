@@ -1,311 +1,345 @@
+@model SciSubmit.Models.Review.ReviewDetailsViewModel
 @{
-    ViewData["Title"] = "Chi tiết bài phản biện";
-    var reviewId = ViewData["ReviewId"] ?? 0;
+    ViewData["Title"] = "Phản biện bài báo";
+    ViewData["HideMainHeader"] = true;
 }
 
+@await Html.PartialAsync("_ReviewerNavHeader")
+
 <div class="container my-5">
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Header -->
-            <div class="mb-4">
-                <div class="alert alert-info">
-                    <i class="fas fa-user-secret me-2"></i>
-                    <strong>Blind Review:</strong> Thông tin tác giả đã được ẩn danh để đảm bảo tính khách quan.
-                </div>
-                <h2 class="text-gradient mb-2">
-                    <i class="fas fa-clipboard-check me-2"></i>Chi tiết bài phản biện
-                </h2>
-                <p class="text-muted">Đánh giá bài báo một cách công bằng và khách quan</p>
-            </div>
+    <!-- Header -->
+    <div class="mb-4">
+        <h2 class="text-gradient mb-2">
+            <i class="fas fa-clipboard-check me-2"></i>Phản biện bài báo
+        </h2>
+        <p class="text-muted">Thực hiện phản biện ẩn danh (Blind Review)</p>
+    </div>
 
-            <!-- Paper Info (Blind) -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Thông tin bài báo</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold text-muted">Tiêu đề</label>
-                        <h5 class="mb-0">Nghiên cứu về ứng dụng AI trong quản lý tài chính</h5>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold text-muted">Tóm tắt (Abstract)</label>
-                        <p class="mb-0">Đây là tóm tắt bài báo về nghiên cứu ứng dụng AI trong quản lý tài chính. Nghiên cứu này tập trung vào việc phân tích các phương pháp và công nghệ AI hiện đại được áp dụng trong lĩnh vực tài chính...</p>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">Chủ đề</label>
-                            <p class="mb-0"><span class="badge bg-info">Tài chính & Kế toán</span></p>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">Từ khóa</label>
-                            <div>
-                                <span class="badge bg-primary me-1">AI</span>
-                                <span class="badge bg-primary me-1">Machine Learning</span>
-                                <span class="badge bg-primary me-1">Tài chính</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold text-muted">File bài báo</label>
-                        <div>
-                            <a href="#" class="btn btn-outline-primary">
-                                <i class="fas fa-download me-2"></i>Tải xuống file bài báo
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Deadline Countdown -->
-            <div class="card shadow-sm border-0 mb-4 border-warning">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">
-                                <i class="fas fa-clock me-2 text-warning"></i>Deadline phản biện
-                            </h6>
-                            <p class="mb-0 text-muted">Hạn cuối: <strong>30/01/2025 23:59</strong></p>
-                        </div>
-                        <div class="text-end">
-                            <div class="h5 mb-0 text-warning">
-                                <i class="fas fa-hourglass-half me-2"></i>
-                                <span id="countdownDays">5</span> ngày
-                                <span id="countdownHours">12</span> giờ
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Review Form -->
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Form đánh giá</h5>
-                </div>
-                <div class="card-body">
-                    <form id="reviewForm" asp-action="SubmitReview" method="post">
-                        <input type="hidden" name="id" value="@reviewId" />
-
-                        <!-- Scoring Criteria -->
-                        <div class="mb-4">
-                            <h6 class="mb-3">Tiêu chí chấm điểm (1-5 điểm)</h6>
-                            
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">
-                                    Tính mới và đóng góp <span class="text-danger">*</span>
-                                </label>
-                                <div class="d-flex gap-2">
-                                    <input type="radio" name="Scores[Novelty]" id="novelty1" value="1" class="btn-check" required>
-                                    <label for="novelty1" class="btn btn-outline-primary">1</label>
-                                    <input type="radio" name="Scores[Novelty]" id="novelty2" value="2" class="btn-check">
-                                    <label for="novelty2" class="btn btn-outline-primary">2</label>
-                                    <input type="radio" name="Scores[Novelty]" id="novelty3" value="3" class="btn-check">
-                                    <label for="novelty3" class="btn btn-outline-primary">3</label>
-                                    <input type="radio" name="Scores[Novelty]" id="novelty4" value="4" class="btn-check">
-                                    <label for="novelty4" class="btn btn-outline-primary">4</label>
-                                    <input type="radio" name="Scores[Novelty]" id="novelty5" value="5" class="btn-check">
-                                    <label for="novelty5" class="btn btn-outline-primary">5</label>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">
-                                    Độ sâu nghiên cứu <span class="text-danger">*</span>
-                                </label>
-                                <div class="d-flex gap-2">
-                                    <input type="radio" name="Scores[Depth]" id="depth1" value="1" class="btn-check" required>
-                                    <label for="depth1" class="btn btn-outline-primary">1</label>
-                                    <input type="radio" name="Scores[Depth]" id="depth2" value="2" class="btn-check">
-                                    <label for="depth2" class="btn btn-outline-primary">2</label>
-                                    <input type="radio" name="Scores[Depth]" id="depth3" value="3" class="btn-check">
-                                    <label for="depth3" class="btn btn-outline-primary">3</label>
-                                    <input type="radio" name="Scores[Depth]" id="depth4" value="4" class="btn-check">
-                                    <label for="depth4" class="btn btn-outline-primary">4</label>
-                                    <input type="radio" name="Scores[Depth]" id="depth5" value="5" class="btn-check">
-                                    <label for="depth5" class="btn btn-outline-primary">5</label>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">
-                                    Phương pháp nghiên cứu <span class="text-danger">*</span>
-                                </label>
-                                <div class="d-flex gap-2">
-                                    <input type="radio" name="Scores[Methodology]" id="method1" value="1" class="btn-check" required>
-                                    <label for="method1" class="btn btn-outline-primary">1</label>
-                                    <input type="radio" name="Scores[Methodology]" id="method2" value="2" class="btn-check">
-                                    <label for="method2" class="btn btn-outline-primary">2</label>
-                                    <input type="radio" name="Scores[Methodology]" id="method3" value="3" class="btn-check">
-                                    <label for="method3" class="btn btn-outline-primary">3</label>
-                                    <input type="radio" name="Scores[Methodology]" id="method4" value="4" class="btn-check">
-                                    <label for="method4" class="btn btn-outline-primary">4</label>
-                                    <input type="radio" name="Scores[Methodology]" id="method5" value="5" class="btn-check">
-                                    <label for="method5" class="btn btn-outline-primary">5</label>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">
-                                    Kết quả và thảo luận <span class="text-danger">*</span>
-                                </label>
-                                <div class="d-flex gap-2">
-                                    <input type="radio" name="Scores[Results]" id="results1" value="1" class="btn-check" required>
-                                    <label for="results1" class="btn btn-outline-primary">1</label>
-                                    <input type="radio" name="Scores[Results]" id="results2" value="2" class="btn-check">
-                                    <label for="results2" class="btn btn-outline-primary">2</label>
-                                    <input type="radio" name="Scores[Results]" id="results3" value="3" class="btn-check">
-                                    <label for="results3" class="btn btn-outline-primary">3</label>
-                                    <input type="radio" name="Scores[Results]" id="results4" value="4" class="btn-check">
-                                    <label for="results4" class="btn btn-outline-primary">4</label>
-                                    <input type="radio" name="Scores[Results]" id="results5" value="5" class="btn-check">
-                                    <label for="results5" class="btn btn-outline-primary">5</label>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">
-                                    Văn phong và trình bày <span class="text-danger">*</span>
-                                </label>
-                                <div class="d-flex gap-2">
-                                    <input type="radio" name="Scores[Presentation]" id="pres1" value="1" class="btn-check" required>
-                                    <label for="pres1" class="btn btn-outline-primary">1</label>
-                                    <input type="radio" name="Scores[Presentation]" id="pres2" value="2" class="btn-check">
-                                    <label for="pres2" class="btn btn-outline-primary">2</label>
-                                    <input type="radio" name="Scores[Presentation]" id="pres3" value="3" class="btn-check">
-                                    <label for="pres3" class="btn btn-outline-primary">3</label>
-                                    <input type="radio" name="Scores[Presentation]" id="pres4" value="4" class="btn-check">
-                                    <label for="pres4" class="btn btn-outline-primary">4</label>
-                                    <input type="radio" name="Scores[Presentation]" id="pres5" value="5" class="btn-check">
-                                    <label for="pres5" class="btn btn-outline-primary">5</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Comments for Author -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-comment me-2 text-primary"></i>Nhận xét cho tác giả <span class="text-danger">*</span>
-                            </label>
-                            <textarea name="CommentsForAuthor" class="form-control" rows="6" 
-                                      placeholder="Nhập nhận xét chi tiết để tác giả có thể chỉnh sửa..." required></textarea>
-                            <small class="form-text text-muted">Nhận xét này sẽ được gửi cho tác giả (ẩn danh)</small>
-                        </div>
-
-                        <!-- Comments for Admin (Confidential) -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-lock me-2 text-warning"></i>Nhận xét riêng cho Admin (Bảo mật)
-                            </label>
-                            <textarea name="CommentsForAdmin" class="form-control" rows="4" 
-                                      placeholder="Nhập nhận xét bảo mật chỉ Admin mới thấy (ví dụ: nghi ngờ đạo văn...)"></textarea>
-                            <small class="form-text text-muted">Nhận xét này chỉ Admin mới thấy, tác giả không thấy</small>
-                        </div>
-
-                        <!-- Recommendation -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-gavel me-2 text-primary"></i>Khuyến nghị <span class="text-danger">*</span>
-                            </label>
-                            <select name="Recommendation" class="form-select form-select-lg" required>
-                                <option value="">-- Chọn khuyến nghị --</option>
-                                <option value="Accept">Chấp nhận (Accept)</option>
-                                <option value="Minor">Chỉnh sửa nhỏ (Minor Revision)</option>
-                                <option value="Major">Chỉnh sửa lớn (Major Revision)</option>
-                                <option value="Reject">Từ chối (Reject)</option>
-                            </select>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="d-flex justify-content-between">
-                            <button type="button" class="btn btn-outline-secondary" onclick="saveDraft()">
-                                <i class="fas fa-save me-2"></i>Lưu nháp
-                            </button>
-                            <div>
-                                <a href="/Review/Index" class="btn btn-outline-secondary me-2">
-                                    <i class="fas fa-times me-2"></i>Hủy
-                                </a>
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-paper-plane me-2"></i>Nộp đánh giá
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <!-- Alert Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Review Guidelines -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Hướng dẫn phản biện</h6>
+    <!-- Paper Information Card (Blind Review - No Author Name) -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Thông tin bài báo</h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <h4 class="fw-bold">@Model.Title</h4>
                 </div>
-                <div class="card-body">
-                    <ul class="small mb-0">
-                        <li>Phản biện công bằng và khách quan</li>
-                        <li>Đưa ra nhận xét cụ thể và xây dựng</li>
-                        <li>Hoàn thành đúng thời hạn</li>
-                        <li>Bảo mật thông tin bài báo</li>
-                    </ul>
+                <div class="col-md-12 mb-3">
+                    <h6 class="text-muted mb-2">Abstract:</h6>
+                    <p class="text-justify">@Model.Abstract</p>
                 </div>
-            </div>
-
-            <!-- Review Info -->
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="fas fa-calendar me-2"></i>Thông tin</h6>
+                <div class="col-md-12 mb-3">
+                    <h6 class="text-muted mb-2">Chủ đề:</h6>
+                    <div>
+                        @foreach (var topic in Model.Topics)
+                        {
+                            <span class="badge bg-info me-1 mb-1">@topic</span>
+                        }
+                    </div>
                 </div>
-                <div class="card-body">
-                    <p class="small text-muted mb-2">
-                        <i class="fas fa-calendar me-2"></i>
-                        <strong>Ngày nhận:</strong> 20/01/2025
+                <div class="col-md-6 mb-3">
+                    <h6 class="text-muted mb-2">Hạn phản biện:</h6>
+                    <p class="@(Model.IsUrgent ? "text-danger fw-bold" : "")">
+                        <i class="fas fa-calendar-alt me-2"></i>@Model.Deadline.ToString("dd/MM/yyyy HH:mm")
+                        @if (Model.DaysRemaining > 0)
+                        {
+                            <span class="badge @(Model.IsUrgent ? "bg-danger" : "bg-warning") ms-2">
+                                Còn @Model.DaysRemaining ngày
+                            </span>
+                        }
+                        else if (Model.DaysRemaining == 0)
+                        {
+                            <span class="badge bg-danger ms-2">Hết hạn hôm nay!</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger ms-2">Đã quá hạn @Math.Abs(Model.DaysRemaining) ngày</span>
+                        }
                     </p>
-                    <p class="small text-muted mb-2">
-                        <i class="fas fa-clock me-2"></i>
-                        <strong>Deadline:</strong> 30/01/2025 23:59
-                    </p>
-                    <p class="small text-muted mb-0">
-                        <i class="fas fa-id-badge me-2"></i>
-                        <strong>Mã phản biện:</strong> #@reviewId
-                    </p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <h6 class="text-muted mb-2">Tài liệu:</h6>
+                    <div class="d-flex gap-2 flex-wrap">
+                        @if (!string.IsNullOrEmpty(Model.AbstractFileUrl))
+                        {
+                            <a href="@Model.AbstractFileUrl" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-file-pdf me-1"></i>Xem Abstract
+                            </a>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.FullPaperFileUrl))
+                        {
+                            <a href="@Model.FullPaperFileUrl" target="_blank" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-file-alt me-1"></i>Xem Full Paper
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Review Form -->
+    <form id="reviewForm" asp-action="SubmitReview" asp-route-id="@Model.AssignmentId" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="AssignmentId" value="@Model.AssignmentId" />
+        
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-star me-2"></i>Đánh giá theo tiêu chí (1-@Model.Criteria.FirstOrDefault()?.MaxScore ?? 5)</h5>
+            </div>
+            <div class="card-body p-4">
+                @if (Model.Criteria.Any())
+                {
+                    @foreach (var criterion in Model.Criteria.OrderBy(c => c.OrderIndex))
+                    {
+                        <div class="mb-4 p-3 border rounded">
+                            <label class="form-label fw-semibold mb-2">
+                                @criterion.Name
+                                @if (!string.IsNullOrEmpty(criterion.Description))
+                                {
+                                    <small class="text-muted d-block">@criterion.Description</small>
+                                }
+                            </label>
+                            <div class="d-flex gap-2 align-items-center flex-wrap">
+                                @for (int i = 1; i <= criterion.MaxScore; i++)
+                                {
+                                    var scoreName = $"Scores[{criterion.Name}]";
+                                    var isChecked = Model.HasExistingReview && Model.ExistingScores.ContainsKey(criterion.Name) && Model.ExistingScores[criterion.Name] == i;
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" 
+                                               name="@scoreName" 
+                                               id="score_@(criterion.Id)_@i" 
+                                               value="@i" 
+                                               @(isChecked ? "checked" : "") 
+                                               required />
+                                        <label class="form-check-label" for="score_@(criterion.Id)_@i">
+                                            @i
+                                        </label>
+                                    </div>
+                                }
+                                <span class="text-danger small ms-2" id="error_@criterion.Id"></span>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Chưa có tiêu chí đánh giá nào được cấu hình. Vui lòng liên hệ Admin.
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Comments for Author -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-comment-dots me-2"></i>Bình luận cho Tác giả</h5>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted small mb-3">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Vui lòng cung cấp góp ý chi tiết để tác giả có thể sửa chữa và cải thiện bài báo.
+                </p>
+                <textarea name="CommentsForAuthor" 
+                          class="form-control" 
+                          rows="8" 
+                          placeholder="Nhập bình luận chi tiết cho tác giả..." 
+                          required 
+                          minlength="10">@(Model.HasExistingReview ? Model.ExistingCommentsForAuthor : "")</textarea>
+                <small class="form-text text-muted">Tối thiểu 10 ký tự</small>
+                <span class="text-danger small" id="commentsForAuthorError"></span>
+            </div>
+        </div>
+
+        <!-- Private Comments for Admin -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Bình luận riêng cho Admin</h5>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted small mb-3">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    Bình luận này chỉ Admin mới xem được. Ví dụ: "Bài này nghi ngờ đạo văn...", "Cần kiểm tra tính xác thực..."
+                </p>
+                <textarea name="CommentsForAdmin" 
+                          class="form-control" 
+                          rows="6" 
+                          placeholder="Nhập bình luận riêng cho Admin (tùy chọn)...">@(Model.HasExistingReview ? Model.ExistingCommentsForAdmin : "")</textarea>
+                <small class="form-text text-muted">Tùy chọn - Chỉ Admin mới xem được</small>
+            </div>
+        </div>
+
+        <!-- Recommendation -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>Khuyến nghị</h5>
+            </div>
+            <div class="card-body p-4">
+                <select name="Recommendation" class="form-select form-select-lg" required>
+                    <option value="">-- Chọn khuyến nghị --</option>
+                    @if (Model.HasExistingReview && Model.ExistingRecommendation == "Accept")
+                    {
+                        <option value="Accept" selected>Chấp nhận (Accept)</option>
+                    }
+                    else
+                    {
+                        <option value="Accept">Chấp nhận (Accept)</option>
+                    }
+                    @if (Model.HasExistingReview && Model.ExistingRecommendation == "MinorRevision")
+                    {
+                        <option value="MinorRevision" selected>Sửa chữa nhỏ (Minor Revision)</option>
+                    }
+                    else
+                    {
+                        <option value="MinorRevision">Sửa chữa nhỏ (Minor Revision)</option>
+                    }
+                    @if (Model.HasExistingReview && Model.ExistingRecommendation == "MajorRevision")
+                    {
+                        <option value="MajorRevision" selected>Sửa chữa lớn (Major Revision)</option>
+                    }
+                    else
+                    {
+                        <option value="MajorRevision">Sửa chữa lớn (Major Revision)</option>
+                    }
+                    @if (Model.HasExistingReview && Model.ExistingRecommendation == "Reject")
+                    {
+                        <option value="Reject" selected>Từ chối (Reject)</option>
+                    }
+                    else
+                    {
+                        <option value="Reject">Từ chối (Reject)</option>
+                    }
+                </select>
+                <span class="text-danger small" id="recommendationError"></span>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại
+            </a>
+            <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
+                <i class="fas fa-paper-plane me-2"></i>Nộp đánh giá
+            </button>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
     <script>
-        function saveDraft() {
-            // TODO: Implement draft save
-            alert('Đã lưu nháp thành công!');
-        }
-
-        // Countdown timer
-        function updateCountdown() {
-            const deadline = new Date('2025-01-30T23:59:59');
-            const now = new Date();
-            const diff = deadline - now;
-
-            if (diff <= 0) {
-                document.getElementById('countdownDays').textContent = '0';
-                document.getElementById('countdownHours').textContent = '0';
-                return;
-            }
-
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-
-            document.getElementById('countdownDays').textContent = days;
-            document.getElementById('countdownHours').textContent = hours;
-        }
-
-        setInterval(updateCountdown, 3600000); // Update every hour
-        updateCountdown();
+        $(document).ready(function() {
+            $('#reviewForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                var form = $(this);
+                var submitBtn = $('#submitBtn');
+                var originalText = submitBtn.html();
+                
+                // Validate all criteria are scored
+                var criteriaNames = [];
+                $('input[type="radio"][name^="Scores["]').each(function() {
+                    var name = $(this).attr('name');
+                    if (criteriaNames.indexOf(name) === -1) {
+                        criteriaNames.push(name);
+                    }
+                });
+                
+                var allScored = true;
+                var missingCriteria = [];
+                criteriaNames.forEach(function(name) {
+                    if ($('input[type="radio"][name="' + name + '"]:checked').length === 0) {
+                        allScored = false;
+                        var criterionName = name.match(/\[(.*?)\]/)[1];
+                        missingCriteria.push(criterionName);
+                    }
+                });
+                
+                if (!allScored) {
+                    alert('Vui lòng đánh giá tất cả các tiêu chí. Còn thiếu: ' + missingCriteria.join(', '));
+                    return;
+                }
+                
+                // Validate comments for author
+                var commentsForAuthor = $('textarea[name="CommentsForAuthor"]').val().trim();
+                if (commentsForAuthor.length < 10) {
+                    alert('Bình luận cho tác giả phải có ít nhất 10 ký tự.');
+                    $('#commentsForAuthorError').text('Bình luận phải có ít nhất 10 ký tự.');
+                    return;
+                }
+                
+                // Validate recommendation
+                var recommendation = $('select[name="Recommendation"]').val();
+                if (!recommendation) {
+                    alert('Vui lòng chọn khuyến nghị.');
+                    $('#recommendationError').text('Vui lòng chọn khuyến nghị.');
+                    return;
+                }
+                
+                // Disable submit button
+                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...');
+                
+                // Submit via AJAX
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    data: form.serialize(),
+                    dataType: 'json',
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    success: function(response) {
+                        if (response && response.success) {
+                            if (response.redirectUrl) {
+                                window.location.href = response.redirectUrl;
+                            } else {
+                                window.location.href = '@Url.Action("Index", "Review")';
+                            }
+                        } else {
+                            var errorMsg = (response && response.message) ? response.message : 'Không thể nộp đánh giá. Vui lòng kiểm tra lại thông tin.';
+                            alert(errorMsg);
+                            submitBtn.prop('disabled', false).html(originalText);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var errorMsg = 'Lỗi khi nộp đánh giá.';
+                        try {
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                var response = JSON.parse(xhr.responseText);
+                                if (response.message) {
+                                    errorMsg = response.message;
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Error parsing response:', e);
+                        }
+                        alert(errorMsg);
+                        submitBtn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+        });
     </script>
 }

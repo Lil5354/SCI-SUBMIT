@@ -23,6 +23,24 @@ namespace SciSubmit.Controllers
             _logger = logger;
         }
 
+        private async Task<int> GetCurrentAdminIdAsync()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int userId))
+            {
+                return userId;
+            }
+            
+            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(email))
+            {
+                return 0;
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return user?.Id ?? 0;
+        }
+
         public async Task<IActionResult> Dashboard()
         {
             var stats = await _adminService.GetDashboardStatsAsync();
@@ -66,6 +84,111 @@ namespace SciSubmit.Controllers
             return View(submissions);
         }
 
+        public async Task<IActionResult> AbstractSubmissions(SubmissionFilterViewModel? filter)
+        {
+            filter ??= new SubmissionFilterViewModel();
+            
+            // Chỉ lấy các submission liên quan đến abstract review
+            var abstractStatuses = new[] 
+            { 
+                Models.Enums.SubmissionStatus.PendingAbstractReview,
+                Models.Enums.SubmissionStatus.AbstractApproved,
+                Models.Enums.SubmissionStatus.AbstractRejected
+            };
+            
+            // Nếu không có filter status, mặc định chỉ lấy PendingAbstractReview
+            if (string.IsNullOrEmpty(filter.Status))
+            {
+                filter.Status = Models.Enums.SubmissionStatus.PendingAbstractReview.ToString();
+            }
+            
+            var submissions = await _adminService.GetSubmissionsAsync(filter);
+            
+            // Filter lại để chỉ lấy abstract-related submissions
+            submissions.Items = submissions.Items
+                .Where(s => abstractStatuses.Contains(Enum.Parse<Models.Enums.SubmissionStatus>(s.Status)))
+                .ToList();
+            submissions.TotalCount = submissions.Items.Count;
+            
+            // Load topics and keywords for filter dropdowns
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+            
+            if (activeConference != null)
+            {
+                ViewBag.Topics = await _context.Topics
+                    .Where(t => t.ConferenceId == activeConference.Id && t.IsActive)
+                    .OrderBy(t => t.OrderIndex)
+                    .ThenBy(t => t.Name)
+                    .ToListAsync();
+                
+                ViewBag.Keywords = await _context.Keywords
+                    .Where(k => k.ConferenceId == activeConference.Id && k.Status == Models.Enums.KeywordStatus.Approved)
+                    .OrderBy(k => k.Name)
+                    .ToListAsync();
+            }
+            
+            ViewBag.Filter = filter;
+            ViewBag.StatusOptions = abstractStatuses.Select(s => s.ToString()).ToArray();
+            ViewBag.PageType = "Abstract";
+            return View("Submissions", submissions);
+        }
+
+        public async Task<IActionResult> FullPaperSubmissions(SubmissionFilterViewModel? filter)
+        {
+            filter ??= new SubmissionFilterViewModel();
+            
+            // Chỉ lấy các submission liên quan đến full paper review
+            var fullPaperStatuses = new[] 
+            { 
+                Models.Enums.SubmissionStatus.AbstractApproved,
+                Models.Enums.SubmissionStatus.FullPaperSubmitted,
+                Models.Enums.SubmissionStatus.UnderReview,
+                Models.Enums.SubmissionStatus.RevisionRequired,
+                Models.Enums.SubmissionStatus.Accepted,
+                Models.Enums.SubmissionStatus.Rejected
+            };
+            
+            // Nếu không có filter status, mặc định chỉ lấy FullPaperSubmitted và UnderReview
+            if (string.IsNullOrEmpty(filter.Status))
+            {
+                // Không set default, để hiển thị tất cả full paper statuses
+            }
+            
+            var submissions = await _adminService.GetSubmissionsAsync(filter);
+            
+            // Filter lại để chỉ lấy full paper-related submissions
+            submissions.Items = submissions.Items
+                .Where(s => fullPaperStatuses.Contains(Enum.Parse<Models.Enums.SubmissionStatus>(s.Status)))
+                .ToList();
+            submissions.TotalCount = submissions.Items.Count;
+            
+            // Load topics and keywords for filter dropdowns
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+            
+            if (activeConference != null)
+            {
+                ViewBag.Topics = await _context.Topics
+                    .Where(t => t.ConferenceId == activeConference.Id && t.IsActive)
+                    .OrderBy(t => t.OrderIndex)
+                    .ThenBy(t => t.Name)
+                    .ToListAsync();
+                
+                ViewBag.Keywords = await _context.Keywords
+                    .Where(k => k.ConferenceId == activeConference.Id && k.Status == Models.Enums.KeywordStatus.Approved)
+                    .OrderBy(k => k.Name)
+                    .ToListAsync();
+            }
+            
+            ViewBag.Filter = filter;
+            ViewBag.StatusOptions = fullPaperStatuses.Select(s => s.ToString()).ToArray();
+            ViewBag.PageType = "FullPaper";
+            return View("Submissions", submissions);
+        }
+
         public async Task<IActionResult> SubmissionDetails(int id)
         {
             var submission = await _adminService.GetSubmissionDetailsAsync(id);
@@ -87,8 +210,12 @@ namespace SciSubmit.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveAbstract(int id)
         {
-            // TODO: Get adminId from current user
-            var adminId = 1; // Placeholder
+            var adminId = await GetCurrentAdminIdAsync();
+            if (adminId == 0)
+            {
+                TempData["ErrorMessage"] = "Không xác định được quản trị viên.";
+                return RedirectToAction(nameof(SubmissionDetails), new { id });
+            }
             var result = await _adminService.ApproveAbstractAsync(id, adminId);
             if (result)
             {
@@ -111,8 +238,12 @@ namespace SciSubmit.Controllers
                 return RedirectToAction(nameof(SubmissionDetails), new { id });
             }
 
-            // TODO: Get adminId from current user
-            var adminId = 1; // Placeholder
+            var adminId = await GetCurrentAdminIdAsync();
+            if (adminId == 0)
+            {
+                TempData["ErrorMessage"] = "Không xác định được quản trị viên.";
+                return RedirectToAction(nameof(SubmissionDetails), new { id });
+            }
             var result = await _adminService.RejectAbstractAsync(id, adminId, reason);
             if (result)
             {
@@ -151,6 +282,29 @@ namespace SciSubmit.Controllers
             return View(assignments);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableReviewers(int submissionId)
+        {
+            try
+            {
+                var reviewers = await _adminService.GetAvailableReviewersAsync(submissionId);
+                var reviewerList = reviewers.Select(r => new
+                {
+                    id = r.Id,
+                    fullName = r.FullName,
+                    email = r.Email,
+                    affiliation = r.Affiliation
+                }).ToList();
+
+                return Json(new { success = true, reviewers = reviewerList });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading available reviewers");
+                return Json(new { success = false, message = "Lỗi khi tải danh sách reviewer." });
+            }
+        }
+
         public async Task<IActionResult> AssignReviewer(int? submissionId)
         {
             if (!submissionId.HasValue || submissionId.Value <= 0)
@@ -169,8 +323,10 @@ namespace SciSubmit.Controllers
             }
 
             // Check if submission is in valid status for assignment
+            // Cho phép assign reviewer cho cả abstract review và full paper review
             var validStatuses = new[] 
             { 
+                Models.Enums.SubmissionStatus.PendingAbstractReview, // Cho phép assign reviewer để review abstract
                 Models.Enums.SubmissionStatus.AbstractApproved,
                 Models.Enums.SubmissionStatus.FullPaperSubmitted,
                 Models.Enums.SubmissionStatus.UnderReview
@@ -178,7 +334,7 @@ namespace SciSubmit.Controllers
             
             if (!validStatuses.Contains(submission.Status))
             {
-                TempData["ErrorMessage"] = $"Không thể phân công phản biện. Trạng thái bài báo hiện tại: {submission.Status}. Chỉ có thể phân công khi bài báo ở trạng thái: Đã duyệt tóm tắt, Đã nộp Full-text, hoặc Đang phản biện.";
+                TempData["ErrorMessage"] = $"Không thể phân công phản biện. Trạng thái bài báo hiện tại: {submission.Status}. Chỉ có thể phân công khi bài báo ở trạng thái: Đang chờ duyệt tóm tắt, Đã duyệt tóm tắt, Đã nộp Full-text, hoặc Đang phản biện.";
                 return RedirectToAction(nameof(SubmissionDetails), new { id = submissionId.Value });
             }
 
@@ -207,23 +363,41 @@ namespace SciSubmit.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignReviewer(int submissionId, int reviewerId, DateTime deadline)
         {
-            // Validate inputs - check if values are actually provided
+            // Check if this is an AJAX request
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest" || 
+                         Request.Headers["Accept"].ToString().Contains("application/json");
+
+            // Helper function to return JSON for AJAX or redirect for normal requests
+            IActionResult ReturnError(string message)
+            {
+                if (isAjax)
+                    return Json(new { success = false, message = message });
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction(nameof(SubmissionDetails), new { id = submissionId });
+            }
+
+            IActionResult ReturnSuccess(string message)
+            {
+                if (isAjax)
+                    return Json(new { success = true, message = message });
+                TempData["SuccessMessage"] = message;
+                return RedirectToAction(nameof(SubmissionDetails), new { id = submissionId });
+            }
+
+            // Validate inputs
             if (submissionId <= 0)
             {
-                TempData["ErrorMessage"] = "Lỗi: Không tìm thấy bài báo. Vui lòng quay lại và chọn bài báo.";
-                return RedirectToAction(nameof(Assignments));
+                return ReturnError("Lỗi: Không tìm thấy bài báo. Vui lòng quay lại và chọn bài báo.");
             }
             
             if (reviewerId <= 0)
             {
-                TempData["ErrorMessage"] = "Vui lòng chọn reviewer.";
-                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+                return ReturnError("Vui lòng chọn reviewer.");
             }
 
             if (deadline == default(DateTime))
             {
-                TempData["ErrorMessage"] = "Vui lòng chọn deadline.";
-                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+                return ReturnError("Vui lòng chọn deadline.");
             }
 
             // Convert local time to UTC if needed (datetime-local sends as Unspecified)
@@ -251,21 +425,21 @@ namespace SciSubmit.Controllers
             // Validate deadline is in the future
             if (utcDeadline <= DateTime.UtcNow)
             {
-                TempData["ErrorMessage"] = "Deadline phải trong tương lai.";
-                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+                return ReturnError("Deadline phải trong tương lai.");
             }
 
             // Check submission status before assigning
             var submission = await _context.Submissions.FindAsync(submissionId);
             if (submission == null)
             {
-                TempData["ErrorMessage"] = "Không tìm thấy bài báo với ID: " + submissionId;
-                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+                return ReturnError("Không tìm thấy bài báo với ID: " + submissionId);
             }
 
             // Check if submission is in valid status for assignment
+            // Cho phép assign reviewer cho cả abstract review và full paper review
             var validStatuses = new[] 
             { 
+                Models.Enums.SubmissionStatus.PendingAbstractReview, // Cho phép assign reviewer để review abstract
                 Models.Enums.SubmissionStatus.AbstractApproved,
                 Models.Enums.SubmissionStatus.FullPaperSubmitted,
                 Models.Enums.SubmissionStatus.UnderReview
@@ -273,8 +447,7 @@ namespace SciSubmit.Controllers
             
             if (!validStatuses.Contains(submission.Status))
             {
-                TempData["ErrorMessage"] = $"Không thể phân công phản biện. Trạng thái bài báo hiện tại: {submission.Status}. Chỉ có thể phân công khi bài báo ở trạng thái: Đã duyệt tóm tắt, Đã nộp Full-text, hoặc Đang phản biện.";
-                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+                return ReturnError($"Không thể phân công phản biện. Trạng thái bài báo hiện tại: {submission.Status}. Chỉ có thể phân công khi bài báo ở trạng thái: Đang chờ duyệt tóm tắt, Đã duyệt tóm tắt, Đã nộp Full-text, hoặc Đang phản biện.");
             }
 
             // Check if reviewer already assigned to this submission
@@ -283,20 +456,22 @@ namespace SciSubmit.Controllers
             
             if (existingAssignment != null)
             {
-                TempData["ErrorMessage"] = "Reviewer này đã được phân công cho bài báo này rồi.";
-                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+                return ReturnError("Reviewer này đã được phân công cho bài báo này rồi.");
             }
 
-            // TODO: Get adminId from current user
-            var adminId = 1; // Placeholder
+            // Get adminId from current user
+            var adminId = await GetCurrentAdminIdAsync();
+            if (adminId == 0)
+            {
+                return ReturnError("Không xác định được quản trị viên.");
+            }
             
             try
             {
                 var result = await _adminService.AssignReviewerAsync(submissionId, reviewerId, utcDeadline, adminId);
                 if (result)
                 {
-                    TempData["SuccessMessage"] = "Đã phân công phản biện thành công!";
-                    return RedirectToAction(nameof(SubmissionDetails), new { id = submissionId });
+                    return ReturnSuccess("Đã phân công phản biện thành công!");
                 }
                 else
                 {
@@ -316,23 +491,208 @@ namespace SciSubmit.Controllers
                     {
                         errorMsg += "Reviewer này đã bị vô hiệu hóa.";
                     }
-                    else if (utcDeadline <= DateTime.UtcNow)
-                    {
-                        errorMsg += "Deadline phải trong tương lai.";
-                    }
                     else
                     {
                         errorMsg += "Vui lòng kiểm tra lại (có thể reviewer đã được phân công rồi hoặc có lỗi xảy ra).";
                     }
                     
-                    TempData["ErrorMessage"] = errorMsg;
-                    return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+                    return ReturnError(errorMsg);
                 }
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Lỗi khi phân công phản biện: {ex.Message}";
-                return RedirectToAction(nameof(AssignReviewer), new { submissionId });
+                _logger.LogError(ex, "Error assigning reviewer");
+                return ReturnError($"Lỗi khi phân công phản biện: {ex.Message}");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignFullPaperReviewers(int submissionId, List<int> reviewerIds, DateTime deadline)
+        {
+            // Check if this is an AJAX request
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest" || 
+                         Request.Headers["Accept"].ToString().Contains("application/json");
+
+            // Helper function to return JSON for AJAX or redirect for normal requests
+            IActionResult ReturnError(string message)
+            {
+                if (isAjax)
+                    return Json(new { success = false, message = message });
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction(nameof(SubmissionDetails), new { id = submissionId });
+            }
+
+            IActionResult ReturnSuccess(string message)
+            {
+                if (isAjax)
+                    return Json(new { success = true, message = message });
+                TempData["SuccessMessage"] = message;
+                return RedirectToAction(nameof(SubmissionDetails), new { id = submissionId });
+            }
+
+            // Validate inputs
+            if (submissionId <= 0)
+            {
+                return ReturnError("Lỗi: Không tìm thấy bài báo. Vui lòng quay lại và chọn bài báo.");
+            }
+
+            // Filter out empty values and validate
+            reviewerIds = reviewerIds?.Where(id => id > 0).Distinct().ToList() ?? new List<int>();
+            
+            if (reviewerIds.Count == 0)
+            {
+                return ReturnError("Vui lòng chọn ít nhất một reviewer.");
+            }
+
+            if (reviewerIds.Count != 3)
+            {
+                return ReturnError("Vui lòng chọn đúng 3 reviewers.");
+            }
+
+            // Check for duplicates
+            if (reviewerIds.Count != reviewerIds.Distinct().Count())
+            {
+                return ReturnError("Các reviewers không được trùng nhau. Vui lòng chọn 3 reviewers khác nhau.");
+            }
+
+            if (deadline == default(DateTime))
+            {
+                return ReturnError("Vui lòng chọn deadline.");
+            }
+
+            // Convert local time to UTC if needed
+            TimeZoneInfo localTimeZone = TimeZoneInfo.Local;
+            DateTime utcDeadline;
+            if (deadline.Kind == DateTimeKind.Unspecified)
+            {
+                utcDeadline = TimeZoneInfo.ConvertTimeToUtc(deadline, localTimeZone);
+            }
+            else if (deadline.Kind == DateTimeKind.Local)
+            {
+                utcDeadline = deadline.ToUniversalTime();
+            }
+            else if (deadline.Kind == DateTimeKind.Utc)
+            {
+                utcDeadline = deadline;
+            }
+            else
+            {
+                utcDeadline = TimeZoneInfo.ConvertTimeToUtc(deadline, localTimeZone);
+            }
+
+            // Validate deadline is in the future
+            if (utcDeadline <= DateTime.UtcNow)
+            {
+                return ReturnError("Deadline phải trong tương lai.");
+            }
+
+            // Check submission status
+            var submission = await _context.Submissions.FindAsync(submissionId);
+            if (submission == null)
+            {
+                return ReturnError("Không tìm thấy bài báo với ID: " + submissionId);
+            }
+
+            // Check if submission is in valid status for full paper assignment
+            var validStatuses = new[] 
+            { 
+                Models.Enums.SubmissionStatus.AbstractApproved,
+                Models.Enums.SubmissionStatus.FullPaperSubmitted,
+                Models.Enums.SubmissionStatus.UnderReview
+            };
+            
+            if (!validStatuses.Contains(submission.Status))
+            {
+                return ReturnError($"Không thể phân công phản biện. Trạng thái bài báo hiện tại: {submission.Status}. Chỉ có thể phân công khi bài báo ở trạng thái: Đã duyệt tóm tắt, Đã nộp Full-text, hoặc Đang phản biện.");
+            }
+
+            // Get adminId from current user
+            var adminId = await GetCurrentAdminIdAsync();
+            if (adminId == 0)
+            {
+                return ReturnError("Không xác định được quản trị viên.");
+            }
+
+            try
+            {
+                // Check if reviewers exist and are valid
+                var reviewers = new List<Models.Identity.User>();
+                foreach (var reviewerId in reviewerIds)
+                {
+                    var reviewer = await _context.Users.FindAsync(reviewerId);
+                    if (reviewer == null)
+                    {
+                        return ReturnError($"Reviewer với ID {reviewerId} không tồn tại.");
+                    }
+                    if (reviewer.Role != Models.Enums.UserRole.Reviewer)
+                    {
+                        return ReturnError($"Người dùng {reviewer.FullName} không phải là Reviewer.");
+                    }
+                    if (!reviewer.IsActive)
+                    {
+                        return ReturnError($"Reviewer {reviewer.FullName} đã bị vô hiệu hóa.");
+                    }
+                    reviewers.Add(reviewer);
+                }
+
+                // Check if any reviewer is already assigned to this submission
+                var existingAssignments = await _context.ReviewAssignments
+                    .Where(ra => ra.SubmissionId == submissionId && reviewerIds.Contains(ra.ReviewerId))
+                    .ToListAsync();
+                
+                if (existingAssignments.Any())
+                {
+                    var assignedReviewerIds = existingAssignments.Select(ra => ra.ReviewerId).ToList();
+                    var assignedNames = reviewers
+                        .Where(r => assignedReviewerIds.Contains(r.Id))
+                        .Select(r => r.FullName)
+                        .ToList();
+                    return ReturnError($"Một số reviewers đã được phân công cho bài báo này: {string.Join(", ", assignedNames)}");
+                }
+
+                // Assign all 3 reviewers
+                var successCount = 0;
+                var errors = new List<string>();
+
+                foreach (var reviewerId in reviewerIds)
+                {
+                    var result = await _adminService.AssignReviewerAsync(submissionId, reviewerId, utcDeadline, adminId);
+                    if (result)
+                    {
+                        successCount++;
+                    }
+                    else
+                    {
+                        var reviewer = reviewers.First(r => r.Id == reviewerId);
+                        errors.Add($"Không thể phân công reviewer {reviewer.FullName}");
+                    }
+                }
+
+                if (successCount == 3)
+                {
+                    return ReturnSuccess($"Đã phân công thành công 3 reviewers cho bài báo!");
+                }
+                else if (successCount > 0)
+                {
+                    // Some succeeded, some failed - rollback all
+                    var assigned = await _context.ReviewAssignments
+                        .Where(ra => ra.SubmissionId == submissionId && reviewerIds.Contains(ra.ReviewerId))
+                        .ToListAsync();
+                    _context.ReviewAssignments.RemoveRange(assigned);
+                    await _context.SaveChangesAsync();
+                    
+                    return ReturnError($"Chỉ phân công được {successCount}/3 reviewers. Đã hủy tất cả assignments. Lỗi: {string.Join(", ", errors)}");
+                }
+                else
+                {
+                    return ReturnError($"Không thể phân công reviewers. Lỗi: {string.Join(", ", errors)}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error assigning reviewers {ReviewerIds} to submission {SubmissionId}", string.Join(",", reviewerIds), submissionId);
+                return ReturnError("Đã xảy ra lỗi khi phân công phản biện. Vui lòng thử lại sau.");
             }
         }
 
@@ -467,6 +827,84 @@ namespace SciSubmit.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy người dùng." });
+            }
+
+            var userData = new
+            {
+                success = true,
+                user = new
+                {
+                    id = user.Id,
+                    email = user.Email,
+                    fullName = user.FullName,
+                    phoneNumber = user.PhoneNumber ?? "",
+                    affiliation = user.Affiliation ?? "",
+                    role = user.Role.ToString(),
+                    emailConfirmed = user.EmailConfirmed,
+                    isActive = user.IsActive
+                }
+            };
+
+            return Json(userData);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateUser(UpdateUserViewModel model)
+        {
+            // Check if this is an AJAX request
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest" || 
+                         Request.Headers["Accept"].ToString().Contains("application/json");
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                var errorMessage = string.Join(" ", errors);
+                
+                if (isAjax)
+                {
+                    return Json(new { success = false, message = errorMessage ?? "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại." });
+                }
+                
+                TempData["ErrorMessage"] = errorMessage ?? "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
+                return RedirectToAction(nameof(Users));
+            }
+
+            var result = await _adminService.UpdateUserAsync(model);
+            if (result)
+            {
+                if (isAjax)
+                {
+                    return Json(new { success = true, message = "Đã cập nhật thông tin người dùng thành công!" });
+                }
+                
+                TempData["SuccessMessage"] = "Đã cập nhật thông tin người dùng thành công!";
+            }
+            else
+            {
+                if (isAjax)
+                {
+                    return Json(new { success = false, message = "Không thể cập nhật thông tin người dùng. Email có thể đã tồn tại." });
+                }
+                
+                TempData["ErrorMessage"] = "Không thể cập nhật thông tin người dùng. Email có thể đã tồn tại.";
+            }
+            
+            if (isAjax)
+            {
+                return Json(new { success = result });
+            }
+            
+            return RedirectToAction(nameof(Users));
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateUserRole(int userId, string newRole)
@@ -479,6 +917,22 @@ namespace SciSubmit.Controllers
             else
             {
                 TempData["ErrorMessage"] = "Không thể cập nhật vai trò người dùng.";
+            }
+            return RedirectToAction(nameof(Users));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActivateUser(int userId)
+        {
+            var result = await _adminService.ActivateUserAsync(userId);
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Đã kích hoạt người dùng thành công!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Không thể kích hoạt người dùng.";
             }
             return RedirectToAction(nameof(Users));
         }
@@ -1941,7 +2395,7 @@ namespace SciSubmit.Controllers
         await _context.SaveChangesAsync();
 
         return Json(new { success = true });
-    }
+        }
 
     [HttpGet]
     public async Task<IActionResult> GetCommitteeSection(int id)

@@ -1,0 +1,374 @@
+@{
+    ViewData["Title"] = "Author Dashboard";
+    ViewData["HideMainHeader"] = true; // Hide main layout header, use dashboard's own header
+}
+
+<link rel="stylesheet" href="~/css/author-dashboard.css" />
+
+<!-- Author Dashboard -->
+<div class="author-dashboard">
+    @await Html.PartialAsync("_AuthorNavHeader")
+
+    <!-- Header Section -->
+    <div class="dashboard-header" id="dashboardHeader" style="background-image: url('https://images.pexels.com/photos/2977527/pexels-photo-2977527.jpeg');">
+        <!-- Animated Background Layers (like Home page) -->
+        <!-- Dark overlay layer (DEFI style) - makes background visible but slightly darkened -->
+        <div class="header-dark-overlay" id="headerDarkOverlay"></div>
+        <div class="header-mesh-gradient" id="headerMeshGradient"></div>
+        <div class="header-gradient-overlay" id="headerGradientOverlay"></div>
+        <div class="header-grid-overlay" id="headerGridOverlay"></div>
+        
+        <!-- Light Streaks - 2 Components at 2 sides (DEFI style) -->
+        <div class="header-light-streaks" id="headerLightStreaks">
+            <div class="light-streak light-streak-left"></div>
+            <div class="light-streak light-streak-right"></div>
+        </div>
+        
+        <!-- Particle Effects - Flying Up Animations -->
+        <div class="header-particles" id="headerParticles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+        
+        <div class="container">
+            <div class="header-content animate-fade-in-up text-center">
+                <h1 class="dashboard-title">
+                    <span class="title-primary">Submission</span> <span class="title-secondary">Process</span>
+                </h1>
+                <p class="dashboard-subtitle">Track your paper progress through 4 steps</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Steps Section -->
+    <section class="section progress-section position-relative bg-light" id="progress">
+        <div class="container position-relative" style="z-index: 1;">
+            <div class="progress-card card animate-slide-up">
+                <div class="card-body p-5">
+                    <div class="progress-steps" id="progressSteps">
+                        <div class="progress-line" id="progressLine" style="width: 0%;"></div>
+                        <div class="progress-line-glow" id="progressLineGlow" style="width: 0%;"></div>
+                        
+                        <div class="progress-step active" data-step="1">
+                            <div class="progress-step-circle">
+                                <div class="circle-ripple"></div>
+                                <i class="fas fa-file-alt progress-step-icon"></i>
+                            </div>
+                            <div class="progress-step-label">Abstract</div>
+                        </div>
+                        
+                        <div class="progress-step" data-step="2">
+                            <div class="progress-step-circle">
+                                <svg class="progress-step-icon progress-step-icon-doc" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    <path d="M14 2v6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <div class="progress-step-label">Full Paper</div>
+                        </div>
+                        
+                        <div class="progress-step" data-step="3">
+                            <div class="progress-step-circle">
+                                <i class="fas fa-clipboard-check progress-step-icon"></i>
+                            </div>
+                            <div class="progress-step-label">Review</div>
+                        </div>
+                        
+                        <div class="progress-step" data-step="4">
+                            <div class="progress-step-circle">
+                                <i class="fas fa-credit-card progress-step-icon"></i>
+                            </div>
+                            <div class="progress-step-label">Payment</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="section stats-section position-relative bg-white" id="statistics">
+        <div class="container position-relative" style="z-index: 1;">
+            <div class="row g-4">
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card animate-fade-in-up" style="animation-delay: 0.1s;">
+                        <div class="stat-card-shine"></div>
+                        <div class="stat-card-icon bg-primary text-white">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <div class="stat-card-value text-primary" id="statSubmissions" data-target="0">0</div>
+                        <div class="stat-card-label">SUBMISSIONS</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card animate-fade-in-up" style="animation-delay: 0.2s;">
+                        <div class="stat-card-shine"></div>
+                        <div class="stat-card-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);">
+                            <i class="fas fa-clock text-white"></i>
+                        </div>
+                        <div class="stat-card-value" style="color: #f59e0b;" id="statUnderReview" data-target="0">0</div>
+                        <div class="stat-card-label">UNDER REVIEW</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card animate-fade-in-up" style="animation-delay: 0.3s;">
+                        <div class="stat-card-shine"></div>
+                        <div class="stat-card-icon" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">
+                            <i class="fas fa-check-circle text-white"></i>
+                        </div>
+                        <div class="stat-card-value" style="color: #10b981;" id="statAccepted" data-target="0">0</div>
+                        <div class="stat-card-label">ACCEPTED</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="stat-card animate-fade-in-up" style="animation-delay: 0.4s;">
+                        <div class="stat-card-shine"></div>
+                        <div class="stat-card-icon" style="background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);">
+                            <i class="fas fa-times-circle text-white"></i>
+                        </div>
+                        <div class="stat-card-value" style="color: #ef4444;" id="statRejected" data-target="0">0</div>
+                        <div class="stat-card-label">REJECTED</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Submissions Section -->
+    <section class="section submissions-section position-relative bg-light">
+        <div class="container position-relative" style="z-index: 1;">
+            <div class="section-title animate-fade-in-up">
+                <h2>
+                    <span class="title-primary">Recent</span> <span class="title-secondary">Submissions</span>
+                </h2>
+                <p>List of your most recently submitted papers</p>
+            </div>
+            <div class="submissions-card card animate-slide-up-delay">
+                <div class="card-body p-4">
+                    <div id="recentSubmissionsContainer">
+                        <div class="text-center py-5">
+                            <div class="loading-spinner">
+                                <div class="spinner-ring"></div>
+                                <div class="spinner-ring"></div>
+                                <div class="spinner-ring"></div>
+                            </div>
+                            <p class="text-muted mt-4">Loading recent submissions...</p>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center mt-4">
+                        <a href="@Url.Action("Index")" class="btn btn-view-all">
+                            <i class="fas fa-list me-2"></i>View All Submissions
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Scroll to Top Button -->
+<button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<!-- Contact Editor Modal -->
+<div class="modal fade" id="contactEditorModal" tabindex="-1" aria-labelledby="contactEditorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactEditorModalLabel">
+                    <i class="fas fa-envelope me-2"></i>Contact Editor
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="contactEditorForm">
+                    <div class="mb-3">
+                        <label for="contactSubject" class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="contactSubject" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactMessage" class="form-label">Message</label>
+                        <textarea class="form-control" id="contactMessage" rows="5" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactSubmissionId" class="form-label">Related Submission (Optional)</label>
+                        <select class="form-select" id="contactSubmissionId">
+                            <option value="">Select a submission...</option>
+                            <!-- Will be populated dynamically -->
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="sendContactBtn">
+                    <i class="fas fa-paper-plane me-2"></i>Send Message
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Initialize progress bar based on submission status
+        document.addEventListener('DOMContentLoaded', function() {
+            // This should be set based on actual submission data
+            // For now, defaulting to step 1 (Abstract)
+            const currentStep = 1; // 1: Abstract, 2: Full Paper, 3: Review, 4: Payment
+            updateProgressBar(currentStep);
+            
+            // Load statistics
+            loadStatistics();
+            
+            // Load recent submissions
+            loadRecentSubmissions();
+        });
+
+        function updateProgressBar(currentStep) {
+            const steps = document.querySelectorAll('.progress-step');
+            const progressLine = document.getElementById('progressLine');
+            
+            steps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                step.classList.remove('active', 'completed');
+                
+                if (stepNumber < currentStep) {
+                    step.classList.add('completed');
+                    const circle = step.querySelector('.progress-step-circle');
+                    if (circle) {
+                        circle.innerHTML = '<i class="fas fa-check"></i>';
+                    }
+                } else if (stepNumber === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+            
+            // Update progress line
+            if (currentStep > 1) {
+                const progressPercent = ((currentStep - 1) / 3) * 100;
+                if (progressLine) {
+                    progressLine.style.width = progressPercent + '%';
+                }
+            }
+        }
+
+        function loadStatistics() {
+            // TODO: Load actual statistics from API
+            // For now, using placeholder values
+            document.getElementById('statSubmissions').textContent = '0';
+            document.getElementById('statUnderReview').textContent = '0';
+            document.getElementById('statAccepted').textContent = '0';
+            document.getElementById('statRejected').textContent = '0';
+        }
+
+        function loadRecentSubmissions() {
+            const container = document.getElementById('recentSubmissionsContainer');
+            
+            // TODO: Load actual submissions from API
+            // For now, showing empty state
+            setTimeout(() => {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No submissions yet. Create your first submission to get started!</p>
+                        <a href="@Url.Action("Create")" class="btn btn-primary mt-3">
+                            <i class="fas fa-plus-circle me-2"></i>Create New Submission
+                        </a>
+                    </div>
+                `;
+            }, 1000);
+        }
+
+        // Contact Editor functionality
+        const contactEditorBtn = document.getElementById('contactEditorBtn');
+        const contactEditorNavBtn = document.getElementById('contactEditorNavBtn');
+        
+        function showContactEditorModal() {
+            const modal = new bootstrap.Modal(document.getElementById('contactEditorModal'));
+            modal.show();
+        }
+        
+        contactEditorBtn?.addEventListener('click', showContactEditorModal);
+        contactEditorNavBtn?.addEventListener('click', function(e) {
+            e.preventDefault();
+            showContactEditorModal();
+        });
+
+        document.getElementById('sendContactBtn')?.addEventListener('click', function() {
+            const form = document.getElementById('contactEditorForm');
+            if (form.checkValidity()) {
+                // TODO: Implement send message logic
+                alert('Message sent successfully!');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('contactEditorModal'));
+                modal.hide();
+                form.reset();
+            } else {
+                form.reportValidity();
+            }
+        });
+
+        // Scroll to top button
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn?.classList.add('show');
+            } else {
+                scrollToTopBtn?.classList.remove('show');
+            }
+        });
+
+        scrollToTopBtn?.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Animate numbers on scroll
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const current = Math.floor(progress * (end - start) + start);
+                element.textContent = current;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Intersection Observer for statistics animation
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '0px'
+        };
+
+        const statsObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const cards = entry.target.querySelectorAll('.stat-card-value');
+                    cards.forEach(card => {
+                        const target = parseInt(card.getAttribute('data-target') || '0');
+                        animateValue(card, 0, target, 2000);
+                    });
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        const statsSection = document.querySelector('.stats-section');
+        if (statsSection) {
+            statsObserver.observe(statsSection);
+        }
+    </script>
+}
+
