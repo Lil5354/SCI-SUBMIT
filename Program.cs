@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.CookiePolicy;
 using SciSubmit.Data;
 using SciSubmit.Services;
 using SciSubmit.Jobs;
@@ -29,6 +30,14 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
 });
 
+// Configure Cookie Policy - Allow cookies on HTTP for development
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+    options.Secure = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
+    // HttpOnly is handled by individual cookie configurations (Session, Authentication cookies)
+});
+
 // Add Session
 builder.Services.AddSession(options =>
 {
@@ -53,35 +62,63 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath))
     .SetApplicationName("SciSubmit");
 
-// Authentication - Cookie
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Account/Login";
-        options.LogoutPath = "/Account/Logout";
-        options.AccessDeniedPath = "/Account/AccessDenied";
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
-        options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
-        options.ExpireTimeSpan = TimeSpan.FromDays(30);
-        options.SlidingExpiration = true;
-    });
-
-// Google OAuth - Only if configured
+// Authentication - Cookie & Google OAuth
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
 var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 
+var authBuilder = builder.Services.AddAuthentication(options =>
+{
+    // Default scheme for authentication (after login)
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    // Default challenge scheme (when user needs to login)
+    if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+    {
+        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    }
+})
+.AddCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
+    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+    options.SlidingExpiration = true;
+});
+
+// Google OAuth - Only if configured
 if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
 {
-    builder.Services.AddAuthentication()
-        .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+    authBuilder.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+    {
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
+        
+        // QUAN TRỌNG 1: Khai báo đúng đường dẫn Callback giống Google Console
+        options.CallbackPath = "/Account/GoogleCallback";
+        
+        // QUAN TRỌNG 2: Cấu hình TOÀN BỘ cookie cho HTTP Localhost
+        // Configure Correlation Cookie (OAuth state cookie) - CRITICAL for OAuth to work
+        options.CorrelationCookie.Name = ".AspNetCore.Correlation.Google";
+        options.CorrelationCookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest; // Chấp nhận HTTP
+        options.CorrelationCookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax; // Nới lỏng check site
+        options.CorrelationCookie.HttpOnly = true;
+        options.CorrelationCookie.IsEssential = true; // Cookie essential cho OAuth
+        options.CorrelationCookie.Path = "/"; // Đảm bảo cookie áp dụng cho toàn bộ site
+        
+        // Save tokens in authentication cookie for later use
+        options.SaveTokens = true;
+        
+        // Enable detailed logging for debugging OAuth failures
+        options.Events.OnRemoteFailure = context =>
         {
-            options.ClientId = googleClientId;
-            options.ClientSecret = googleClientSecret;
-            options.CallbackPath = "/Account/GoogleCallback";
-            options.CorrelationCookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
-            options.CorrelationCookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
-        });
+            Console.WriteLine($"[GOOGLE OAUTH ERROR] {context.Failure?.Message}");
+            Console.WriteLine($"[GOOGLE OAUTH ERROR] Stack: {context.Failure?.StackTrace}");
+            return Task.CompletedTask;
+        };
+    });
 }
 
 // Add Services
@@ -133,8 +170,12 @@ else
     app.UseDeveloperExceptionPage();
 }
 
+// HTTPS Redirection - Enable for OAuth to work properly
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// IMPORTANT: Cookie Policy must be before Session and Authentication
+app.UseCookiePolicy();
 
 // IMPORTANT: Session must be before Authentication
 app.UseSession();

@@ -50,6 +50,11 @@ namespace SciSubmit.Models.Identity
 
         public int? TrackedSubmissionId { get; set; }
 
+        [MaxLength(500)]
+        public string? ResetPasswordToken { get; set; }
+
+        public DateTime? ResetPasswordTokenExpiry { get; set; }
+
         // Navigation Properties
         public virtual ICollection<Models.Submission.Submission> Submissions { get; set; } = new List<Models.Submission.Submission>();
         public virtual ICollection<Models.Review.ReviewAssignment> ReviewAssignments { get; set; } = new List<Models.Review.ReviewAssignment>();

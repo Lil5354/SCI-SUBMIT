@@ -207,6 +207,166 @@ namespace SciSubmit.Services
 </body>
 </html>";
         }
+
+        public static string GetPasswordResetEmail(
+            string userName,
+            string resetUrl,
+            string baseUrl)
+        {
+            return $@"
+<!DOCTYPE html>
+<html lang=""en"">
+<head>
+    <meta charset=""UTF-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+    <title>Password Reset Request</title>
+    <style>
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }}
+        .email-container {{
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }}
+        .email-header {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 30px 20px;
+            text-align: center;
+        }}
+        .email-header h1 {{
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }}
+        .email-body {{
+            padding: 30px 20px;
+        }}
+        .greeting {{
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333;
+        }}
+        .content-section {{
+            margin-bottom: 25px;
+        }}
+        .content-section p {{
+            font-size: 15px;
+            color: #555;
+            line-height: 1.8;
+        }}
+        .warning-box {{
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }}
+        .warning-box strong {{
+            color: #856404;
+        }}
+        .action-button {{
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px 0;
+        }}
+        .btn-reset {{
+            display: inline-block;
+            padding: 14px 32px;
+            background-color: #667eea;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }}
+        .btn-reset:hover {{
+            background-color: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }}
+        .link-fallback {{
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 15px;
+            word-break: break-all;
+        }}
+        .footer {{
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+        }}
+        .footer p {{
+            margin: 5px 0;
+        }}
+        .note {{
+            font-size: 13px;
+            color: #6c757d;
+            font-style: italic;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }}
+    </style>
+</head>
+<body>
+    <div class=""email-container"">
+        <div class=""email-header"">
+            <h1>Password Reset Request</h1>
+        </div>
+        <div class=""email-body"">
+            <div class=""greeting"">
+                Hello {userName},
+            </div>
+            
+            <div class=""content-section"">
+                <p>We received a request to reset your password for your SciSubmit account. If you did not make this request, please ignore this email.</p>
+            </div>
+            
+            <div class=""warning-box"">
+                <strong>Important:</strong> This password reset link will expire in <strong>24 hours</strong> for security reasons.
+            </div>
+            
+            <div class=""action-button"">
+                <a href=""{resetUrl}"" class=""btn-reset"">Reset Password</a>
+            </div>
+            
+            <div class=""link-fallback"">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                <a href=""{resetUrl}"" style=""color: #667eea;"">{resetUrl}</a>
+            </div>
+            
+            <div class=""note"">
+                <strong>Security Note:</strong> If you did not request a password reset, please ignore this email. Your password will remain unchanged.
+            </div>
+            
+            <div class=""content-section"">
+                <p>Thank you,<br>
+                <strong>SciSubmit Conference Management System</strong></p>
+            </div>
+        </div>
+        <div class=""footer"">
+            <p>This is an automated message from the SciSubmit Conference Management System.</p>
+            <p>Please do not reply to this email. If you have any questions, please contact the conference administration.</p>
+        </div>
+    </div>
+</body>
+</html>";
+        }
     }
 }
 

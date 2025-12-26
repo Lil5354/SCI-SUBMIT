@@ -703,7 +703,7 @@ namespace SciSubmit.Controllers
             }
 
             if (submission.Status != Models.Enums.SubmissionStatus.AbstractApproved)
-            {
+        {
                 TempData["ErrorMessage"] = "Only approved abstracts can proceed to payment.";
                 return RedirectToAction(nameof(Details), new { id });
             }
@@ -810,7 +810,7 @@ namespace SciSubmit.Controllers
 
             // Check if abstract is approved
             if (submission.Status != Models.Enums.SubmissionStatus.AbstractApproved)
-            {
+        {
                 TempData["ErrorMessage"] = "Only approved abstracts can submit full paper.";
                 return RedirectToAction(nameof(Details), new { id });
             }
@@ -902,7 +902,7 @@ namespace SciSubmit.Controllers
                 if (submission.Status != Models.Enums.SubmissionStatus.AbstractApproved)
                 {
                     TempData["ErrorMessage"] = "Only approved abstracts can submit full paper.";
-                    return RedirectToAction(nameof(Details), new { id = submissionId });
+            return RedirectToAction(nameof(Details), new { id = submissionId });
                 }
 
                 // Check if payment is completed
@@ -1078,8 +1078,8 @@ namespace SciSubmit.Controllers
                 {
                     _logger.LogInformation($"Submission {id} withdrawn successfully by author {authorId}");
                     TempData["SuccessMessage"] = "Your submission has been withdrawn successfully. A confirmation email has been sent.";
-                    return RedirectToAction(nameof(Index));
-                }
+            return RedirectToAction(nameof(Index));
+        }
                 else
                 {
                     _logger.LogWarning($"Failed to withdraw submission {id} for author {authorId}");

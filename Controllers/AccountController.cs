@@ -21,19 +21,22 @@ namespace SciSubmit.Controllers
         private readonly IConfiguration _configuration;
         private readonly ILogger<AccountController> _logger;
         private readonly IFileStorageService _fileStorageService;
+        private readonly IEmailService _emailService;
 
         public AccountController(
             IUserService userService,
             ApplicationDbContext context,
             IConfiguration configuration,
             ILogger<AccountController> logger,
-            IFileStorageService fileStorageService)
+            IFileStorageService fileStorageService,
+            IEmailService emailService)
         {
             _userService = userService;
             _context = context;
             _configuration = configuration;
             _logger = logger;
             _fileStorageService = fileStorageService;
+            _emailService = emailService;
         }
         // GET: Account/Login
         public IActionResult Login(string? returnUrl = null)
@@ -206,9 +209,62 @@ namespace SciSubmit.Controllers
                 return View(model);
             }
 
-            // TODO: Implement password reset email logic
-            TempData["SuccessMessage"] = "Nếu email tồn tại, chúng tôi đã gửi link đặt lại mật khẩu.";
-            return RedirectToAction("Login");
+            try
+            {
+                // Find user by email
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Email == model.Email);
+
+                // Always show success message (security best practice - don't reveal if email exists)
+                if (user != null && !string.IsNullOrEmpty(user.Email))
+                {
+                    // Generate reset token
+                    var token = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32))
+                        .Replace("+", "-")
+                        .Replace("/", "_")
+                        .Replace("=", "");
+
+                    // Set token and expiry (24 hours)
+                    user.ResetPasswordToken = token;
+                    user.ResetPasswordTokenExpiry = DateTime.UtcNow.AddHours(24);
+                    await _context.SaveChangesAsync();
+
+                    // Generate reset URL
+                    var baseUrl = _configuration["AppSettings:BaseUrl"] ?? "http://localhost:5234";
+                    var resetUrl = $"{baseUrl}/Account/ResetPassword?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(user.Email)}";
+
+                    // Send email
+                    var emailBody = EmailTemplates.GetPasswordResetEmail(
+                        user.FullName,
+                        resetUrl,
+                        baseUrl);
+
+                    var emailSent = await _emailService.SendEmailAsync(
+                        user.Email,
+                        "Password Reset Request - SciSubmit",
+                        emailBody,
+                        isHtml: true);
+
+                    if (emailSent)
+                    {
+                        _logger.LogInformation("Password reset email sent to {Email}", user.Email);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Failed to send password reset email to {Email}", user.Email);
+                    }
+                }
+
+                // Always show success message (security best practice)
+                TempData["SuccessMessage"] = "If an account with that email exists, we have sent a password reset link.";
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing forgot password request for {Email}", model.Email);
+                TempData["ErrorMessage"] = "An error occurred. Please try again later.";
+                return View(model);
+            }
         }
 
         // GET: Account/ResetPassword
@@ -238,9 +294,57 @@ namespace SciSubmit.Controllers
                 return View(model);
             }
 
-            // TODO: Implement password reset logic
-            TempData["SuccessMessage"] = "Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập.";
-            return RedirectToAction("Login");
+            try
+            {
+                // Find user by email and token
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Email == model.Email && 
+                                             u.ResetPasswordToken == model.Token);
+
+                if (user == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid or expired reset token.");
+                    return View(model);
+                }
+
+                // Check if token is expired
+                if (user.ResetPasswordTokenExpiry == null || user.ResetPasswordTokenExpiry < DateTime.UtcNow)
+                {
+                    // Clear expired token
+                    user.ResetPasswordToken = null;
+                    user.ResetPasswordTokenExpiry = null;
+                    await _context.SaveChangesAsync();
+
+                    ModelState.AddModelError(string.Empty, "The reset token has expired. Please request a new one.");
+                    return View(model);
+                }
+
+                // Hash new password using same method as UserService
+                string newPasswordHash;
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                {
+                    var hashedBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(model.Password + "SciSubmitSalt"));
+                    newPasswordHash = Convert.ToBase64String(hashedBytes);
+                }
+
+                // Update password and clear reset token
+                user.PasswordHash = newPasswordHash;
+                user.ResetPasswordToken = null;
+                user.ResetPasswordTokenExpiry = null;
+                user.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Password reset successful for user {Email}", user.Email);
+
+                TempData["SuccessMessage"] = "Your password has been reset successfully. Please login with your new password.";
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error resetting password for {Email}", model.Email);
+                ModelState.AddModelError(string.Empty, "An error occurred. Please try again later.");
+                return View(model);
+            }
         }
 
         // GET: Account/Profile
@@ -434,7 +538,7 @@ namespace SciSubmit.Controllers
 
             if (string.IsNullOrEmpty(googleClientId) || string.IsNullOrEmpty(googleClientSecret))
             {
-                    TempData["ErrorMessage"] = "Google login is not configured.";
+                TempData["ErrorMessage"] = "Google login is not configured.";
                 return RedirectToAction("Login", new { returnUrl });
             }
 
@@ -448,10 +552,12 @@ namespace SciSubmit.Controllers
                 return RedirectToAction("Login", new { returnUrl });
             }
 
+            // CRITICAL: Don't set RedirectUri manually, let the CallbackPath in Program.cs handle it
+            // This prevents "state missing or invalid" errors
             var properties = new AuthenticationProperties
             {
-                RedirectUri = Url.Action("GoogleCallback", "Account", new { returnUrl }),
-                Items = { { "returnUrl", returnUrl ?? Url.Action("Index", "Home") } }
+                // Don't set RedirectUri here - use the CallbackPath configured in Program.cs
+                Items = { { "returnUrl", returnUrl ?? "/" } }
             };
 
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
@@ -500,21 +606,22 @@ namespace SciSubmit.Controllers
 
                 if (user == null)
                 {
-                    // Tạo user mới
+                    // Tạo user mới - Mặc định role là Author cho đăng ký mới
                     user = new User
                     {
                         Email = email,
                         FullName = name ?? email.Split('@')[0],
                         GoogleId = googleId,
-                        Role = UserRole.Guest,
+                        Role = UserRole.Author, // Default role for new registrations
                         EmailConfirmed = true, // Google đã xác thực email
                         IsActive = true,
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.UtcNow,
+                        PasswordHash = "GOOGLE_OAUTH" // Placeholder since Google OAuth doesn't use password
                     };
 
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
-                    _logger.LogInformation("Created new user from Google OAuth: {Email}", email);
+                    _logger.LogInformation("Created new user from Google OAuth: {Email} with role {Role}", email, user.Role);
                 }
                 else
                 {
@@ -561,8 +668,22 @@ namespace SciSubmit.Controllers
                 {
                     returnUrl = returnUrlFromProps;
                 }
+                
+                // Redirect based on user role
                 if (string.IsNullOrEmpty(returnUrl))
                 {
+                    // Check if user is admin
+                    bool isAdmin = user.Role == UserRole.Admin || 
+                                  user.Role.ToString().Equals("Admin", StringComparison.OrdinalIgnoreCase) ||
+                                  (int)user.Role == 3;
+                    
+                    if (isAdmin)
+                    {
+                        _logger.LogInformation("Redirecting admin user {Email} from Google OAuth to Admin Dashboard", user.Email);
+                        return RedirectToAction("Dashboard", "Admin");
+                    }
+                    
+                    _logger.LogInformation("Redirecting user {Email} from Google OAuth to Home", user.Email);
                     return RedirectToAction("Index", "Home");
                 }
 
@@ -623,8 +744,8 @@ namespace SciSubmit.Controllers
 
     public class ForgotPasswordViewModel
     {
-        [Required(ErrorMessage = "Email là bắt buộc")]
-        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
         [Display(Name = "Email")]
         public string Email { get; set; } = string.Empty;
     }
@@ -634,20 +755,20 @@ namespace SciSubmit.Controllers
         [Required]
         public string Token { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Email là bắt buộc")]
-        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
         [Display(Name = "Email")]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
-        [StringLength(100, ErrorMessage = "Mật khẩu phải có ít nhất {2} ký tự.", MinimumLength = 6)]
+        [Required(ErrorMessage = "Password is required")]
+        [StringLength(100, ErrorMessage = "Password must be at least {2} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Mật khẩu mới")]
+        [Display(Name = "New Password")]
         public string Password { get; set; } = string.Empty;
 
         [DataType(DataType.Password)]
-        [Display(Name = "Xác nhận mật khẩu")]
-        [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp.")]
+        [Display(Name = "Confirm Password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
     }
 
