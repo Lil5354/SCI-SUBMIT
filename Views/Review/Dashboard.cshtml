@@ -39,7 +39,7 @@
                 <h1 class="dashboard-title">
                     <span class="title-primary">Reviewer</span> <span class="title-secondary">Dashboard</span>
                 </h1>
-                <p class="dashboard-subtitle">Quản lý và thực hiện phản biện bài báo</p>
+                <p class="dashboard-subtitle">Manage and conduct paper reviews</p>
             </div>
         </div>
     </div>
@@ -54,15 +54,15 @@
                         <div class="card-body p-3">
                             <div class="d-flex justify-content-center gap-3 flex-wrap">
                                 <a href="#pendingReviews" class="btn btn-primary btn-lg shadow-sm hover-shadow">
-                                    <i class="fas fa-clock me-2"></i>Bài đang chờ phản biện
+                                    <i class="fas fa-clock me-2"></i>Pending Reviews
                                 </a>
                                 <a href="#completedReviews" class="btn btn-success btn-lg shadow-sm hover-shadow">
-                                    <i class="fas fa-check-circle me-2"></i>Bài đã hoàn thành
+                                    <i class="fas fa-check-circle me-2"></i>Completed Reviews
                                 </a>
                                 @if (Model.PendingReviews.Any())
                                 {
                                     <a href="@Url.Action("Details", new { id = Model.PendingReviews.First().Id })" class="btn btn-warning btn-lg shadow-sm hover-shadow">
-                                        <i class="fas fa-user-secret me-2"></i>Bắt đầu phản biện ẩn danh
+                                        <i class="fas fa-user-secret me-2"></i>Start Blind Review
                                     </a>
                                 }
                             </div>
@@ -79,7 +79,7 @@
                             <i class="fas fa-clipboard-list"></i>
                         </div>
                         <div class="stat-card-value text-primary" id="statTotal" data-target="@Model.TotalAssignments">@Model.TotalAssignments</div>
-                        <div class="stat-card-label">TỔNG SỐ BÀI</div>
+                        <div class="stat-card-label">TOTAL ASSIGNED</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6">
@@ -89,7 +89,7 @@
                             <i class="fas fa-hourglass-half text-white"></i>
                         </div>
                         <div class="stat-card-value" style="color: #f59e0b;" id="statPending" data-target="@Model.PendingAssignments">@Model.PendingAssignments</div>
-                        <div class="stat-card-label">CHỜ PHẢN HỒI</div>
+                        <div class="stat-card-label">AWAITING RESPONSE</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6">
@@ -99,7 +99,7 @@
                             <i class="fas fa-tasks text-white"></i>
                         </div>
                         <div class="stat-card-value" style="color: #3b82f6;" id="statAccepted" data-target="@Model.AcceptedAssignments">@Model.AcceptedAssignments</div>
-                        <div class="stat-card-label">ĐANG CHỜ PHẢN BIỆN</div>
+                        <div class="stat-card-label">PENDING REVIEW</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6">
@@ -109,7 +109,7 @@
                             <i class="fas fa-check-circle text-white"></i>
                         </div>
                         <div class="stat-card-value" style="color: #10b981;" id="statCompleted" data-target="@Model.CompletedAssignments">@Model.CompletedAssignments</div>
-                        <div class="stat-card-label">ĐÃ HOÀN THÀNH</div>
+                        <div class="stat-card-label">COMPLETED</div>
                     </div>
                 </div>
             </div>
@@ -119,7 +119,7 @@
                     <div class="col-12">
                         <div class="alert alert-warning animate-fade-in-up" style="animation-delay: 0.5s;">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Cảnh báo:</strong> Bạn có <strong>@Model.UrgentAssignments</strong> bài báo sắp hết hạn phản biện (còn dưới 3 ngày)!
+                            <strong>Warning:</strong> You have <strong>@Model.UrgentAssignments</strong> papers approaching review deadline (less than 3 days remaining)!
                         </div>
                     </div>
                 </div>
@@ -132,9 +132,9 @@
         <div class="container position-relative" style="z-index: 1;">
             <div class="section-title animate-fade-in-up">
                 <h2>
-                    <span class="title-primary">Bài đang chờ</span> <span class="title-secondary">phản biện</span>
+                    <span class="title-primary">Pending</span> <span class="title-secondary">Reviews</span>
                 </h2>
-                <p>Danh sách các bài báo đang chờ bạn phản biện</p>
+                <p>List of papers awaiting your review</p>
             </div>
             <div class="submissions-card card animate-slide-up-delay">
                 <div class="card-body p-4">
@@ -160,7 +160,7 @@
                                                 <div class="d-flex align-items-center gap-3 flex-wrap">
                                                     <small class="text-muted">
                                                         <i class="fas fa-calendar-alt me-1"></i>
-                                                        <strong>Hạn phản biện:</strong> 
+                                                        <strong>Review Deadline:</strong> 
                                                         <span class="@(review.IsUrgent ? "text-danger fw-bold" : "")">
                                                             @review.Deadline.ToString("dd/MM/yyyy HH:mm")
                                                         </span>
@@ -169,21 +169,21 @@
                                                     {
                                                         <small class="@(review.IsUrgent ? "badge bg-danger" : "badge bg-warning")">
                                                             <i class="fas fa-clock me-1"></i>
-                                                            Còn @review.DaysRemaining ngày
+                                                            @review.DaysRemaining days remaining
                                                         </small>
                                                     }
                                                     else if (review.DaysRemaining == 0)
                                                     {
                                                         <small class="badge bg-danger">
                                                             <i class="fas fa-exclamation-circle me-1"></i>
-                                                            Hết hạn hôm nay!
+                                                            Due today!
                                                         </small>
                                                     }
                                                     else
                                                     {
                                                         <small class="badge bg-danger">
                                                             <i class="fas fa-times-circle me-1"></i>
-                                                            Đã quá hạn @Math.Abs(review.DaysRemaining) ngày
+                                                            Overdue by @Math.Abs(review.DaysRemaining) days
                                                         </small>
                                                     }
                                                 </div>
@@ -191,24 +191,24 @@
                                             <div class="col-md-5 text-end">
                                                 <div class="mb-3">
                                                     <span class="badge @(review.IsUrgent ? "bg-danger" : "bg-warning") fs-6 px-3 py-2">
-                                                        @(review.IsUrgent ? "Sắp hết hạn" : "Đang chờ phản biện")
+                                                        @(review.IsUrgent ? "Urgent" : "Pending Review")
                                                     </span>
                                                 </div>
                                                 <div class="d-flex gap-2 justify-content-end flex-wrap">
                                                     @if (!string.IsNullOrEmpty(review.AbstractFileUrl))
                                                     {
                                                         <a href="@review.AbstractFileUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-file-pdf me-1"></i>Xem Abstract
+                                                            <i class="fas fa-file-pdf me-1"></i>View Abstract
                                                         </a>
                                                     }
                                                     @if (!string.IsNullOrEmpty(review.FullPaperFileUrl))
                                                     {
                                                         <a href="@review.FullPaperFileUrl" target="_blank" class="btn btn-sm btn-outline-info">
-                                                            <i class="fas fa-file-alt me-1"></i>Xem Full Paper
+                                                            <i class="fas fa-file-alt me-1"></i>View Full Paper
                                                         </a>
                                                     }
                                                     <a href="@Url.Action("Details", new { id = review.Id })" class="btn btn-success btn-lg shadow-sm hover-shadow">
-                                                        <i class="fas fa-user-secret me-2"></i>Phản biện ẩn danh
+                                                        <i class="fas fa-user-secret me-2"></i>Blind Review
                                                     </a>
                                                 </div>
                                             </div>
@@ -222,7 +222,7 @@
                     {
                         <div class="text-center py-5">
                             <i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">Hiện tại không có bài báo nào đang chờ phản biện.</p>
+                            <p class="text-muted">Currently no papers are pending review.</p>
                         </div>
                     }
                 </div>
@@ -235,9 +235,9 @@
         <div class="container position-relative" style="z-index: 1;">
             <div class="section-title animate-fade-in-up">
                 <h2>
-                    <span class="title-primary">Bài đã</span> <span class="title-secondary">hoàn thành</span>
+                    <span class="title-primary">Completed</span> <span class="title-secondary">Reviews</span>
                 </h2>
-                <p>Danh sách các bài báo bạn đã hoàn thành phản biện</p>
+                <p>List of papers you have completed reviewing</p>
             </div>
             <div class="submissions-card card animate-slide-up-delay">
                 <div class="card-body p-4">
@@ -263,7 +263,7 @@
                                                 <div class="d-flex align-items-center gap-3 flex-wrap">
                                                     <small class="text-success">
                                                         <i class="fas fa-check-circle me-1"></i>
-                                                        <strong>Đã hoàn thành:</strong> 
+                                                        <strong>Completed:</strong> 
                                                         @(review.CompletedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
                                                     </small>
                                                 </div>
@@ -271,15 +271,15 @@
                                             <div class="col-md-5 text-end">
                                                 <div class="mb-3">
                                                     <span class="badge bg-success fs-6 px-3 py-2">
-                                                        Đã hoàn thành
+                                                        Completed
                                                     </span>
                                                 </div>
                                                 <div class="d-flex gap-2 justify-content-end flex-wrap">
                                                     <a href="@review.AbstractFileUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-file-pdf me-1"></i>Xem lại Abstract
+                                                        <i class="fas fa-file-pdf me-1"></i>View Abstract
                                                     </a>
                                                     <a href="@Url.Action("Details", new { id = review.Id })" class="btn btn-info btn-lg shadow-sm hover-shadow">
-                                                        <i class="fas fa-eye me-2"></i>Xem đánh giá
+                                                        <i class="fas fa-eye me-2"></i>View Review
                                                     </a>
                                                 </div>
                                             </div>
@@ -293,7 +293,7 @@
                     {
                         <div class="text-center py-5">
                             <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">Bạn chưa hoàn thành phản biện bài báo nào.</p>
+                            <p class="text-muted">You haven't completed any reviews yet.</p>
                         </div>
                     }
                 </div>

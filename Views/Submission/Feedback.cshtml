@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Kết quả phản biện";
+    ViewData["Title"] = "Review Feedback";
     ViewData["HideMainHeader"] = true;
     var submissionId = ViewData["SubmissionId"] ?? 0;
 }
@@ -9,9 +9,9 @@
     <!-- Header -->
     <div class="mb-4">
         <h2 class="text-gradient mb-2">
-            <i class="fas fa-clipboard-check me-2"></i>Kết quả phản biện
+            <i class="fas fa-clipboard-check me-2"></i>Review Feedback
         </h2>
-        <p class="text-muted">Xem kết quả và nhận xét từ ban phản biện</p>
+        <p class="text-muted">View results and comments from the review committee</p>
     </div>
 
     <!-- Decision Result -->
@@ -19,8 +19,8 @@
         <div class="card-body text-center py-5">
             <div class="mb-4">
                 <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                <h3 class="text-success mb-2">Bài báo đã được chấp nhận!</h3>
-                <p class="text-muted">Chúc mừng! Bài báo của bạn đã được chấp nhận để trình bày tại hội thảo.</p>
+                <h3 class="text-success mb-2">Paper Accepted!</h3>
+                <p class="text-muted">Congratulations! Your paper has been accepted for presentation at the conference.</p>
             </div>
         </div>
     </div>
@@ -28,7 +28,7 @@
     <!-- Review Comments (Anonymous) -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Nhận xét từ phản biện (Ẩn danh)</h5>
+            <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Comments from Reviewers (Anonymous)</h5>
         </div>
         <div class="card-body">
             <!-- Reviewer 1 -->
@@ -36,39 +36,39 @@
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                         <h6 class="mb-1">
-                            <i class="fas fa-user-secret me-2 text-primary"></i>Phản biện 1
+                            <i class="fas fa-user-secret me-2 text-primary"></i>Reviewer 1
                         </h6>
                         <small class="text-muted">
-                            <i class="fas fa-calendar me-1"></i>Nộp lúc: 25/01/2025 16:30
+                            <i class="fas fa-calendar me-1"></i>Submitted: 25/01/2025 16:30
                         </small>
                     </div>
                     <div>
-                        <span class="badge bg-success">Chấp nhận</span>
+                        <span class="badge bg-success">Accept</span>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-semibold text-muted">Điểm số</label>
+                    <label class="form-label fw-semibold text-muted">Scores</label>
                     <div class="d-flex gap-3">
                         <div>
-                            <small class="text-muted d-block">Tính mới</small>
+                            <small class="text-muted d-block">Novelty</small>
                             <span class="badge bg-primary">4/5</span>
                         </div>
                         <div>
-                            <small class="text-muted d-block">Độ sâu</small>
+                            <small class="text-muted d-block">Depth</small>
                             <span class="badge bg-primary">5/5</span>
                         </div>
                         <div>
-                            <small class="text-muted d-block">Trình bày</small>
+                            <small class="text-muted d-block">Presentation</small>
                             <span class="badge bg-primary">4/5</span>
                         </div>
                         <div>
-                            <small class="text-muted d-block">Tổng điểm</small>
+                            <small class="text-muted d-block">Total Score</small>
                             <span class="badge bg-success">4.3/5</span>
                         </div>
                     </div>
                 </div>
                 <div>
-                    <label class="form-label fw-semibold text-muted">Nhận xét cho tác giả</label>
+                    <label class="form-label fw-semibold text-muted">Comments for Author</label>
                     <div class="bg-light p-3 rounded">
                         <p class="mb-0">Bài báo có chất lượng tốt, phương pháp nghiên cứu rõ ràng. Tuy nhiên, phần kết luận cần được mở rộng thêm để làm rõ đóng góp của nghiên cứu.</p>
                     </div>
@@ -80,39 +80,39 @@
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                         <h6 class="mb-1">
-                            <i class="fas fa-user-secret me-2 text-primary"></i>Phản biện 2
+                            <i class="fas fa-user-secret me-2 text-primary"></i>Reviewer 2
                         </h6>
                         <small class="text-muted">
-                            <i class="fas fa-calendar me-1"></i>Nộp lúc: 26/01/2025 10:15
+                            <i class="fas fa-calendar me-1"></i>Submitted: 26/01/2025 10:15
                         </small>
                     </div>
                     <div>
-                        <span class="badge bg-success">Chấp nhận</span>
+                        <span class="badge bg-success">Accept</span>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-semibold text-muted">Điểm số</label>
+                    <label class="form-label fw-semibold text-muted">Scores</label>
                     <div class="d-flex gap-3">
                         <div>
-                            <small class="text-muted d-block">Tính mới</small>
+                            <small class="text-muted d-block">Novelty</small>
                             <span class="badge bg-primary">5/5</span>
                         </div>
                         <div>
-                            <small class="text-muted d-block">Độ sâu</small>
+                            <small class="text-muted d-block">Depth</small>
                             <span class="badge bg-primary">4/5</span>
                         </div>
                         <div>
-                            <small class="text-muted d-block">Trình bày</small>
+                            <small class="text-muted d-block">Presentation</small>
                             <span class="badge bg-primary">5/5</span>
                         </div>
                         <div>
-                            <small class="text-muted d-block">Tổng điểm</small>
+                            <small class="text-muted d-block">Total Score</small>
                             <span class="badge bg-success">4.7/5</span>
                         </div>
                     </div>
                 </div>
                 <div>
-                    <label class="form-label fw-semibold text-muted">Nhận xét cho tác giả</label>
+                    <label class="form-label fw-semibold text-muted">Comments for Author</label>
                     <div class="bg-light p-3 rounded">
                         <p class="mb-0">Nghiên cứu có đóng góp quan trọng trong lĩnh vực. Phương pháp nghiên cứu phù hợp và kết quả thuyết phục. Khuyến nghị chấp nhận.</p>
                     </div>

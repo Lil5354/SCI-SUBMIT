@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace SciSubmit.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Reviewer,Author")]
     public class SubmissionController : Controller
     {
         private readonly ILogger<SubmissionController> _logger;

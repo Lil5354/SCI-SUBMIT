@@ -1,0 +1,13 @@
+@model SciSubmit.ViewComponents.UserAvatarViewModel
+
+@if (!string.IsNullOrEmpty(Model.AvatarUrl))
+{
+    <img src="@Model.AvatarUrl" alt="Avatar" class="rounded-circle me-2" 
+         style="width: 24px; height: 24px; object-fit: cover;" />
+}
+else
+{
+    <i class="fas fa-user-circle me-2"></i>
+}
+<span>@Model.UserName</span>
+

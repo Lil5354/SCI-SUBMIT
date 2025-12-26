@@ -265,16 +265,16 @@
                     const result = await response.json();
                     
                     if (result.success) {
-                        alert(result.message || 'Đã nộp bài thành công!');
+                        alert(result.message || 'Submission successful!');
                         window.location.href = '@Url.Action("Index", "Submission")';
                     } else {
-                        alert('Lỗi: ' + (result.errors?.join(', ') || result.message || 'Không thể nộp bài'));
+                        alert('Error: ' + (result.errors?.join(', ') || result.message || 'Unable to submit'));
                         submitButton.disabled = false;
                         submitButton.innerHTML = originalText;
                     }
                 } catch (error) {
                     console.error('Error submitting form:', error);
-                    alert('Có lỗi xảy ra khi nộp bài. Vui lòng thử lại.');
+                    alert('An error occurred while submitting. Please try again.');
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalText;
                 }
@@ -499,14 +499,14 @@
             const allowedExtensions = ['.doc', '.docx'];
             const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
             if (!allowedExtensions.includes(fileExtension)) {
-                alert('Chỉ chấp nhận file DOC hoặc DOCX');
+                alert('Only DOC or DOCX files are accepted');
                 this.value = '';
                 return;
             }
 
             // Validate file size
             if (file.size > 10 * 1024 * 1024) {
-                alert('File không được vượt quá 10MB');
+                alert('File size must not exceed 10MB');
                 this.value = '';
                 return;
             }

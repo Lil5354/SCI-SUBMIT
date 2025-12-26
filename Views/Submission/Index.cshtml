@@ -1,6 +1,6 @@
 @model List<SciSubmit.Models.Submission.Submission>
 @{
-    ViewData["Title"] = "Bài đã nộp";
+    ViewData["Title"] = "My Submissions";
     ViewData["HideMainHeader"] = true;
 }
 @await Html.PartialAsync("_AuthorNavHeader")
@@ -9,11 +9,11 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="text-gradient mb-2">Bài đã nộp</h2>
-            <p class="text-muted mb-0">Quản lý và theo dõi các bài báo đã nộp</p>
+            <h2 class="text-gradient mb-2">My Submissions</h2>
+            <p class="text-muted mb-0">Manage and track your submitted papers</p>
         </div>
         <a href="/Submission/Create" class="btn btn-primary">
-            <i class="fas fa-plus-circle me-2"></i>Nộp bài mới
+            <i class="fas fa-plus-circle me-2"></i>New Submission
         </a>
     </div>
 
@@ -23,10 +23,10 @@
             <form method="get" action="@Url.Action("Index", "Submission")">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label">Tìm kiếm</label>
+                        <label class="form-label">Search</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" name="search" class="form-control" placeholder="Tìm theo tiêu đề, tác giả..." value="@ViewBag.Search">
+                            <input type="text" name="search" class="form-control" placeholder="Search by title, author..." value="@ViewBag.Search">
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -61,7 +61,7 @@
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-filter me-1"></i>Lọc
+                            <i class="fas fa-filter me-1"></i>Filter
                         </button>
                     </div>
                 </div>
@@ -84,12 +84,12 @@
                     </colgroup>
                     <thead>
                         <tr>
-                            <th style="width: 5%; min-width: 50px; max-width: 60px; padding: 12px; text-align: center; vertical-align: middle; display: table-cell !important; box-sizing: border-box;">STT</th>
-                            <th style="width: 40%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Tiêu đề</th>
-                            <th style="width: 15%; min-width: 120px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Lĩnh vực</th>
-                            <th style="width: 15%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Trạng thái</th>
-                            <th style="width: 12%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Ngày nộp</th>
-                            <th style="width: 13%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Thao tác</th>
+                            <th style="width: 5%; min-width: 50px; max-width: 60px; padding: 12px; text-align: center; vertical-align: middle; display: table-cell !important; box-sizing: border-box;">#</th>
+                            <th style="width: 40%; min-width: 200px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Title</th>
+                            <th style="width: 15%; min-width: 120px; padding: 12px; vertical-align: middle; box-sizing: border-box;">Topic</th>
+                            <th style="width: 15%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Status</th>
+                            <th style="width: 12%; min-width: 100px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Submitted Date</th>
+                            <th style="width: 13%; min-width: 120px; padding: 12px; text-align: center; vertical-align: middle; box-sizing: border-box;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -109,7 +109,7 @@
                                         <div style="max-width: 100%; overflow: hidden; word-wrap: break-word;">
                                             <strong class="d-block mb-1" style="word-wrap: break-word; overflow-wrap: break-word;">@submission.Title</strong>
                                             <small class="text-muted d-block" style="word-wrap: break-word; overflow-wrap: break-word;">
-                                                Tác giả: @string.Join(", ", authors.Select(a => a.FullName))
+                                                Author: @string.Join(", ", authors.Select(a => a.FullName))
                                             </small>
                                         </div>
                                     </td>
@@ -131,13 +131,13 @@
                                             };
                                             var statusText = submission.Status switch
                                             {
-                                                SciSubmit.Models.Enums.SubmissionStatus.PendingAbstractReview => "Đang chờ xét duyệt",
-                                                SciSubmit.Models.Enums.SubmissionStatus.UnderReview => "Đang xét duyệt",
-                                                SciSubmit.Models.Enums.SubmissionStatus.RevisionRequired => "Yêu cầu chỉnh sửa",
-                                                SciSubmit.Models.Enums.SubmissionStatus.Accepted => "Đã chấp nhận",
-                                                SciSubmit.Models.Enums.SubmissionStatus.Rejected => "Đã từ chối",
-                                                SciSubmit.Models.Enums.SubmissionStatus.AbstractRejected => "Đã từ chối",
-                                                SciSubmit.Models.Enums.SubmissionStatus.Draft => "Nháp",
+                                                SciSubmit.Models.Enums.SubmissionStatus.PendingAbstractReview => "Pending Review",
+                                                SciSubmit.Models.Enums.SubmissionStatus.UnderReview => "Under Review",
+                                                SciSubmit.Models.Enums.SubmissionStatus.RevisionRequired => "Revision Required",
+                                                SciSubmit.Models.Enums.SubmissionStatus.Accepted => "Accepted",
+                                                SciSubmit.Models.Enums.SubmissionStatus.Rejected => "Rejected",
+                                                SciSubmit.Models.Enums.SubmissionStatus.AbstractRejected => "Rejected",
+                                                SciSubmit.Models.Enums.SubmissionStatus.Draft => "Draft",
                                                 _ => submission.Status.ToString()
                                             };
                                         }
@@ -174,7 +174,7 @@
                             <tr>
                                 <td colspan="6" class="text-center py-4">
                                     <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                    <p class="text-muted">Chưa có bài nộp nào. <a href="@Url.Action("Create", "Submission")">Nộp bài mới</a></p>
+                                    <p class="text-muted">No submissions yet. <a href="@Url.Action("Create", "Submission")">Create new submission</a></p>
                                 </td>
                             </tr>
                         }
@@ -193,7 +193,7 @@
                 <div class="card-body">
                     <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
                     <h4 class="mb-0">@(ViewBag.TotalSubmissions ?? 0)</h4>
-                    <small class="text-muted">Tổng số bài</small>
+                    <small class="text-muted">Total Submissions</small>
                 </div>
             </div>
         </div>
@@ -202,7 +202,7 @@
                 <div class="card-body">
                     <i class="fas fa-clock fa-2x text-warning mb-2"></i>
                     <h4 class="mb-0">@(ViewBag.PendingReview ?? 0)</h4>
-                    <small class="text-muted">Đang xét duyệt</small>
+                    <small class="text-muted">Under Review</small>
                 </div>
             </div>
         </div>
@@ -211,7 +211,7 @@
                 <div class="card-body">
                     <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
                     <h4 class="mb-0">@(ViewBag.Accepted ?? 0)</h4>
-                    <small class="text-muted">Đã chấp nhận</small>
+                    <small class="text-muted">Accepted</small>
                 </div>
             </div>
         </div>
@@ -220,7 +220,7 @@
                 <div class="card-body">
                     <i class="fas fa-edit fa-2x text-primary mb-2"></i>
                     <h4 class="mb-0">@(ViewBag.RevisionRequested ?? 0)</h4>
-                    <small class="text-muted">Cần chỉnh sửa</small>
+                    <small class="text-muted">Revision Required</small>
                 </div>
             </div>
         </div>

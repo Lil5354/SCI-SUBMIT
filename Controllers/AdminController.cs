@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using SciSubmit.Services;
 using SciSubmit.Models.Admin;
@@ -10,6 +11,7 @@ using System;
 
 namespace SciSubmit.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private readonly IAdminService _adminService;
@@ -1368,54 +1370,6 @@ namespace SciSubmit.Controllers
             return RedirectToAction(nameof(Timeline));
         }
 
-        // Full Papers Management
-        public async Task<IActionResult> FullPapers()
-        {
-            var fullPapers = await _context.FullPaperVersions
-                .Include(f => f.Submission)
-                    .ThenInclude(s => s.Author)
-                .Include(f => f.Submission)
-                    .ThenInclude(s => s.ReviewAssignments)
-                        .ThenInclude(ra => ra.Reviewer)
-                .Where(f => f.IsCurrentVersion)
-                .OrderByDescending(f => f.UploadedAt)
-                .Select(f => new Models.Admin.FullPaperViewModel
-                {
-                    Id = f.Id,
-                    SubmissionId = f.SubmissionId,
-                    Title = f.Submission.Title,
-                    AuthorName = f.Submission.Author.FullName,
-                    VersionNumber = f.VersionNumber,
-                    FileName = f.FileName,
-                    FileUrl = f.FileUrl,
-                    FileSize = f.FileSize,
-                    UploadedAt = f.UploadedAt,
-                    IsCurrentVersion = f.IsCurrentVersion,
-                    AssignedReviewers = f.Submission.ReviewAssignments
-                        .Select(ra => new Models.Admin.ReviewerAssignmentViewModel
-                        {
-                            ReviewAssignmentId = ra.Id,
-                            ReviewerId = ra.ReviewerId,
-                            ReviewerName = ra.Reviewer.FullName,
-                            ReviewerEmail = ra.Reviewer.Email,
-                            Status = ra.Status.ToString(),
-                            Deadline = ra.Deadline
-                        }).ToList(),
-                    CanAssignReviewer = f.Submission.Status == Models.Enums.SubmissionStatus.AbstractApproved || 
-                                       f.Submission.Status == Models.Enums.SubmissionStatus.UnderReview
-                })
-                .ToListAsync();
-
-            // Get available reviewers
-            ViewBag.Reviewers = await _context.Users
-                .Where(u => u.Role == Models.Enums.UserRole.Reviewer)
-                .OrderBy(u => u.FullName)
-                .Select(u => new { u.Id, u.FullName, u.Email })
-                .ToListAsync();
-
-            return View(fullPapers);
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignReviewers(int submissionId, List<int> reviewerIds)
@@ -1426,20 +1380,20 @@ namespace SciSubmit.Controllers
             if (reviewerIds.Count == 0)
             {
                 TempData["ErrorMessage"] = "Vui lòng chọn ít nhất một reviewer.";
-                return RedirectToAction(nameof(FullPapers));
+                return RedirectToAction(nameof(FullPaperSubmissions));
             }
 
             if (reviewerIds.Count > 3)
             {
                 TempData["ErrorMessage"] = "Tối đa chỉ được chọn 3 reviewers cho mỗi bài báo.";
-                return RedirectToAction(nameof(FullPapers));
+                return RedirectToAction(nameof(FullPaperSubmissions));
             }
             
             // Check for duplicates
             if (reviewerIds.Count != reviewerIds.Distinct().Count())
             {
                 TempData["ErrorMessage"] = "Bạn không thể chọn cùng một reviewer nhiều lần.";
-                return RedirectToAction(nameof(FullPapers));
+                return RedirectToAction(nameof(FullPaperSubmissions));
             }
 
             var submission = await _context.Submissions
@@ -1449,7 +1403,7 @@ namespace SciSubmit.Controllers
             if (submission == null)
             {
                 TempData["ErrorMessage"] = "Submission not found.";
-                return RedirectToAction(nameof(FullPapers));
+                return RedirectToAction(nameof(FullPaperSubmissions));
             }
 
             // Remove existing assignments for this submission
@@ -1495,7 +1449,7 @@ namespace SciSubmit.Controllers
 
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = $"Successfully assigned {reviewerIds.Count} reviewer(s) to the paper.";
-            return RedirectToAction(nameof(FullPapers));
+            return RedirectToAction(nameof(FullPaperSubmissions));
         }
 
         [HttpPost]
@@ -1521,7 +1475,7 @@ namespace SciSubmit.Controllers
                 if (existingReviewers.Count >= 5)
                 {
                     TempData["InfoMessage"] = "Đã có đủ reviewers trong hệ thống.";
-                    return RedirectToAction(nameof(FullPapers));
+                    return RedirectToAction(nameof(FullPaperSubmissions));
                 }
 
                 // Create test reviewers
@@ -1624,7 +1578,7 @@ namespace SciSubmit.Controllers
                 TempData["ErrorMessage"] = $"Lỗi khi thêm reviewers: {ex.Message}";
             }
 
-            return RedirectToAction(nameof(FullPapers));
+            return RedirectToAction(nameof(FullPaperSubmissions));
         }
 
         // Keynote Speakers Management

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SciSubmit.Models;
@@ -26,6 +27,32 @@ namespace SciSubmit.Controllers
             // Pass Google Maps API Key to view
             ViewBag.GoogleMapsApiKey = HttpContext.RequestServices.GetRequiredService<IConfiguration>()["GoogleMaps:ApiKey"] ?? "";
             return View();
+        }
+
+        [Authorize]
+        public IActionResult GoToAuthorDashboard()
+        {
+            // Admin và Reviewer có thể truy cập Author Dashboard
+            if (User.IsInRole("Admin") || User.IsInRole("Reviewer") || User.IsInRole("Author"))
+            {
+                return RedirectToAction("Dashboard", "Submission");
+            }
+            
+            TempData["ErrorMessage"] = "Bạn không có quyền hạn truy cập trang Author Dashboard. Vui lòng đăng nhập với tài khoản Author, Reviewer hoặc Admin.";
+            return RedirectToAction("Login", "Account", new { returnUrl = "/Submission/Dashboard" });
+        }
+
+        [Authorize]
+        public IActionResult GoToReviewerDashboard()
+        {
+            // Chỉ Admin và Reviewer có thể truy cập Reviewer Dashboard
+            if (User.IsInRole("Admin") || User.IsInRole("Reviewer"))
+            {
+                return RedirectToAction("Index", "Review");
+            }
+            
+            TempData["ErrorMessage"] = "Bạn không có quyền hạn truy cập trang Reviewer Dashboard. Vui lòng đăng nhập với tài khoản Reviewer hoặc Admin.";
+            return RedirectToAction("Login", "Account", new { returnUrl = "/Review" });
         }
 
         public async Task<IActionResult> GetInterfaceSettings()
@@ -278,6 +305,35 @@ namespace SciSubmit.Controllers
 
             ViewBag.ConferenceName = activeConference.Name;
             return View(viewModel);
+        }
+
+        public async Task<IActionResult> GetStatistics()
+        {
+            try
+            {
+                var reviewersCount = await _context.Users
+                    .Where(u => u.Role == UserRole.Reviewer && u.IsActive)
+                    .CountAsync();
+
+                var topicsCount = await _context.Topics
+                    .Where(t => t.IsActive)
+                    .CountAsync();
+
+                return Json(new
+                {
+                    reviewers = reviewersCount,
+                    topics = topicsCount
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading statistics");
+                return Json(new
+                {
+                    reviewers = 0,
+                    topics = 0
+                });
+            }
         }
 
         public IActionResult Privacy()

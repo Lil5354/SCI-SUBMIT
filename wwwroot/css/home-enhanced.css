@@ -3,6 +3,114 @@
    Combining current design with DEFI conference aesthetics
    ======================================== */
 
+/* Hover Lift Effect */
+.hover-lift {
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Conference Statistics Card Animations */
+.conference-stats-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.conference-stats-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+.stat-item {
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-5px) scale(1.05);
+}
+
+.stat-icon {
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover .stat-icon {
+    transform: scale(1.1) rotate(5deg);
+    opacity: 1 !important;
+}
+
+.stat-number {
+    transition: all 0.3s ease;
+    font-size: 2.5rem;
+    color: #ffffff !important;
+    text-shadow: 
+        0 0 10px rgba(255, 255, 255, 0.8),
+        0 0 20px rgba(255, 255, 255, 0.6),
+        0 0 30px rgba(255, 255, 255, 0.4),
+        0 0 40px rgba(255, 255, 255, 0.3),
+        0 0 50px rgba(255, 255, 255, 0.2);
+    font-weight: 700;
+    animation: glowPulse 2s ease-in-out infinite alternate;
+}
+
+.stat-item:hover .stat-number {
+    transform: scale(1.1);
+    text-shadow: 
+        0 0 15px rgba(255, 255, 255, 1),
+        0 0 30px rgba(255, 255, 255, 0.8),
+        0 0 45px rgba(255, 255, 255, 0.6),
+        0 0 60px rgba(255, 255, 255, 0.4),
+        0 0 75px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes glowPulse {
+    from {
+        text-shadow: 
+            0 0 10px rgba(255, 255, 255, 0.8),
+            0 0 20px rgba(255, 255, 255, 0.6),
+            0 0 30px rgba(255, 255, 255, 0.4),
+            0 0 40px rgba(255, 255, 255, 0.3),
+            0 0 50px rgba(255, 255, 255, 0.2);
+    }
+    to {
+        text-shadow: 
+            0 0 15px rgba(255, 255, 255, 1),
+            0 0 30px rgba(255, 255, 255, 0.8),
+            0 0 45px rgba(255, 255, 255, 0.6),
+            0 0 60px rgba(255, 255, 255, 0.4),
+            0 0 75px rgba(255, 255, 255, 0.3);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* ========================================
    CONFERENCE OVERVIEW SECTION - CUSTOM DESIGN
    Beautiful, modern design with custom SVG icons

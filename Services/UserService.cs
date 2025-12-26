@@ -140,6 +140,10 @@ namespace SciSubmit.Services
             user.Email = model.Email;
             user.PhoneNumber = model.PhoneNumber;
             user.Affiliation = model.Affiliation;
+            if (!string.IsNullOrEmpty(model.AvatarUrl))
+            {
+                user.AvatarUrl = model.AvatarUrl;
+            }
             user.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();

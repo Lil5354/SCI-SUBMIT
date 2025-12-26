@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -9,6 +10,7 @@ using SciSubmit.Models.Identity;
 using SciSubmit.Models.Enums;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace SciSubmit.Controllers
 {
@@ -18,17 +20,20 @@ namespace SciSubmit.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger<AccountController> _logger;
+        private readonly IFileStorageService _fileStorageService;
 
         public AccountController(
             IUserService userService,
             ApplicationDbContext context,
             IConfiguration configuration,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            IFileStorageService fileStorageService)
         {
             _userService = userService;
             _context = context;
             _configuration = configuration;
             _logger = logger;
+            _fileStorageService = fileStorageService;
         }
         // GET: Account/Login
         public IActionResult Login(string? returnUrl = null)
@@ -239,16 +244,31 @@ namespace SciSubmit.Controllers
         }
 
         // GET: Account/Profile
-        public IActionResult Profile()
+        [Authorize]
+        public async Task<IActionResult> Profile()
         {
-            // TODO: Get current user profile
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var user = await _userService.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var keywords = await _userService.GetUserKeywordsAsync(userId);
+
             var model = new ProfileViewModel
             {
-                Email = "user@example.com",
-                FullName = "Nguyễn Văn A",
-                PhoneNumber = "0123456789",
-                Affiliation = "Đại học ABC",
-                Keywords = new List<string> { "AI", "Machine Learning", "Data Science" }
+                Email = user.Email,
+                FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber,
+                Affiliation = user.Affiliation,
+                Keywords = keywords,
+                AvatarUrl = user.AvatarUrl
             };
 
             return View(model);
@@ -257,16 +277,109 @@ namespace SciSubmit.Controllers
         // POST: Account/Profile
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Profile(ProfileViewModel model)
+        [Authorize]
+        public async Task<IActionResult> Profile(ProfileViewModel model, IFormFile? avatarFile)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+        {
+                return RedirectToAction("Login");
+            }
+
             if (!ModelState.IsValid)
             {
+                // Reload keywords if validation fails
+                var keywords = await _userService.GetUserKeywordsAsync(userId);
+                model.Keywords = keywords;
+                var user = await _userService.GetUserByIdAsync(userId);
+                if (user != null)
+                {
+                    model.AvatarUrl = user.AvatarUrl;
+                }
                 return View(model);
             }
 
-            // TODO: Implement profile update logic
+            try
+            {
+                // Handle avatar upload
+                if (avatarFile != null && avatarFile.Length > 0)
+                {
+                    // Validate file type
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                    var fileExtension = Path.GetExtension(avatarFile.FileName).ToLowerInvariant();
+                    if (!allowedExtensions.Contains(fileExtension))
+                    {
+                        ModelState.AddModelError("AvatarFile", "Chỉ chấp nhận file ảnh (JPG, JPEG, PNG, GIF)");
+                        var keywords = await _userService.GetUserKeywordsAsync(userId);
+                        model.Keywords = keywords;
+                        var user = await _userService.GetUserByIdAsync(userId);
+                        if (user != null)
+                        {
+                            model.AvatarUrl = user.AvatarUrl;
+                        }
+                        return View(model);
+                    }
+
+                    // Validate file size (max 5MB)
+                    if (avatarFile.Length > 5 * 1024 * 1024)
+                    {
+                        ModelState.AddModelError("AvatarFile", "Kích thước file không được vượt quá 5MB");
+                        var keywords = await _userService.GetUserKeywordsAsync(userId);
+                        model.Keywords = keywords;
+                        var user = await _userService.GetUserByIdAsync(userId);
+                        if (user != null)
+                        {
+                            model.AvatarUrl = user.AvatarUrl;
+                        }
+                        return View(model);
+                    }
+
+                    // Delete old avatar if exists
+                    var userForAvatar = await _context.Users.FindAsync(userId);
+                    if (userForAvatar != null && !string.IsNullOrEmpty(userForAvatar.AvatarUrl))
+                    {
+                        await _fileStorageService.DeleteFileAsync(userForAvatar.AvatarUrl);
+                    }
+
+                    // Upload new avatar
+                    using (var stream = avatarFile.OpenReadStream())
+                    {
+                        var avatarPath = await _fileStorageService.UploadFileAsync(stream, avatarFile.FileName, "avatars");
+                        model.AvatarUrl = avatarPath;
+                    }
+                }
+
+                // Update profile
+                var success = await _userService.UpdateProfileAsync(userId, model);
+                if (!success)
+                {
+                    ModelState.AddModelError(string.Empty, "Cập nhật hồ sơ thất bại. Vui lòng thử lại.");
+                    var keywords = await _userService.GetUserKeywordsAsync(userId);
+                    model.Keywords = keywords;
+                    var user = await _userService.GetUserByIdAsync(userId);
+                    if (user != null)
+                    {
+                        model.AvatarUrl = user.AvatarUrl;
+                    }
+                    return View(model);
+                }
+
             TempData["SuccessMessage"] = "Cập nhật hồ sơ thành công!";
+                return RedirectToAction("Profile");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating profile for user {UserId}", userId);
+                ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi khi cập nhật hồ sơ. Vui lòng thử lại.");
+                var keywords = await _userService.GetUserKeywordsAsync(userId);
+                model.Keywords = keywords;
+                var user = await _userService.GetUserByIdAsync(userId);
+                if (user != null)
+                {
+                    model.AvatarUrl = user.AvatarUrl;
+                }
             return View(model);
+            }
         }
 
         // GET: Account/Settings
@@ -558,5 +671,8 @@ namespace SciSubmit.Controllers
 
         [Display(Name = "Từ khóa chuyên môn")]
         public List<string> Keywords { get; set; } = new List<string>();
+
+        [Display(Name = "Ảnh đại diện")]
+        public string? AvatarUrl { get; set; }
     }
 }

@@ -189,16 +189,20 @@
     transition: all 0.3s ease;
     border-radius: 6px;
     padding: 0.5rem 1rem !important;
+    background-color: transparent !important;
+    border: none !important;
 }
 
 .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: transparent !important;
     transform: translateY(-2px);
+    opacity: 0.8;
 }
 
 .nav-link.active {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.25) !important;
     font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Enhanced Dropdown */

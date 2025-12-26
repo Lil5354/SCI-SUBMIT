@@ -21,19 +21,19 @@
                     <li class="nav-item">
                         <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" 
                            href="@Url.Action("Index", "Review")#pendingReviews">
-                            <i class="fas fa-hourglass-half me-1"></i>Đang chờ phản biện
+                            <i class="fas fa-hourglass-half me-1"></i>Pending Reviews
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" 
                            href="@Url.Action("Index", "Review")#completedReviews">
-                            <i class="fas fa-check-circle me-1"></i>Đã hoàn thành
+                            <i class="fas fa-check-circle me-1"></i>Completed
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "History" ? "active" : "")" 
                            asp-controller="Review" asp-action="History">
-                            <i class="fas fa-history me-1"></i>Lịch sử
+                            <i class="fas fa-history me-1"></i>History
                         </a>
                     </li>
                 </ul>
@@ -41,8 +41,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="reviewerUserDropdown" 
                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle me-2"></i>
-                            <span>Account</span>
+                            @await Component.InvokeAsync("UserAvatar")
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="reviewerUserDropdown">
                             <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="fas fa-user me-2"></i>Profile</a></li>

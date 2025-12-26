@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Lời mời phản biện";
+    ViewData["Title"] = "Review Invitation";
     var assignmentId = ViewData["AssignmentId"] ?? 0;
 }
 
@@ -9,29 +9,29 @@
             <!-- Header -->
             <div class="mb-4 text-center">
                 <h2 class="text-gradient mb-2">
-                    <i class="fas fa-envelope me-2"></i>Lời mời phản biện
+                    <i class="fas fa-envelope me-2"></i>Review Invitation
                 </h2>
-                <p class="text-muted">Bạn đã được mời phản biện bài báo sau</p>
+                <p class="text-muted">You have been invited to review the following paper</p>
             </div>
 
             <!-- Paper Info (Blind) -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Thông tin bài báo</h5>
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Paper Information</h5>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info">
                         <i class="fas fa-user-secret me-2"></i>
-                        <strong>Blind Review:</strong> Thông tin tác giả đã được ẩn danh
+                        <strong>Blind Review:</strong> Author information has been anonymized
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold text-muted">Tiêu đề</label>
+                        <label class="form-label fw-semibold text-muted">Title</label>
                         <h5 class="mb-0">Nghiên cứu về ứng dụng AI trong quản lý tài chính</h5>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold text-muted">Tóm tắt (Abstract)</label>
+                        <label class="form-label fw-semibold text-muted">Abstract</label>
                         <div class="bg-light p-3 rounded" style="max-height: 200px; overflow-y: auto;">
                             <p class="mb-0">Đây là tóm tắt bài báo về nghiên cứu ứng dụng AI trong quản lý tài chính. Nghiên cứu này tập trung vào việc phân tích các phương pháp và công nghệ AI hiện đại được áp dụng trong lĩnh vực tài chính...</p>
                         </div>
@@ -39,11 +39,11 @@
 
                     <div class="row">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">Chủ đề</label>
-                            <p class="mb-0"><span class="badge bg-info">Tài chính & Kế toán</span></p>
+                            <label class="form-label fw-semibold text-muted">Topic</label>
+                            <p class="mb-0"><span class="badge bg-info">Finance & Accounting</span></p>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">Từ khóa</label>
+                            <label class="form-label fw-semibold text-muted">Keywords</label>
                             <div>
                                 <span class="badge bg-primary me-1">AI</span>
                                 <span class="badge bg-primary me-1">Machine Learning</span>
@@ -57,19 +57,19 @@
             <!-- Deadline Info -->
             <div class="card shadow-sm border-0 mb-4 border-warning">
                 <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Thông tin deadline</h5>
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Deadline Information</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="mb-1">Deadline phản biện</h6>
+                            <h6 class="mb-1">Review Deadline</h6>
                             <p class="mb-0 text-muted">30/01/2025 23:59</p>
                         </div>
                         <div class="text-end">
                             <div class="h5 mb-0 text-warning">
                                 <i class="fas fa-hourglass-half me-2"></i>
-                                <span id="countdownDays">10</span> ngày
-                                <span id="countdownHours">12</span> giờ
+                                <span id="countdownDays">10</span> days
+                                <span id="countdownHours">12</span> hours
                             </div>
                         </div>
                     </div>
@@ -79,25 +79,25 @@
             <!-- Decision Form -->
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Quyết định của bạn</h5>
+                    <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Your Decision</h5>
                 </div>
                 <div class="card-body">
                     <form id="invitationForm">
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <button type="button" class="btn btn-success btn-lg w-100" onclick="acceptInvitation()">
-                                    <i class="fas fa-check-circle me-2"></i>Chấp nhận
+                                    <i class="fas fa-check-circle me-2"></i>Accept
                                 </button>
                                 <small class="form-text text-muted d-block mt-2 text-center">
-                                    Bạn sẽ nhận bài báo để phản biện
+                                    You will receive the paper for review
                                 </small>
                             </div>
                             <div class="col-md-6">
                                 <button type="button" class="btn btn-danger btn-lg w-100" onclick="showRejectForm()">
-                                    <i class="fas fa-times-circle me-2"></i>Từ chối
+                                    <i class="fas fa-times-circle me-2"></i>Reject
                                 </button>
                                 <small class="form-text text-muted d-block mt-2 text-center">
-                                    Bạn sẽ không nhận bài này
+                                    You will not receive this paper
                                 </small>
                             </div>
                         </div>
@@ -106,19 +106,19 @@
                         <div id="rejectForm" style="display: none;">
                             <div class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                Vui lòng nhập lý do từ chối (tùy chọn)
+                                Please enter rejection reason (optional)
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Lý do từ chối</label>
+                                <label class="form-label fw-semibold">Rejection Reason</label>
                                 <textarea id="rejectReason" class="form-control" rows="3" 
-                                          placeholder="Nhập lý do từ chối (nếu có)"></textarea>
+                                          placeholder="Enter rejection reason (if any)"></textarea>
                             </div>
                             <div class="d-flex justify-content-end gap-2">
                                 <button type="button" class="btn btn-outline-secondary" onclick="hideRejectForm()">
-                                    Hủy
+                                    Cancel
                                 </button>
                                 <button type="button" class="btn btn-danger" onclick="rejectInvitation()">
-                                    <i class="fas fa-times me-2"></i>Xác nhận từ chối
+                                    <i class="fas fa-times me-2"></i>Confirm Rejection
                                 </button>
                             </div>
                         </div>
@@ -132,7 +132,7 @@
 @section Scripts {
     <script>
         function acceptInvitation() {
-            if (confirm('Bạn có chắc chắn muốn chấp nhận lời mời phản biện này không?')) {
+            if (confirm('Are you sure you want to accept this review invitation?')) {
                 // TODO: Submit to server
                 const form = document.createElement('form');
                 form.method = 'POST';
@@ -154,7 +154,7 @@
 
         function rejectInvitation() {
             const reason = document.getElementById('rejectReason').value.trim();
-            if (confirm('Bạn có chắc chắn muốn từ chối lời mời này không?')) {
+            if (confirm('Are you sure you want to reject this invitation?')) {
                 // TODO: Submit to server
                 const form = document.createElement('form');
                 form.method = 'POST';

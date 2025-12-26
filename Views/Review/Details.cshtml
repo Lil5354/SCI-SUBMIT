@@ -1,6 +1,6 @@
 @model SciSubmit.Models.Review.ReviewDetailsViewModel
 @{
-    ViewData["Title"] = "Phản biện bài báo";
+    ViewData["Title"] = "Review Paper";
     ViewData["HideMainHeader"] = true;
 }
 
@@ -10,9 +10,9 @@
     <!-- Header -->
     <div class="mb-4">
         <h2 class="text-gradient mb-2">
-            <i class="fas fa-clipboard-check me-2"></i>Phản biện bài báo
+            <i class="fas fa-clipboard-check me-2"></i>Review Paper
         </h2>
-        <p class="text-muted">Thực hiện phản biện ẩn danh (Blind Review)</p>
+        <p class="text-muted">Perform anonymous review (Blind Review)</p>
     </div>
 
     <!-- Alert Messages -->
@@ -34,7 +34,7 @@
     <!-- Paper Information Card (Blind Review - No Author Name) -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Thông tin bài báo</h5>
+            <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Paper Information</h5>
         </div>
         <div class="card-body p-4">
             <div class="row">
@@ -46,7 +46,7 @@
                     <p class="text-justify">@Model.Abstract</p>
                 </div>
                 <div class="col-md-12 mb-3">
-                    <h6 class="text-muted mb-2">Chủ đề:</h6>
+                    <h6 class="text-muted mb-2">Topic:</h6>
                     <div>
                         @foreach (var topic in Model.Topics)
                         {
@@ -55,7 +55,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <h6 class="text-muted mb-2">Hạn phản biện:</h6>
+                    <h6 class="text-muted mb-2">Review Deadline:</h6>
                     <p class="@(Model.IsUrgent ? "text-danger fw-bold" : "")">
                         <i class="fas fa-calendar-alt me-2"></i>@Model.Deadline.ToString("dd/MM/yyyy HH:mm")
                         @if (Model.DaysRemaining > 0)
@@ -75,18 +75,18 @@
                     </p>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <h6 class="text-muted mb-2">Tài liệu:</h6>
+                    <h6 class="text-muted mb-2">Documents:</h6>
                     <div class="d-flex gap-2 flex-wrap">
                         @if (!string.IsNullOrEmpty(Model.AbstractFileUrl))
                         {
                             <a href="@Model.AbstractFileUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-file-pdf me-1"></i>Xem Abstract
+                                <i class="fas fa-file-pdf me-1"></i>View Abstract
                             </a>
                         }
                         @if (!string.IsNullOrEmpty(Model.FullPaperFileUrl))
                         {
                             <a href="@Model.FullPaperFileUrl" target="_blank" class="btn btn-sm btn-outline-info">
-                                <i class="fas fa-file-alt me-1"></i>Xem Full Paper
+                                <i class="fas fa-file-alt me-1"></i>View Full Paper
                             </a>
                         }
                     </div>
@@ -102,7 +102,7 @@
         
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="fas fa-star me-2"></i>Đánh giá theo tiêu chí (1-@Model.Criteria.FirstOrDefault()?.MaxScore ?? 5)</h5>
+                <h5 class="mb-0"><i class="fas fa-star me-2"></i>Evaluation by Criteria (1-@Model.Criteria.FirstOrDefault()?.MaxScore ?? 5)</h5>
             </div>
             <div class="card-body p-4">
                 @if (Model.Criteria.Any())
@@ -143,7 +143,7 @@
                 {
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>
-                        Chưa có tiêu chí đánh giá nào được cấu hình. Vui lòng liên hệ Admin.
+                        No evaluation criteria have been configured. Please contact Admin.
                     </div>
                 }
             </div>
@@ -152,20 +152,20 @@
         <!-- Comments for Author -->
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-header bg-info text-white">
-                <h5 class="mb-0"><i class="fas fa-comment-dots me-2"></i>Bình luận cho Tác giả</h5>
+                <h5 class="mb-0"><i class="fas fa-comment-dots me-2"></i>Comments for Author</h5>
             </div>
             <div class="card-body p-4">
                 <p class="text-muted small mb-3">
                     <i class="fas fa-info-circle me-1"></i>
-                    Vui lòng cung cấp góp ý chi tiết để tác giả có thể sửa chữa và cải thiện bài báo.
+                    Please provide detailed feedback so the author can revise and improve the paper.
                 </p>
                 <textarea name="CommentsForAuthor" 
                           class="form-control" 
                           rows="8" 
-                          placeholder="Nhập bình luận chi tiết cho tác giả..." 
+                          placeholder="Enter detailed comments for the author..." 
                           required 
                           minlength="10">@(Model.HasExistingReview ? Model.ExistingCommentsForAuthor : "")</textarea>
-                <small class="form-text text-muted">Tối thiểu 10 ký tự</small>
+                <small class="form-text text-muted">Minimum 10 characters</small>
                 <span class="text-danger small" id="commentsForAuthorError"></span>
             </div>
         </div>
@@ -173,60 +173,60 @@
         <!-- Private Comments for Admin -->
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Bình luận riêng cho Admin</h5>
+                <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Private Comments for Admin</h5>
             </div>
             <div class="card-body p-4">
                 <p class="text-muted small mb-3">
                     <i class="fas fa-shield-alt me-1"></i>
-                    Bình luận này chỉ Admin mới xem được. Ví dụ: "Bài này nghi ngờ đạo văn...", "Cần kiểm tra tính xác thực..."
+                    These comments are only visible to Admin. Example: "This paper is suspected of plagiarism...", "Need to verify authenticity..."
                 </p>
                 <textarea name="CommentsForAdmin" 
                           class="form-control" 
                           rows="6" 
-                          placeholder="Nhập bình luận riêng cho Admin (tùy chọn)...">@(Model.HasExistingReview ? Model.ExistingCommentsForAdmin : "")</textarea>
-                <small class="form-text text-muted">Tùy chọn - Chỉ Admin mới xem được</small>
+                          placeholder="Enter private comments for Admin (optional)...">@(Model.HasExistingReview ? Model.ExistingCommentsForAdmin : "")</textarea>
+                <small class="form-text text-muted">Optional - Only Admin can view</small>
             </div>
         </div>
 
         <!-- Recommendation -->
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-header bg-secondary text-white">
-                <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>Khuyến nghị</h5>
+                <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>Recommendation</h5>
             </div>
             <div class="card-body p-4">
                 <select name="Recommendation" class="form-select form-select-lg" required>
-                    <option value="">-- Chọn khuyến nghị --</option>
+                    <option value="">-- Select recommendation --</option>
                     @if (Model.HasExistingReview && Model.ExistingRecommendation == "Accept")
                     {
-                        <option value="Accept" selected>Chấp nhận (Accept)</option>
+                        <option value="Accept" selected>Accept</option>
                     }
                     else
                     {
-                        <option value="Accept">Chấp nhận (Accept)</option>
+                        <option value="Accept">Accept</option>
                     }
                     @if (Model.HasExistingReview && Model.ExistingRecommendation == "MinorRevision")
                     {
-                        <option value="MinorRevision" selected>Sửa chữa nhỏ (Minor Revision)</option>
+                        <option value="MinorRevision" selected>Minor Revision</option>
                     }
                     else
                     {
-                        <option value="MinorRevision">Sửa chữa nhỏ (Minor Revision)</option>
+                        <option value="MinorRevision">Minor Revision</option>
                     }
                     @if (Model.HasExistingReview && Model.ExistingRecommendation == "MajorRevision")
                     {
-                        <option value="MajorRevision" selected>Sửa chữa lớn (Major Revision)</option>
+                        <option value="MajorRevision" selected>Major Revision</option>
                     }
                     else
                     {
-                        <option value="MajorRevision">Sửa chữa lớn (Major Revision)</option>
+                        <option value="MajorRevision">Major Revision</option>
                     }
                     @if (Model.HasExistingReview && Model.ExistingRecommendation == "Reject")
                     {
-                        <option value="Reject" selected>Từ chối (Reject)</option>
+                        <option value="Reject" selected>Reject</option>
                     }
                     else
                     {
-                        <option value="Reject">Từ chối (Reject)</option>
+                        <option value="Reject">Reject</option>
                     }
                 </select>
                 <span class="text-danger small" id="recommendationError"></span>
@@ -236,10 +236,10 @@
         <!-- Submit Button -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Quay lại
+                <i class="fas fa-arrow-left me-2"></i>Back
             </a>
             <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
-                <i class="fas fa-paper-plane me-2"></i>Nộp đánh giá
+                <i class="fas fa-paper-plane me-2"></i>Submit Review
             </button>
         </div>
     </form>
@@ -275,28 +275,28 @@
                 });
                 
                 if (!allScored) {
-                    alert('Vui lòng đánh giá tất cả các tiêu chí. Còn thiếu: ' + missingCriteria.join(', '));
+                    alert('Please evaluate all criteria. Missing: ' + missingCriteria.join(', '));
                     return;
                 }
                 
                 // Validate comments for author
                 var commentsForAuthor = $('textarea[name="CommentsForAuthor"]').val().trim();
                 if (commentsForAuthor.length < 10) {
-                    alert('Bình luận cho tác giả phải có ít nhất 10 ký tự.');
-                    $('#commentsForAuthorError').text('Bình luận phải có ít nhất 10 ký tự.');
+                    alert('Comments for author must be at least 10 characters.');
+                    $('#commentsForAuthorError').text('Comments must be at least 10 characters.');
                     return;
                 }
                 
                 // Validate recommendation
                 var recommendation = $('select[name="Recommendation"]').val();
                 if (!recommendation) {
-                    alert('Vui lòng chọn khuyến nghị.');
-                    $('#recommendationError').text('Vui lòng chọn khuyến nghị.');
+                    alert('Please select a recommendation.');
+                    $('#recommendationError').text('Please select a recommendation.');
                     return;
                 }
                 
                 // Disable submit button
-                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...');
+                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Processing...');
                 
                 // Submit via AJAX
                 $.ajax({
@@ -316,13 +316,13 @@
                                 window.location.href = '@Url.Action("Index", "Review")';
                             }
                         } else {
-                            var errorMsg = (response && response.message) ? response.message : 'Không thể nộp đánh giá. Vui lòng kiểm tra lại thông tin.';
+                            var errorMsg = (response && response.message) ? response.message : 'Unable to submit review. Please check your information.';
                             alert(errorMsg);
                             submitBtn.prop('disabled', false).html(originalText);
                         }
                     },
                     error: function(xhr, status, error) {
-                        var errorMsg = 'Lỗi khi nộp đánh giá.';
+                        var errorMsg = 'Error submitting review.';
                         try {
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 errorMsg = xhr.responseJSON.message;

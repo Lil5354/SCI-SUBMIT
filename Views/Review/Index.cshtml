@@ -1,12 +1,12 @@
 @{
-    ViewData["Title"] = "Phản biện";
+    ViewData["Title"] = "Review";
 }
 
 <div class="container my-5">
     <!-- Header -->
     <div class="mb-4">
-        <h2 class="text-gradient mb-2">Phản biện</h2>
-        <p class="text-muted">Danh sách các bài báo được phân công phản biện</p>
+        <h2 class="text-gradient mb-2">Review</h2>
+        <p class="text-muted">List of assigned papers for review</p>
     </div>
 
     <!-- Review Statistics -->
@@ -16,7 +16,7 @@
                 <div class="card-body">
                     <i class="fas fa-clipboard-list fa-2x text-primary mb-2"></i>
                     <h4 class="mb-0">5</h4>
-                    <small class="text-muted">Tổng số bài phân công</small>
+                    <small class="text-muted">Total Assigned</small>
                 </div>
             </div>
         </div>
@@ -25,7 +25,7 @@
                 <div class="card-body">
                     <i class="fas fa-hourglass-half fa-2x text-warning mb-2"></i>
                     <h4 class="mb-0">3</h4>
-                    <small class="text-muted">Đang chờ phản biện</small>
+                    <small class="text-muted">Pending Review</small>
                 </div>
             </div>
         </div>
@@ -34,7 +34,7 @@
                 <div class="card-body">
                     <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
                     <h4 class="mb-0">2</h4>
-                    <small class="text-muted">Đã hoàn thành</small>
+                    <small class="text-muted">Completed</small>
                 </div>
             </div>
         </div>
@@ -43,7 +43,7 @@
                 <div class="card-body">
                     <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
                     <h4 class="mb-0">1</h4>
-                    <small class="text-muted">Sắp hết hạn</small>
+                    <small class="text-muted">Urgent</small>
                 </div>
             </div>
         </div>
@@ -53,12 +53,12 @@
     <div class="card">
         <div class="card-header bg-primary text-white">
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Danh sách bài phản biện</h5>
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Review List</h5>
                 <select class="form-select form-select-sm" style="width: auto;">
-                    <option>Tất cả trạng thái</option>
-                    <option>Chờ phản biện</option>
-                    <option>Đang phản biện</option>
-                    <option>Đã hoàn thành</option>
+                    <option>All Status</option>
+                    <option>Pending Review</option>
+                    <option>In Review</option>
+                    <option>Completed</option>
                 </select>
             </div>
         </div>
@@ -71,31 +71,31 @@
                             <h5 class="mb-2">Nghiên cứu về ứng dụng AI trong quản lý tài chính</h5>
                             <div class="mb-2">
                                 <small class="text-muted">
-                                    <i class="fas fa-user me-1"></i>Tác giả: Nguyễn Văn A, Trần Thị B
+                                    <i class="fas fa-user me-1"></i>Author: Nguyễn Văn A, Trần Thị B
                                 </small>
                             </div>
                             <div class="mb-2">
-                                <span class="badge bg-info me-2">Tài chính & Kế toán</span>
-                                <span class="badge bg-secondary">Ngôn ngữ: Tiếng Việt</span>
+                                <span class="badge bg-info me-2">Finance & Accounting</span>
+                                <span class="badge bg-secondary">Language: Vietnamese</span>
                             </div>
                             <div>
                                 <small class="text-muted">
-                                    <i class="fas fa-calendar me-1"></i>Hạn phản biện: 25/01/2025
+                                    <i class="fas fa-calendar me-1"></i>Review Deadline: 25/01/2025
                                 </small>
                             </div>
                         </div>
                         <div class="col-md-3 text-center">
                             <div class="mb-2">
-                                <span class="badge bg-warning fs-6">Chờ phản biện</span>
+                                <span class="badge bg-warning fs-6">Pending Review</span>
                             </div>
-                            <small class="text-muted d-block">Ngày nhận: 15/01/2025</small>
+                            <small class="text-muted d-block">Received: 15/01/2025</small>
                         </div>
                         <div class="col-md-3 text-end">
                             <button class="btn btn-primary btn-sm mb-2 w-100">
-                                <i class="fas fa-eye me-1"></i>Xem bài báo
+                                <i class="fas fa-eye me-1"></i>View Paper
                             </button>
                             <button class="btn btn-success btn-sm w-100">
-                                <i class="fas fa-pencil-alt me-1"></i>Bắt đầu phản biện
+                                <i class="fas fa-pencil-alt me-1"></i>Start Review
                             </button>
                         </div>
                     </div>
@@ -110,31 +110,31 @@
                             <h5 class="mb-2">Chiến lược marketing số cho doanh nghiệp SME</h5>
                             <div class="mb-2">
                                 <small class="text-muted">
-                                    <i class="fas fa-user me-1"></i>Tác giả: Hoàng Thị F
+                                    <i class="fas fa-user me-1"></i>Author: Hoàng Thị F
                                 </small>
                             </div>
                             <div class="mb-2">
                                 <span class="badge bg-info me-2">Marketing</span>
-                                <span class="badge bg-secondary">Ngôn ngữ: Tiếng Việt</span>
+                                <span class="badge bg-secondary">Language: Vietnamese</span>
                             </div>
                             <div>
                                 <small class="text-danger">
-                                    <i class="fas fa-exclamation-circle me-1"></i>Hạn phản biện: 20/01/2025 (Còn 2 ngày)
+                                    <i class="fas fa-exclamation-circle me-1"></i>Review Deadline: 20/01/2025 (2 days remaining)
                                 </small>
                             </div>
                         </div>
                         <div class="col-md-3 text-center">
                             <div class="mb-2">
-                                <span class="badge bg-danger fs-6">Sắp hết hạn</span>
+                                <span class="badge bg-danger fs-6">Urgent</span>
                             </div>
-                            <small class="text-muted d-block">Ngày nhận: 05/01/2025</small>
+                            <small class="text-muted d-block">Received: 05/01/2025</small>
                         </div>
                         <div class="col-md-3 text-end">
                             <button class="btn btn-primary btn-sm mb-2 w-100">
-                                <i class="fas fa-eye me-1"></i>Xem bài báo
+                                <i class="fas fa-eye me-1"></i>View Paper
                             </button>
                             <button class="btn btn-warning btn-sm w-100">
-                                <i class="fas fa-edit me-1"></i>Tiếp tục phản biện
+                                <i class="fas fa-edit me-1"></i>Continue Review
                             </button>
                         </div>
                     </div>
@@ -149,22 +149,22 @@
                             <h5 class="mb-2">Phân tích xu hướng thương mại điện tử tại Việt Nam</h5>
                             <div class="mb-2">
                                 <small class="text-muted">
-                                    <i class="fas fa-user me-1"></i>Tác giả: Nguyễn Văn C
+                                    <i class="fas fa-user me-1"></i>Author: Nguyễn Văn C
                                 </small>
                             </div>
                             <div class="mb-2">
-                                <span class="badge bg-info me-2">Thương mại</span>
-                                <span class="badge bg-secondary">Ngôn ngữ: Tiếng Việt</span>
+                                <span class="badge bg-info me-2">Commerce</span>
+                                <span class="badge bg-secondary">Language: Vietnamese</span>
                             </div>
                             <div>
                                 <small class="text-success">
-                                    <i class="fas fa-check-circle me-1"></i>Đã hoàn thành: 12/01/2025
+                                    <i class="fas fa-check-circle me-1"></i>Completed: 12/01/2025
                                 </small>
                             </div>
                         </div>
                         <div class="col-md-3 text-center">
                             <div class="mb-2">
-                                <span class="badge bg-success fs-6">Đã hoàn thành</span>
+                                <span class="badge bg-success fs-6">Completed</span>
                             </div>
                             <div class="mb-2">
                                 <div class="rating">
@@ -174,15 +174,15 @@
                                     <i class="fas fa-star text-warning"></i>
                                     <i class="fas fa-star text-warning"></i>
                                 </div>
-                                <small class="text-muted">Đánh giá: 5/5</small>
+                                <small class="text-muted">Rating: 5/5</small>
                             </div>
                         </div>
                         <div class="col-md-3 text-end">
                             <button class="btn btn-outline-primary btn-sm mb-2 w-100">
-                                <i class="fas fa-eye me-1"></i>Xem lại
+                                <i class="fas fa-eye me-1"></i>View Again
                             </button>
                             <button class="btn btn-outline-success btn-sm w-100" disabled>
-                                <i class="fas fa-check me-1"></i>Đã phản biện
+                                <i class="fas fa-check me-1"></i>Reviewed
                             </button>
                         </div>
                     </div>
@@ -197,31 +197,31 @@
                             <h5 class="mb-2">Đánh giá tác động của chuyển đổi số lên doanh nghiệp vừa và nhỏ</h5>
                             <div class="mb-2">
                                 <small class="text-muted">
-                                    <i class="fas fa-user me-1"></i>Tác giả: Lê Văn D, Phạm Thị E
+                                    <i class="fas fa-user me-1"></i>Author: Lê Văn D, Phạm Thị E
                                 </small>
                             </div>
                             <div class="mb-2">
-                                <span class="badge bg-info me-2">Quản trị kinh doanh</span>
-                                <span class="badge bg-secondary">Ngôn ngữ: English</span>
+                                <span class="badge bg-info me-2">Business Administration</span>
+                                <span class="badge bg-secondary">Language: English</span>
                             </div>
                             <div>
                                 <small class="text-muted">
-                                    <i class="fas fa-calendar me-1"></i>Hạn phản biện: 30/01/2025
+                                    <i class="fas fa-calendar me-1"></i>Review Deadline: 30/01/2025
                                 </small>
                             </div>
                         </div>
                         <div class="col-md-3 text-center">
                             <div class="mb-2">
-                                <span class="badge bg-warning fs-6">Chờ phản biện</span>
+                                <span class="badge bg-warning fs-6">Pending Review</span>
                             </div>
-                            <small class="text-muted d-block">Ngày nhận: 18/01/2025</small>
+                            <small class="text-muted d-block">Received: 18/01/2025</small>
                         </div>
                         <div class="col-md-3 text-end">
                             <button class="btn btn-primary btn-sm mb-2 w-100">
-                                <i class="fas fa-eye me-1"></i>Xem bài báo
+                                <i class="fas fa-eye me-1"></i>View Paper
                             </button>
                             <button class="btn btn-success btn-sm w-100">
-                                <i class="fas fa-pencil-alt me-1"></i>Bắt đầu phản biện
+                                <i class="fas fa-pencil-alt me-1"></i>Start Review
                             </button>
                         </div>
                     </div>
@@ -233,27 +233,27 @@
     <!-- Review Form Modal Preview -->
     <div class="card mt-4">
         <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Hướng dẫn phản biện</h5>
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Review Guidelines</h5>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <h6><i class="fas fa-check-circle text-success me-2"></i>Tiêu chí đánh giá:</h6>
+                    <h6><i class="fas fa-check-circle text-success me-2"></i>Evaluation Criteria:</h6>
                     <ul class="list-unstyled ms-4">
-                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Chất lượng nghiên cứu</li>
-                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Tính mới và đóng góp</li>
-                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Phương pháp nghiên cứu</li>
-                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Kết quả và thảo luận</li>
-                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Văn phong và trình bày</li>
+                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Research Quality</li>
+                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Novelty and Contribution</li>
+                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Research Methodology</li>
+                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Results and Discussion</li>
+                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Writing and Presentation</li>
                     </ul>
                 </div>
                 <div class="col-md-6">
-                    <h6><i class="fas fa-clock text-warning me-2"></i>Lưu ý:</h6>
+                    <h6><i class="fas fa-clock text-warning me-2"></i>Notes:</h6>
                     <ul class="list-unstyled ms-4">
-                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Phản biện công bằng và khách quan</li>
-                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Đưa ra nhận xét cụ thể và xây dựng</li>
-                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Hoàn thành đúng thời hạn</li>
-                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Bảo mật thông tin bài báo</li>
+                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Review fairly and objectively</li>
+                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Provide specific and constructive comments</li>
+                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Complete within the deadline</li>
+                        <li><i class="fas fa-arrow-right text-primary me-2"></i>Maintain confidentiality of the paper</li>
                     </ul>
                 </div>
             </div>

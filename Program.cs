@@ -96,6 +96,14 @@ builder.Services.AddScoped<ISmsService, SmsService>();
 builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 
+// Configure role-based authorization
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("ReviewerOnly", policy => policy.RequireRole("Reviewer"));
+    options.AddPolicy("AuthorOnly", policy => policy.RequireRole("Author"));
+});
+
 // HttpClient for external APIs
 builder.Services.AddHttpClient<MomoService>();
 

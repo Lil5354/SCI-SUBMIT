@@ -45,6 +45,9 @@ namespace SciSubmit.Models.Identity
         [MaxLength(255)]
         public string? GoogleId { get; set; }
 
+        [MaxLength(500)]
+        public string? AvatarUrl { get; set; }
+
         // Navigation Properties
         public virtual ICollection<Models.Submission.Submission> Submissions { get; set; } = new List<Models.Submission.Submission>();
         public virtual ICollection<Models.Review.ReviewAssignment> ReviewAssignments { get; set; } = new List<Models.Review.ReviewAssignment>();

@@ -32,11 +32,11 @@
                     <i class="fas fa-list-alt me-2"></i>
                     @if (ViewBag.PageType == "Abstract")
                     {
-                        <text>Duyệt Tóm Tắt (Abstract Review)</text>
+                        <text>Abstract Review</text>
                     }
                     else if (ViewBag.PageType == "FullPaper")
                     {
-                        <text>Duyệt Bài Đầy Đủ (Full Paper Review)</text>
+                        <text>Full Paper Review</text>
                     }
                     else
                     {
@@ -46,11 +46,11 @@
                 <p class="text-muted mb-0">
                     @if (ViewBag.PageType == "Abstract")
                     {
-                        <text>Danh sách các bài báo đang chờ duyệt tóm tắt</text>
+                        <text>List of papers pending abstract review</text>
                     }
                     else if (ViewBag.PageType == "FullPaper")
                     {
-                        <text>Danh sách các bài báo đang chờ duyệt bài đầy đủ</text>
+                        <text>List of papers pending full paper review</text>
                     }
                     else
                     {

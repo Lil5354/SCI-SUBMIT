@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Chi tiết bài nộp";
+    ViewData["Title"] = "Submission Details";
     ViewData["HideMainHeader"] = true;
     var submissionId = ViewData["SubmissionId"] ?? 0;
     var submission = ViewData["Submission"] as SciSubmit.Models.Submission.Submission;
@@ -12,13 +12,13 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h2 class="text-gradient mb-2">
-                    <i class="fas fa-file-alt me-2"></i>Chi tiết bài nộp
+                    <i class="fas fa-file-alt me-2"></i>Submission Details
                 </h2>
-                <p class="text-muted mb-0">Thông tin chi tiết và trạng thái bài báo của bạn</p>
+                <p class="text-muted mb-0">Detailed information and status of your paper</p>
             </div>
             <div>
                 <a href="/Submission/Index" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                    <i class="fas fa-arrow-left me-2"></i>Back
                 </a>
             </div>
         </div>
@@ -30,24 +30,24 @@
             <!-- Submission Info Card -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin bài báo</h5>
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Paper Information</h5>
                 </div>
                 <div class="card-body">
                     @if (submission != null)
                     {
                         <div class="mb-3">
-                            <label class="form-label fw-semibold text-muted">Tiêu đề</label>
+                            <label class="form-label fw-semibold text-muted">Title</label>
                             <h5 class="mb-0">@submission.Title</h5>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold text-muted">Tóm tắt (Abstract)</label>
+                            <label class="form-label fw-semibold text-muted">Abstract</label>
                             <p class="mb-0">@submission.Abstract</p>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold text-muted">Chủ đề</label>
+                                <label class="form-label fw-semibold text-muted">Topic</label>
                                 <div>
                                     @foreach (var topic in submission.SubmissionTopics.Select(st => st.Topic))
                                     {
@@ -56,7 +56,7 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold text-muted">Từ khóa</label>
+                                <label class="form-label fw-semibold text-muted">Keywords</label>
                                 <div>
                                     @foreach (var keyword in submission.SubmissionKeywords.Select(sk => sk.Keyword))
                                     {
@@ -67,7 +67,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold text-muted">Tác giả</label>
+                            <label class="form-label fw-semibold text-muted">Authors</label>
                             <ul class="list-unstyled mb-0">
                                 @foreach (var author in submission.SubmissionAuthors.OrderBy(a => a.OrderIndex))
                                 {
@@ -76,7 +76,7 @@
                                         <strong>@author.FullName</strong>
                                         @if (author.IsCorrespondingAuthor)
                                         {
-                                            <span class="badge bg-success ms-2">Tác giả chính</span>
+                                            <span class="badge bg-success ms-2">Corresponding Author</span>
                                         }
                                         <br>
                                         <small class="text-muted ms-4">@author.Email @if (!string.IsNullOrEmpty(author.Affiliation)) { <text>| @author.Affiliation</text> }</small>
@@ -91,7 +91,7 @@
             <!-- Timeline Card -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Lịch sử và trạng thái</h5>
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>History and Status</h5>
                 </div>
                 <div class="card-body">
                     <div class="timeline">
@@ -100,7 +100,7 @@
                                 <i class="fas fa-check"></i>
                             </div>
                             <div class="timeline-content">
-                                <h6 class="mb-1">Đã nộp tóm tắt</h6>
+                                <h6 class="mb-1">Abstract Submitted</h6>
                                 <p class="text-muted mb-1 small">@(submission?.AbstractSubmittedAt?.ToString("dd/MM/yyyy HH:mm") ?? submission?.CreatedAt.ToString("dd/MM/yyyy HH:mm") ?? "")</p>
                             </div>
                         </div>
@@ -111,7 +111,7 @@
                                     <i class="fas fa-check"></i>
                                 </div>
                                 <div class="timeline-content">
-                                    <h6 class="mb-1">Tóm tắt đã được duyệt</h6>
+                                    <h6 class="mb-1">Abstract Approved</h6>
                                     <p class="text-muted mb-1 small">@(submission.AbstractReviewedAt?.ToString("dd/MM/yyyy HH:mm") ?? "")</p>
                                 </div>
                             </div>
@@ -120,8 +120,8 @@
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 <div class="timeline-content">
-                                    <h6 class="mb-1">Đang chờ nộp bài đầy đủ</h6>
-                                    <p class="text-muted mb-1 small">Trạng thái hiện tại</p>
+                                    <h6 class="mb-1">Awaiting Full Paper Submission</h6>
+                                    <p class="text-muted mb-1 small">Current Status</p>
                                 </div>
                             </div>
                         }
@@ -132,8 +132,8 @@
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 <div class="timeline-content">
-                                    <h6 class="mb-1">Đang chờ duyệt tóm tắt</h6>
-                                    <p class="text-muted mb-1 small">Trạng thái hiện tại</p>
+                                    <h6 class="mb-1">Pending Abstract Review</h6>
+                                    <p class="text-muted mb-1 small">Current Status</p>
                                 </div>
                             </div>
                         }
@@ -144,7 +144,7 @@
                                     <i class="fas fa-times"></i>
                                 </div>
                                 <div class="timeline-content">
-                                    <h6 class="mb-1">Tóm tắt đã bị từ chối</h6>
+                                    <h6 class="mb-1">Abstract Rejected</h6>
                                     <p class="text-muted mb-1 small">@(submission.AbstractReviewedAt?.ToString("dd/MM/yyyy HH:mm") ?? "")</p>
                                 </div>
                             </div>
@@ -154,8 +154,8 @@
                                 <i class="fas fa-hourglass-half"></i>
                             </div>
                             <div class="timeline-content">
-                                <h6 class="mb-1">Đang phản biện</h6>
-                                <p class="text-muted mb-1 small">Chưa bắt đầu</p>
+                                <h6 class="mb-1">Under Review</h6>
+                                <p class="text-muted mb-1 small">Not Started</p>
                             </div>
                         </div>
                         <div class="timeline-item">
@@ -163,8 +163,8 @@
                                 <i class="fas fa-hourglass-half"></i>
                             </div>
                             <div class="timeline-content">
-                                <h6 class="mb-1">Thanh toán</h6>
-                                <p class="text-muted mb-1 small">Chưa bắt đầu</p>
+                                <h6 class="mb-1">Payment</h6>
+                                <p class="text-muted mb-1 small">Not Started</p>
                             </div>
                         </div>
                     </div>
@@ -174,7 +174,7 @@
             <!-- Files Card -->
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="fas fa-file me-2"></i>File đã upload</h5>
+                    <h5 class="mb-0"><i class="fas fa-file me-2"></i>Uploaded Files</h5>
                 </div>
                 <div class="card-body">
                     <div class="list-group">
@@ -186,10 +186,10 @@
                                         <i class="fas fa-file-word text-primary me-2"></i>
                                         <strong>@System.IO.Path.GetFileName(submission.AbstractFileUrl)</strong>
                                         <br>
-                                        <small class="text-muted">Upload lúc: @(submission.AbstractSubmittedAt?.ToString("dd/MM/yyyy HH:mm") ?? submission.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</small>
+                                        <small class="text-muted">Uploaded at: @(submission.AbstractSubmittedAt?.ToString("dd/MM/yyyy HH:mm") ?? submission.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</small>
                                     </div>
                                     <a href="@submission.AbstractFileUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-download me-1"></i>Tải xuống
+                                        <i class="fas fa-download me-1"></i>Download
                                     </a>
                                 </div>
                             </div>
@@ -197,7 +197,7 @@
                         else
                         {
                             <div class="list-group-item text-center text-muted">
-                                <i class="fas fa-file me-2"></i>Chưa có file nào được upload
+                                <i class="fas fa-file me-2"></i>No files uploaded yet
                             </div>
                         }
                     </div>
@@ -210,7 +210,7 @@
             <!-- Status Card -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Trạng thái</h6>
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Status</h6>
                 </div>
                 <div class="card-body text-center">
                     <div class="mb-3">
@@ -218,18 +218,18 @@
                         {
                             @if (submission.Status == SciSubmit.Models.Enums.SubmissionStatus.PendingAbstractReview)
                             {
-                                <span class="badge bg-warning fs-6 px-4 py-2">Đang chờ duyệt tóm tắt</span>
-                                <p class="text-muted small mb-0 mt-2">Tóm tắt của bạn đang được xem xét. Vui lòng chờ thông báo.</p>
+                                <span class="badge bg-warning fs-6 px-4 py-2">Pending Abstract Review</span>
+                                <p class="text-muted small mb-0 mt-2">Your abstract is under review. Please wait for notification.</p>
                             }
                             else if (submission.Status == SciSubmit.Models.Enums.SubmissionStatus.AbstractApproved)
                             {
-                                <span class="badge bg-success fs-6 px-4 py-2">Tóm tắt đã được duyệt</span>
-                                <p class="text-muted small mb-0 mt-2">Bài báo đã vượt qua bước 1. Bạn có thể nộp bài đầy đủ.</p>
+                                <span class="badge bg-success fs-6 px-4 py-2">Abstract Approved</span>
+                                <p class="text-muted small mb-0 mt-2">Your paper has passed step 1. You can now submit the full paper.</p>
                             }
                             else if (submission.Status == SciSubmit.Models.Enums.SubmissionStatus.AbstractRejected)
                             {
-                                <span class="badge bg-danger fs-6 px-4 py-2">Tóm tắt đã bị từ chối</span>
-                                <p class="text-muted small mb-0 mt-2">Tóm tắt của bạn đã bị từ chối. Vui lòng xem lý do và chỉnh sửa.</p>
+                                <span class="badge bg-danger fs-6 px-4 py-2">Abstract Rejected</span>
+                                <p class="text-muted small mb-0 mt-2">Your abstract has been rejected. Please review the reason and revise.</p>
                             }
                             else
                             {
@@ -239,7 +239,7 @@
                         else
                         {
                             <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle me-2"></i>Không tìm thấy thông tin bài nộp.
+                                <i class="fas fa-exclamation-triangle me-2"></i>Submission information not found.
                             </div>
                         }
                     </div>
@@ -249,7 +249,7 @@
             <!-- Actions Card -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Thao tác</h6>
+                    <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h6>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
@@ -269,18 +269,18 @@
             <!-- Info Card -->
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="fas fa-question-circle me-2"></i>Thông tin</h6>
+                    <h6 class="mb-0"><i class="fas fa-question-circle me-2"></i>Information</h6>
                 </div>
                 <div class="card-body">
                     @if (submission != null)
                     {
                         <p class="small text-muted mb-2">
                             <i class="fas fa-calendar me-2"></i>
-                            <strong>Ngày nộp:</strong> @(submission.AbstractSubmittedAt?.ToString("dd/MM/yyyy") ?? submission.CreatedAt.ToString("dd/MM/yyyy"))
+                            <strong>Submitted Date:</strong> @(submission.AbstractSubmittedAt?.ToString("dd/MM/yyyy") ?? submission.CreatedAt.ToString("dd/MM/yyyy"))
                         </p>
                         <p class="small text-muted mb-0">
                             <i class="fas fa-id-badge me-2"></i>
-                            <strong>Mã bài nộp:</strong> #@submission.Id
+                            <strong>Submission ID:</strong> #@submission.Id
                         </p>
                     }
                 </div>
@@ -293,13 +293,13 @@
     <script>
         function downloadSubmission() {
             // TODO: Implement download
-            alert('Tính năng tải xuống đang được phát triển');
+            alert('Download feature is under development');
         }
 
         function withdrawSubmission() {
-            if (confirm('Bạn có chắc chắn muốn rút bài nộp này không?')) {
+            if (confirm('Are you sure you want to withdraw this submission?')) {
                 // TODO: Implement withdraw
-                alert('Tính năng rút bài đang được phát triển');
+                alert('Withdrawal feature is under development');
             }
         }
     </script>
