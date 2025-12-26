@@ -81,8 +81,8 @@ namespace SciSubmit.Controllers
             if (result)
             {
                 TempData["SuccessMessage"] = "Review invitation accepted successfully! You can now access the paper for review.";
-                return RedirectToAction(nameof(Details), new { id });
-            }
+            return RedirectToAction(nameof(Details), new { id });
+        }
             else
             {
                 TempData["ErrorMessage"] = "Unable to accept invitation. The invitation may have already been accepted or rejected, or you may not have permission.";
@@ -110,7 +110,7 @@ namespace SciSubmit.Controllers
             else
             {
                 TempData["ErrorMessage"] = "Unable to decline invitation. The invitation may have already been accepted or rejected, or you may not have permission.";
-                return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index));
             }
         }
 

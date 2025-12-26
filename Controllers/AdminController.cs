@@ -729,8 +729,12 @@ namespace SciSubmit.Controllers
                 _ => throw new ArgumentException("Invalid decision type")
             };
 
-            // TODO: Get adminId from current user
-            var adminId = 1; // Placeholder
+            var adminId = await GetCurrentAdminIdAsync();
+            if (adminId == 0)
+            {
+                TempData["ErrorMessage"] = "Không xác định được quản trị viên.";
+                return RedirectToAction(nameof(FinalDecision), new { id });
+            }
 
             var result = await _adminService.MakeFinalDecisionAsync(id, decisionType, comments, adminId);
             if (result)

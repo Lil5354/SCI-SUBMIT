@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using SciSubmit.Data;
 using SciSubmit.Models.Submission;
+using SciSubmit.Models.Payment;
+using SciSubmit.Models.Enums;
 using SciSubmit.Services;
 using System.Security.Claims;
 using System.IO;
@@ -70,9 +72,152 @@ namespace SciSubmit.Controllers
             return conference?.Id ?? 0;
         }
 
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
-            return View();
+            try
+            {
+                var authorId = await GetCurrentUserIdAsync();
+                if (authorId == 0)
+                {
+                    _logger.LogWarning("Dashboard: User not authenticated or not found");
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var conferenceId = await GetActiveConferenceIdAsync();
+                if (conferenceId == 0)
+                {
+                    _logger.LogWarning("Dashboard: No active conference found");
+                    TempData["ErrorMessage"] = "No active conference found";
+                    return View(new AuthorDashboardViewModel());
+                }
+
+                // Get all submissions for this author
+                var allSubmissions = await _context.Submissions
+                    .Where(s => s.AuthorId == authorId && s.ConferenceId == conferenceId)
+                    .OrderByDescending(s => s.CreatedAt)
+                    .ToListAsync();
+
+                // Calculate statistics
+                var totalSubmissions = allSubmissions.Count;
+                var underReview = allSubmissions.Count(s => s.Status == SubmissionStatus.UnderReview);
+                var accepted = allSubmissions.Count(s => s.Status == SubmissionStatus.Accepted);
+                var rejected = allSubmissions.Count(s => s.Status == SubmissionStatus.Rejected || s.Status == SubmissionStatus.AbstractRejected);
+
+                // Determine current progress step based on latest submission
+                int currentStep = 1; // Default: Abstract
+                var latestSubmission = allSubmissions.FirstOrDefault();
+                if (latestSubmission != null)
+                {
+                    // Step 1: Abstract (Draft, PendingAbstractReview, AbstractApproved, AbstractRejected)
+                    if (latestSubmission.Status == SubmissionStatus.Draft || 
+                        latestSubmission.Status == SubmissionStatus.PendingAbstractReview ||
+                        latestSubmission.Status == SubmissionStatus.AbstractApproved ||
+                        latestSubmission.Status == SubmissionStatus.AbstractRejected)
+                    {
+                        currentStep = 1;
+                    }
+                    // Step 2: Full Paper (FullPaperSubmitted)
+                    else if (latestSubmission.Status == SubmissionStatus.FullPaperSubmitted)
+                    {
+                        currentStep = 2;
+                    }
+                    // Step 3: Review (UnderReview, RevisionRequired)
+                    else if (latestSubmission.Status == SubmissionStatus.UnderReview ||
+                             latestSubmission.Status == SubmissionStatus.RevisionRequired)
+                    {
+                        currentStep = 3;
+                    }
+                    // Step 4: Payment/Completed (Accepted, Rejected, Withdrawn)
+                    else if (latestSubmission.Status == SubmissionStatus.Accepted ||
+                             latestSubmission.Status == SubmissionStatus.Rejected ||
+                             latestSubmission.Status == SubmissionStatus.Withdrawn)
+                    {
+                        currentStep = 4;
+                    }
+                }
+
+                // Get all submissions for dropdown (ordered by creation date, newest first)
+                var allSubmissionsForDropdown = allSubmissions
+                    .Select(s => new RecentSubmissionViewModel
+                    {
+                        Id = s.Id,
+                        Title = s.Title,
+                        Status = s.Status,
+                        SubmittedAt = s.AbstractSubmittedAt,
+                        AbstractReviewedAt = s.AbstractReviewedAt,
+                        FullPaperSubmittedAt = s.FullPaperSubmittedAt
+                    })
+                    .ToList();
+
+                // Get recent submissions (top 5) for table
+                var recentSubmissions = allSubmissionsForDropdown.Take(5).ToList();
+
+                // Get tracked submission
+                var user = await _context.Users.FindAsync(authorId);
+                RecentSubmissionViewModel? trackedSubmission = null;
+                int trackedStep = 1;
+
+                if (user?.TrackedSubmissionId.HasValue == true)
+                {
+                    var tracked = allSubmissions.FirstOrDefault(s => s.Id == user.TrackedSubmissionId.Value);
+                    if (tracked != null)
+                    {
+                        trackedSubmission = new RecentSubmissionViewModel
+                        {
+                            Id = tracked.Id,
+                            Title = tracked.Title,
+                            Status = tracked.Status,
+                            SubmittedAt = tracked.AbstractSubmittedAt,
+                            AbstractReviewedAt = tracked.AbstractReviewedAt,
+                            FullPaperSubmittedAt = tracked.FullPaperSubmittedAt
+                        };
+
+                        // Calculate progress step for tracked submission
+                        if (tracked.Status == SubmissionStatus.Draft || 
+                            tracked.Status == SubmissionStatus.PendingAbstractReview ||
+                            tracked.Status == SubmissionStatus.AbstractApproved ||
+                            tracked.Status == SubmissionStatus.AbstractRejected)
+                        {
+                            trackedStep = 1;
+                        }
+                        else if (tracked.Status == SubmissionStatus.FullPaperSubmitted)
+                        {
+                            trackedStep = 2;
+                        }
+                        else if (tracked.Status == SubmissionStatus.UnderReview ||
+                                 tracked.Status == SubmissionStatus.RevisionRequired)
+                        {
+                            trackedStep = 3;
+                        }
+                        else if (tracked.Status == SubmissionStatus.Accepted ||
+                                 tracked.Status == SubmissionStatus.Rejected ||
+                                 tracked.Status == SubmissionStatus.Withdrawn)
+                        {
+                            trackedStep = 4;
+                        }
+                        currentStep = trackedStep; // Use tracked submission's step
+                    }
+                }
+
+                var viewModel = new AuthorDashboardViewModel
+                {
+                    TotalSubmissions = totalSubmissions,
+                    UnderReview = underReview,
+                    Accepted = accepted,
+                    Rejected = rejected,
+                    CurrentProgressStep = currentStep,
+                    RecentSubmissions = recentSubmissions,
+                    TrackedSubmission = trackedSubmission
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading author dashboard");
+                TempData["ErrorMessage"] = "An error occurred while loading the dashboard";
+                return View(new AuthorDashboardViewModel());
+            }
         }
 
         public async Task<IActionResult> Index(string? search = null, string? status = null, int? topicId = null)
@@ -496,6 +641,9 @@ namespace SciSubmit.Controllers
                 .Include(s => s.ReviewAssignments)
                     .ThenInclude(ra => ra.Review)
                         .ThenInclude(r => r.Reviewer)
+                .Include(s => s.FinalDecision)
+                    .ThenInclude(fd => fd.DecisionMaker)
+                .Include(s => s.FullPaperVersions)
                 .FirstOrDefaultAsync(s => s.Id == id && s.AuthorId == authorId);
 
             if (submission == null)
@@ -520,27 +668,309 @@ namespace SciSubmit.Controllers
                 .OrderByDescending(r => r.SubmittedAt)
                 .ToList();
 
+            // Check if this submission is being tracked
+            var user = await _context.Users.FindAsync(authorId);
+            bool isTracked = user?.TrackedSubmissionId == id;
+
             ViewData["Submission"] = submission;
             ViewData["SubmissionId"] = id;
             ViewData["ReviewResults"] = completedReviews;
             ViewData["ReviewCriterias"] = reviewCriterias;
+            ViewData["FinalDecision"] = submission.FinalDecision;
+            ViewData["IsTracked"] = isTracked;
             return View();
         }
 
-        public IActionResult FullPaper(int id)
+        public async Task<IActionResult> Payment(int id)
         {
+            ViewData["HideMainHeader"] = true;
+            
+            var authorId = await GetCurrentUserIdAsync();
+            if (authorId == 0)
+            {
+                TempData["ErrorMessage"] = "You must be logged in to access payment page.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var submission = await _context.Submissions
+                .Include(s => s.Author)
+                .FirstOrDefaultAsync(s => s.Id == id && s.AuthorId == authorId);
+
+            if (submission == null)
+            {
+                TempData["ErrorMessage"] = "Submission not found or you don't have permission.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (submission.Status != Models.Enums.SubmissionStatus.AbstractApproved)
+            {
+                TempData["ErrorMessage"] = "Only approved abstracts can proceed to payment.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            // Check if payment already completed
+            var existingPayment = await _context.Payments
+                .FirstOrDefaultAsync(p => p.SubmissionId == id && p.Status == Models.Enums.PaymentStatus.Completed);
+
+            if (existingPayment != null)
+            {
+                // Payment already completed, redirect to FullPaper
+                return RedirectToAction(nameof(FullPaper), new { id });
+            }
+
+            ViewData["Submission"] = submission;
             ViewData["SubmissionId"] = id;
-            ViewData["HasCurrentVersion"] = false; // TODO: Check if has current version
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UploadFullPaper(int submissionId, IFormFile file)
+        public async Task<IActionResult> ConfirmPayment(int id)
         {
-            // TODO: Implement file upload logic
-            TempData["SuccessMessage"] = "Đã nộp bài đầy đủ thành công!";
-            return RedirectToAction(nameof(Details), new { id = submissionId });
+            var authorId = await GetCurrentUserIdAsync();
+            if (authorId == 0)
+            {
+                return Json(new { success = false, message = "You must be logged in." });
+            }
+
+            var submission = await _context.Submissions
+                .FirstOrDefaultAsync(s => s.Id == id && s.AuthorId == authorId);
+
+            if (submission == null)
+            {
+                return Json(new { success = false, message = "Submission not found." });
+            }
+
+            if (submission.Status != Models.Enums.SubmissionStatus.AbstractApproved)
+            {
+                return Json(new { success = false, message = "Only approved abstracts can proceed to payment." });
+            }
+
+            // Check if payment already exists
+            var existingPayment = await _context.Payments
+                .FirstOrDefaultAsync(p => p.SubmissionId == id);
+
+            if (existingPayment != null && existingPayment.Status == Models.Enums.PaymentStatus.Completed)
+            {
+                return Json(new { success = true, message = "Payment already confirmed.", redirectUrl = Url.Action(nameof(FullPaper), new { id }) });
+            }
+
+            // Create or update payment record
+            if (existingPayment == null)
+            {
+                existingPayment = new Models.Payment.Payment
+                {
+                    SubmissionId = id,
+                    UserId = authorId,
+                    Amount = 2000000, // Default fee: 2,000,000 VND
+                    PaymentMethod = Models.Enums.PaymentMethod.BankTransfer,
+                    Status = Models.Enums.PaymentStatus.Completed,
+                    PaymentDate = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Payments.Add(existingPayment);
+            }
+            else
+            {
+                existingPayment.Status = Models.Enums.PaymentStatus.Completed;
+                existingPayment.PaymentDate = DateTime.UtcNow;
+                existingPayment.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Payment confirmed successfully!", redirectUrl = Url.Action(nameof(FullPaper), new { id }) });
+        }
+
+        public async Task<IActionResult> FullPaper(int id)
+        {
+            ViewData["HideMainHeader"] = true;
+            
+            var authorId = await GetCurrentUserIdAsync();
+            if (authorId == 0)
+            {
+                TempData["ErrorMessage"] = "You must be logged in to submit full paper.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var submission = await _context.Submissions
+                .Include(s => s.Author)
+                .Include(s => s.SubmissionAuthors)
+                .Include(s => s.SubmissionTopics)
+                    .ThenInclude(st => st.Topic)
+                .Include(s => s.SubmissionKeywords)
+                    .ThenInclude(sk => sk.Keyword)
+                .FirstOrDefaultAsync(s => s.Id == id && s.AuthorId == authorId);
+
+            if (submission == null)
+            {
+                TempData["ErrorMessage"] = "Submission not found or you don't have permission.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Check if abstract is approved
+            if (submission.Status != Models.Enums.SubmissionStatus.AbstractApproved)
+            {
+                TempData["ErrorMessage"] = "Only approved abstracts can submit full paper.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            // Check if payment is completed
+            var payment = await _context.Payments
+                .FirstOrDefaultAsync(p => p.SubmissionId == id && p.Status == Models.Enums.PaymentStatus.Completed);
+
+            if (payment == null)
+            {
+                TempData["ErrorMessage"] = "Please complete payment before submitting full paper.";
+                return RedirectToAction(nameof(Payment), new { id });
+            }
+
+            // Get Full Paper deadline from ConferencePlan
+            var activeConference = await _context.Conferences
+                .Where(c => c.IsActive)
+                .FirstOrDefaultAsync();
+
+            DateTime? fullPaperDeadline = null;
+            if (activeConference != null)
+            {
+                var plan = await _context.ConferencePlans
+                    .Where(p => p.ConferenceId == activeConference.Id)
+                    .OrderByDescending(p => p.CreatedAt)
+                    .FirstOrDefaultAsync();
+                
+                fullPaperDeadline = plan?.FullPaperSubmissionDeadline;
+            }
+
+            ViewData["Submission"] = submission;
+            ViewData["SubmissionId"] = id;
+            ViewData["HasCurrentVersion"] = submission.FullPaperVersions.Any(v => v.IsCurrentVersion);
+            ViewData["FullPaperDeadline"] = fullPaperDeadline;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadFullPaper(int submissionId, IFormFile file)
+        {
+            try
+            {
+                _logger.LogInformation($"=== UPLOAD FULL PAPER START ===");
+                _logger.LogInformation($"SubmissionId: {submissionId}");
+
+                var authorId = await GetCurrentUserIdAsync();
+                if (authorId == 0)
+                {
+                    TempData["ErrorMessage"] = "You must be logged in to submit full paper.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Validate file
+                if (file == null || file.Length == 0)
+                {
+                    TempData["ErrorMessage"] = "Please select a file to upload.";
+                    return RedirectToAction(nameof(FullPaper), new { id = submissionId });
+                }
+
+                // Validate file extension
+                var allowedExtensions = new[] { ".doc", ".docx" };
+                var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    TempData["ErrorMessage"] = "Only DOC and DOCX files are allowed.";
+                    return RedirectToAction(nameof(FullPaper), new { id = submissionId });
+                }
+
+                // Validate file size (max 10MB)
+                const long maxFileSize = 10 * 1024 * 1024; // 10MB
+                if (file.Length > maxFileSize)
+                {
+                    TempData["ErrorMessage"] = "File size must not exceed 10MB.";
+                    return RedirectToAction(nameof(FullPaper), new { id = submissionId });
+                }
+
+                // Check submission exists and belongs to author
+                var submission = await _context.Submissions
+                    .FirstOrDefaultAsync(s => s.Id == submissionId && s.AuthorId == authorId);
+
+                if (submission == null)
+                {
+                    TempData["ErrorMessage"] = "Submission not found or you don't have permission.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Check if abstract is approved
+                if (submission.Status != Models.Enums.SubmissionStatus.AbstractApproved)
+                {
+                    TempData["ErrorMessage"] = "Only approved abstracts can submit full paper.";
+                    return RedirectToAction(nameof(Details), new { id = submissionId });
+                }
+
+                // Check if payment is completed
+                var payment = await _context.Payments
+                    .FirstOrDefaultAsync(p => p.SubmissionId == submissionId && p.Status == Models.Enums.PaymentStatus.Completed);
+
+                if (payment == null)
+                {
+                    TempData["ErrorMessage"] = "Please complete payment before submitting full paper.";
+                    return RedirectToAction(nameof(Payment), new { id = submissionId });
+                }
+
+                // Check deadline
+                var activeConference = await _context.Conferences
+                    .Where(c => c.IsActive)
+                    .FirstOrDefaultAsync();
+
+                if (activeConference != null)
+                {
+                    var plan = await _context.ConferencePlans
+                        .Where(p => p.ConferenceId == activeConference.Id)
+                        .OrderByDescending(p => p.CreatedAt)
+                        .FirstOrDefaultAsync();
+
+                    if (plan?.FullPaperSubmissionDeadline != null && plan.FullPaperSubmissionDeadline.Value < DateTime.UtcNow)
+                    {
+                        TempData["ErrorMessage"] = "The full paper submission deadline has passed.";
+                        return RedirectToAction(nameof(Details), new { id = submissionId });
+                    }
+                }
+
+                // Upload file
+                string fileUrl;
+                using (var stream = file.OpenReadStream())
+                {
+                    fileUrl = await _fileStorageService.UploadFileAsync(stream, file.FileName, "fullpapers");
+                }
+                if (string.IsNullOrEmpty(fileUrl))
+                {
+                    TempData["ErrorMessage"] = "Failed to upload file. Please try again.";
+                    return RedirectToAction(nameof(FullPaper), new { id = submissionId });
+                }
+
+                // Submit full paper
+                var success = await _submissionService.SubmitFullPaperAsync(
+                    submissionId, 
+                    authorId, 
+                    fileUrl, 
+                    file.FileName, 
+                    file.Length);
+
+                if (success)
+                {
+                    TempData["SuccessMessage"] = "Full paper submitted successfully!";
+                    return RedirectToAction(nameof(Details), new { id = submissionId });
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Failed to submit full paper. Please try again.";
+                    return RedirectToAction(nameof(FullPaper), new { id = submissionId });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error uploading full paper for submission {submissionId}");
+                TempData["ErrorMessage"] = "An error occurred while submitting full paper. Please try again.";
+                return RedirectToAction(nameof(FullPaper), new { id = submissionId });
+            }
         }
 
         public IActionResult Feedback(int id)
@@ -571,6 +1001,58 @@ namespace SciSubmit.Controllers
             // TODO: Implement edit logic
             TempData["SuccessMessage"] = "Đã cập nhật bài nộp thành công!";
             return RedirectToAction(nameof(Details), new { id });
+        }
+
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> ToggleTrackProgress(int submissionId, bool isTracking)
+        {
+            try
+            {
+                var authorId = await GetCurrentUserIdAsync();
+                if (authorId == 0)
+                {
+                    return Json(new { success = false, message = "User not authenticated" });
+                }
+
+                // Verify submission belongs to this author
+                var submission = await _context.Submissions
+                    .FirstOrDefaultAsync(s => s.Id == submissionId && s.AuthorId == authorId);
+
+                if (submission == null)
+                {
+                    return Json(new { success = false, message = "Submission not found or access denied" });
+                }
+
+                var user = await _context.Users.FindAsync(authorId);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+
+                if (isTracking)
+                {
+                    // If tracking another submission, the new one will replace the old one
+                    user.TrackedSubmissionId = submissionId;
+                }
+                else
+                {
+                    // Only untrack if this is the currently tracked submission
+                    if (user.TrackedSubmissionId == submissionId)
+                    {
+                        user.TrackedSubmissionId = null;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = isTracking ? "Submission is now being tracked" : "Tracking removed" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error toggling track progress");
+                return Json(new { success = false, message = "An error occurred while updating tracking status" });
+            }
         }
 
         [HttpPost]

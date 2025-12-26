@@ -16,6 +16,7 @@ namespace SciSubmit.Services
         Task<List<Topic>> GetActiveTopicsAsync(int conferenceId);
         Task<List<Keyword>> GetOrCreateKeywordsAsync(List<string> keywordNames, int conferenceId);
         Task<bool> WithdrawSubmissionAsync(int submissionId, int authorId, string? reason = null);
+        Task<bool> SubmitFullPaperAsync(int submissionId, int authorId, string fileUrl, string fileName, long fileSize);
     }
 
     public class SubmissionService : ISubmissionService
@@ -550,6 +551,123 @@ namespace SciSubmit.Services
                 _logger.LogError(ex, $"=== WITHDRAW SUBMISSION ERROR ===");
                 _logger.LogError($"Error: {ex.Message}");
                 _logger.LogError($"Stack: {ex.StackTrace}");
+                throw;
+            }
+        }
+
+        public async Task<bool> SubmitFullPaperAsync(int submissionId, int authorId, string fileUrl, string fileName, long fileSize)
+        {
+            try
+            {
+                _logger.LogInformation($"=== SUBMIT FULL PAPER START ===");
+                _logger.LogInformation($"SubmissionId: {submissionId}, AuthorId: {authorId}");
+
+                // Get submission
+                var submission = await _context.Submissions
+                    .Include(s => s.FullPaperVersions)
+                    .FirstOrDefaultAsync(s => s.Id == submissionId && s.AuthorId == authorId);
+
+                if (submission == null)
+                {
+                    _logger.LogWarning($"Submission {submissionId} not found or not owned by author {authorId}");
+                    return false;
+                }
+
+                // Check if abstract is approved
+                if (submission.Status != SubmissionStatus.AbstractApproved)
+                {
+                    _logger.LogWarning($"Submission {submissionId} is not in AbstractApproved status. Current status: {submission.Status}");
+                    return false;
+                }
+
+                // Check if payment is completed
+                var payment = await _context.Payments
+                    .FirstOrDefaultAsync(p => p.SubmissionId == submissionId && p.Status == Models.Enums.PaymentStatus.Completed);
+
+                if (payment == null)
+                {
+                    _logger.LogWarning($"Payment not completed for submission {submissionId}");
+                    return false;
+                }
+
+                // Get next version number
+                var maxVersion = submission.FullPaperVersions.Any() 
+                    ? submission.FullPaperVersions.Max(v => v.VersionNumber) 
+                    : 0;
+                var nextVersion = maxVersion + 1;
+
+                // Mark all previous versions as not current
+                foreach (var version in submission.FullPaperVersions)
+                {
+                    version.IsCurrentVersion = false;
+                }
+
+                // Create new FullPaperVersion
+                var fullPaperVersion = new FullPaperVersion
+                {
+                    SubmissionId = submissionId,
+                    VersionNumber = nextVersion,
+                    FileUrl = fileUrl,
+                    FileName = fileName,
+                    FileSize = fileSize,
+                    UploadedBy = authorId,
+                    UploadedAt = DateTime.UtcNow,
+                    IsCurrentVersion = true
+                };
+
+                _context.FullPaperVersions.Add(fullPaperVersion);
+
+                // Update submission status and timestamp
+                // Note: Status remains AbstractApproved until admin assigns reviewers
+                // When reviewers are assigned, status will change to UnderReview
+                submission.FullPaperSubmittedAt = DateTime.UtcNow;
+                submission.UpdatedAt = DateTime.UtcNow;
+                // Keep status as AbstractApproved - admin will assign reviewers and status will change to UnderReview
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Full paper version {nextVersion} submitted successfully for submission {submissionId}");
+
+                // Send email notification to author
+                var authorUser = await _context.Users.FindAsync(authorId);
+                if (authorUser != null && !string.IsNullOrWhiteSpace(authorUser.Email))
+                {
+                    var emailNotification = new EmailNotification
+                    {
+                        ToEmail = authorUser.Email,
+                        Subject = "Full Paper Submission Confirmation",
+                        Body = $"<p>Dear {authorUser.FullName},</p>" +
+                               $"<p>We have received your full paper submission: <strong>\"{submission.Title}\"</strong>.</p>" +
+                               $"<p>Version: <strong>{nextVersion}</strong></p>" +
+                               $"<p>Current status: <strong>Full Paper Submitted</strong>.</p>" +
+                               $"<p>Your paper will be reviewed by our reviewers. We will notify you of the result as soon as possible.</p>" +
+                               $"<p>Thank you for your submission.</p>" +
+                               $"<p>Best regards,<br/>SciSubmit Team</p>",
+                        Type = "FullPaperSubmitted",
+                        Status = EmailNotificationStatus.Pending,
+                        RelatedSubmissionId = submissionId,
+                        RelatedUserId = authorId,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.EmailNotifications.Add(emailNotification);
+                    await _context.SaveChangesAsync();
+
+                    try
+                    {
+                        await _emailService.SendEmailNotificationAsync(emailNotification);
+                        _logger.LogInformation($"Email sent successfully to {authorUser.Email} for full paper submission {submissionId}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Error sending email to {authorUser.Email} for full paper submission {submissionId}");
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error submitting full paper for submission {submissionId}");
                 throw;
             }
         }

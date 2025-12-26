@@ -538,10 +538,10 @@ a:hover {
 }
 
 .navbar-nav .nav-link {
-    padding: var(--spacing-2) var(--spacing-4) !important;
-    border-radius: var(--radius-md);
-    transition: all var(--transition-fast);
-    color: rgba(255, 255, 255, 0.9) !important;
+  padding: var(--spacing-2) var(--spacing-4) !important;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  color: rgba(255, 255, 255, 0.9) !important;
     background-color: transparent !important;
     border: none !important;
 }
@@ -554,7 +554,7 @@ a:hover {
 
 .navbar-nav .nav-link.active {
     background-color: rgba(255, 255, 255, 0.25) !important;
-    color: var(--color-white) !important;
+  color: var(--color-white) !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 

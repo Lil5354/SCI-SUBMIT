@@ -31,8 +31,19 @@
         <div class="col-lg-8">
             <!-- Submission Info Card -->
             <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Paper Information</h5>
+                    @if (submission != null)
+                    {
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="trackProgressCheckbox" 
+                                   @(ViewData["IsTracked"] as bool? == true ? "checked" : "")
+                                   data-submission-id="@submission.Id">
+                            <label class="form-check-label text-white" for="trackProgressCheckbox">
+                                <i class="fas fa-eye me-1"></i>Track Progress
+                            </label>
+                        </div>
+                    }
                 </div>
                 <div class="card-body">
                     @if (submission != null)
@@ -117,15 +128,30 @@
                                     <p class="text-muted mb-1 small">@(submission.AbstractReviewedAt?.ToString("dd/MM/yyyy HH:mm") ?? "")</p>
                                 </div>
                             </div>
+                            @if (submission.FullPaperSubmittedAt.HasValue)
+                            {
+                                <div class="timeline-item completed">
+                                    <div class="timeline-marker bg-success">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Full Paper Submitted</h6>
+                                        <p class="text-muted mb-1 small">@(submission.FullPaperSubmittedAt.Value.ToString("dd/MM/yyyy HH:mm"))</p>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
                             <div class="timeline-item active">
                                 <div class="timeline-marker bg-primary">
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 <div class="timeline-content">
-                                    <h6 class="mb-1">Awaiting Full Paper Submission</h6>
-                                    <p class="text-muted mb-1 small">Current Status</p>
+                                        <h6 class="mb-1">Awaiting Full Paper Submission</h6>
+                                        <p class="text-muted mb-1 small">Current Status</p>
+                                    </div>
                                 </div>
-                            </div>
+                            }
                         }
                         else if (submission != null && submission.Status == SciSubmit.Models.Enums.SubmissionStatus.PendingAbstractReview)
                         {
@@ -151,24 +177,153 @@
                                 </div>
                             </div>
                         }
-                        <div class="timeline-item">
-                            <div class="timeline-marker bg-gray">
-                                <i class="fas fa-hourglass-half"></i>
+                        else if (submission != null && submission.Status == SciSubmit.Models.Enums.SubmissionStatus.FullPaperSubmitted)
+                        {
+                            @if (submission.FullPaperSubmittedAt.HasValue)
+                            {
+                                <div class="timeline-item completed">
+                                    <div class="timeline-marker bg-success">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Full Paper Submitted</h6>
+                                        <p class="text-muted mb-1 small">@(submission.FullPaperSubmittedAt.Value.ToString("dd/MM/yyyy HH:mm"))</p>
+                                    </div>
+                                </div>
+                            }
+                            <div class="timeline-item active">
+                                <div class="timeline-marker bg-primary">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Awaiting Reviewer Assignment</h6>
+                                    <p class="text-muted mb-1 small">Current Status</p>
+                                </div>
+                            </div>
+                        }
+                        else if (submission != null && submission.Status == SciSubmit.Models.Enums.SubmissionStatus.UnderReview)
+                        {
+                            @if (submission.FullPaperSubmittedAt.HasValue)
+                            {
+                                <div class="timeline-item completed">
+                                    <div class="timeline-marker bg-success">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Full Paper Submitted</h6>
+                                        <p class="text-muted mb-1 small">@(submission.FullPaperSubmittedAt.Value.ToString("dd/MM/yyyy HH:mm"))</p>
+                                    </div>
+                                </div>
+                            }
+                            <div class="timeline-item active">
+                                <div class="timeline-marker bg-primary">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Under Review</h6>
+                                    <p class="text-muted mb-1 small">Current Status</p>
+                                </div>
+                            </div>
+                        }
+                        else if (submission != null && submission.Status == SciSubmit.Models.Enums.SubmissionStatus.Accepted)
+                        {
+                            @if (submission.FullPaperSubmittedAt.HasValue)
+                            {
+                                <div class="timeline-item completed">
+                                    <div class="timeline-marker bg-success">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Full Paper Submitted</h6>
+                                        <p class="text-muted mb-1 small">@(submission.FullPaperSubmittedAt.Value.ToString("dd/MM/yyyy HH:mm"))</p>
+                                    </div>
+                                </div>
+                            }
+                            <div class="timeline-item completed">
+                                <div class="timeline-marker bg-success">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Under Review</h6>
+                                    <p class="text-muted mb-1 small">Completed</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item completed">
+                                <div class="timeline-marker bg-success">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Paper Accepted</h6>
+                                    <p class="text-muted mb-1 small">Congratulations!</p>
+                                </div>
+                            </div>
+                        }
+                        else if (submission != null && submission.Status == SciSubmit.Models.Enums.SubmissionStatus.Rejected)
+                        {
+                            @if (submission.FullPaperSubmittedAt.HasValue)
+                            {
+                                <div class="timeline-item completed">
+                                    <div class="timeline-marker bg-success">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Full Paper Submitted</h6>
+                                        <p class="text-muted mb-1 small">@(submission.FullPaperSubmittedAt.Value.ToString("dd/MM/yyyy HH:mm"))</p>
+                                    </div>
+                                </div>
+                            }
+                            <div class="timeline-item completed">
+                                <div class="timeline-marker bg-success">
+                                    <i class="fas fa-check"></i>
                             </div>
                             <div class="timeline-content">
-                                <h6 class="mb-1">Under Review</h6>
-                                <p class="text-muted mb-1 small">Not Started</p>
+                                    <h6 class="mb-1">Under Review</h6>
+                                    <p class="text-muted mb-1 small">Completed</p>
+                                </div>
                             </div>
+                            <div class="timeline-item completed">
+                                <div class="timeline-marker bg-danger">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Paper Rejected</h6>
+                                    <p class="text-muted mb-1 small">Review completed</p>
                         </div>
-                        <div class="timeline-item">
-                            <div class="timeline-marker bg-gray">
-                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                        }
+                        else if (submission != null && submission.Status == SciSubmit.Models.Enums.SubmissionStatus.RevisionRequired)
+                        {
+                            @if (submission.FullPaperSubmittedAt.HasValue)
+                            {
+                                <div class="timeline-item completed">
+                                    <div class="timeline-marker bg-success">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Full Paper Submitted</h6>
+                                        <p class="text-muted mb-1 small">@(submission.FullPaperSubmittedAt.Value.ToString("dd/MM/yyyy HH:mm"))</p>
+                                    </div>
+                                </div>
+                            }
+                            <div class="timeline-item completed">
+                                <div class="timeline-marker bg-success">
+                                    <i class="fas fa-check"></i>
                             </div>
                             <div class="timeline-content">
-                                <h6 class="mb-1">Payment</h6>
-                                <p class="text-muted mb-1 small">Not Started</p>
+                                    <h6 class="mb-1">Under Review</h6>
+                                    <p class="text-muted mb-1 small">Completed</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item active">
+                                <div class="timeline-marker bg-warning">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Revision Required</h6>
+                                    <p class="text-muted mb-1 small">Please revise your paper</p>
                             </div>
                         </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -206,6 +361,71 @@
                 </div>
             </div>
 
+            <!-- Final Decision Card -->
+            @if (submission != null && submission.FinalDecision != null)
+            {
+                var finalDecision = submission.FinalDecision;
+                var decisionBadgeClass = finalDecision.Decision switch
+                {
+                    SciSubmit.Models.Enums.FinalDecisionType.Accepted => "bg-success",
+                    SciSubmit.Models.Enums.FinalDecisionType.MinorRevision => "bg-warning",
+                    SciSubmit.Models.Enums.FinalDecisionType.MajorRevision => "bg-warning",
+                    SciSubmit.Models.Enums.FinalDecisionType.Rejected => "bg-danger",
+                    _ => "bg-secondary"
+                };
+                var decisionText = finalDecision.Decision switch
+                {
+                    SciSubmit.Models.Enums.FinalDecisionType.Accepted => "Accepted",
+                    SciSubmit.Models.Enums.FinalDecisionType.MinorRevision => "Minor Revision Required",
+                    SciSubmit.Models.Enums.FinalDecisionType.MajorRevision => "Major Revision Required",
+                    SciSubmit.Models.Enums.FinalDecisionType.Rejected => "Rejected",
+                    _ => finalDecision.Decision.ToString()
+                };
+                <div class="card shadow-sm border-0 mb-4 border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>Final Decision</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-muted">Decision</label>
+                                <div>
+                                    <span class="badge @decisionBadgeClass fs-6 px-3 py-2">@decisionText</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-muted">Average Score</label>
+                                <div>
+                                    <span class="badge bg-info fs-6 px-3 py-2">
+                                        @(finalDecision.AverageScore?.ToString("F2") ?? "N/A") / 5.0
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(finalDecision.DecisionReason))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold text-muted">Comments</label>
+                                <div class="p-3 bg-light rounded">
+                                    <p class="mb-0">@finalDecision.DecisionReason</p>
+                                </div>
+                            </div>
+                        }
+                        <div class="text-muted small">
+                            <i class="fas fa-calendar me-1"></i>
+                            Decided on: @finalDecision.DecidedAt.ToString("dd/MM/yyyy HH:mm")
+                            @if (finalDecision.DecisionMaker != null)
+                            {
+                                <span class="ms-2">
+                                    <i class="fas fa-user-shield me-1"></i>
+                                    By: @finalDecision.DecisionMaker.FullName
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
             <!-- Review Results Card -->
             @{
                 var reviewResults = ViewData["ReviewResults"] as IEnumerable<SciSubmit.Models.Review.Review>;
@@ -224,10 +444,10 @@
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div>
                                         <h6 class="mb-1">
-                                            <i class="fas fa-user-tie me-2 text-primary"></i>
-                                            <strong>Reviewer: @(review.Reviewer?.FullName ?? "N/A")</strong>
+                                            <i class="fas fa-user-secret me-2 text-primary"></i>
+                                            <strong>Anonymous Review</strong>
                                         </h6>
-                                        <small class="text-muted">@(review.Reviewer?.Email ?? "N/A")</small>
+                                        <small class="text-muted">Blind Review</small>
                                     </div>
                                     <div class="text-end">
                                         <div class="mb-1">
@@ -344,9 +564,12 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="/Submission/FullPaper/@submissionId" class="btn btn-primary">
-                            <i class="fas fa-file-pdf me-2"></i>Submit Full Paper
+                        @if (submission != null && submission.Status == SciSubmit.Models.Enums.SubmissionStatus.AbstractApproved)
+                        {
+                            <a href="/Submission/Payment/@submissionId" class="btn btn-primary">
+                                <i class="fas fa-file-word me-2"></i>Submit Full Paper
                         </a>
+                        }
                         <button class="btn btn-outline-secondary" onclick="downloadSubmission()">
                             <i class="fas fa-download me-2"></i>Download
                         </button>
@@ -458,6 +681,71 @@
                 });
             }
         }
+
+        // Track Progress Checkbox Handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const trackCheckbox = document.getElementById('trackProgressCheckbox');
+            if (trackCheckbox) {
+                trackCheckbox.addEventListener('change', function() {
+                    const submissionId = parseInt(this.getAttribute('data-submission-id'));
+                    const isTracking = this.checked;
+                    
+                    // Disable checkbox during request
+                    this.disabled = true;
+                    
+                    // Call API to toggle tracking
+                    const formData = new URLSearchParams();
+                    formData.append('submissionId', submissionId);
+                    formData.append('isTracking', isTracking);
+                    
+                    fetch('/Submission/ToggleTrackProgress', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: formData.toString()
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message
+                            const message = isTracking 
+                                ? 'This submission is now being tracked on your dashboard.' 
+                                : 'Tracking removed.';
+                            
+                            // Create temporary alert
+                            const alertDiv = document.createElement('div');
+                            alertDiv.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+                            alertDiv.style.zIndex = '9999';
+                            alertDiv.innerHTML = `
+                                <i class="fas fa-check-circle me-2"></i>${message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            `;
+                            document.body.appendChild(alertDiv);
+                            
+                            // Auto-dismiss after 3 seconds
+                            setTimeout(() => {
+                                alertDiv.remove();
+                            }, 3000);
+                        } else {
+                            // Revert checkbox on error
+                            this.checked = !isTracking;
+                            alert('Error: ' + (data.message || 'Failed to update tracking status'));
+                        }
+                    })
+                    .catch(error => {
+                        // Revert checkbox on error
+                        this.checked = !isTracking;
+                        console.error('Error:', error);
+                        alert('An error occurred while updating tracking status.');
+                    })
+                    .finally(() => {
+                        // Re-enable checkbox
+                        this.disabled = false;
+                    });
+                });
+            }
+        });
     </script>
 
     <style>

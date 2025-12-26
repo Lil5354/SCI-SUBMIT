@@ -668,7 +668,7 @@ namespace SciSubmit.Services
                 rejectUrl: rejectUrl,
                 baseUrl: baseUrl
             );
-            
+
             // Create email notification
             var emailNotification = new Models.Notification.EmailNotification
             {
@@ -1332,11 +1332,27 @@ namespace SciSubmit.Services
             }
 
             // Create email notification
+            var decisionText = decision switch
+            {
+                FinalDecisionType.Accepted => "Accepted",
+                FinalDecisionType.MinorRevision => "Minor Revision Required",
+                FinalDecisionType.MajorRevision => "Major Revision Required",
+                FinalDecisionType.Rejected => "Rejected",
+                _ => decision.ToString()
+            };
+
             var emailNotification = new Models.Notification.EmailNotification
             {
-                ToEmail = submission.Author.Email,
-                Subject = $"Quyết định cuối cùng cho bài báo: {submission.Title}",
-                Body = $"Quyết định: {decision}. Lý do: {reason ?? "Không có"}",
+                ToEmail = submission.Author.Email ?? "",
+                Subject = $"Final Decision for Your Submission: {submission.Title}",
+                Body = $"<p>Dear {submission.Author.FullName},</p>" +
+                       $"<p>We have reached a final decision regarding your submission: <strong>\"{submission.Title}\"</strong>.</p>" +
+                       $"<p><strong>Decision:</strong> {decisionText}</p>" +
+                       $"<p><strong>Average Score:</strong> {averageScore:F2}/5.0</p>" +
+                       (!string.IsNullOrEmpty(reason) ? $"<p><strong>Comments:</strong> {reason}</p>" : "") +
+                       $"<p>Please log in to your account to view detailed review comments and next steps.</p>" +
+                       $"<p>Thank you for your submission.</p>" +
+                       $"<p>Best regards,<br/>SciSubmit Conference Team</p>",
                 Type = "FinalDecision",
                 Status = EmailNotificationStatus.Pending,
                 RelatedSubmissionId = submissionId,
@@ -1346,6 +1362,20 @@ namespace SciSubmit.Services
 
             _context.EmailNotifications.Add(emailNotification);
             await _context.SaveChangesAsync();
+
+            // Send email notification
+            try
+            {
+                if (!string.IsNullOrEmpty(submission.Author.Email))
+                {
+                    await _emailService.SendEmailNotificationAsync(emailNotification);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't fail the decision
+                System.Diagnostics.Debug.WriteLine($"Error sending final decision email: {ex.Message}");
+            }
 
             return true;
         }

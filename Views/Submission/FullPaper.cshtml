@@ -1,6 +1,7 @@
 @{
     ViewData["Title"] = "Submit Full Paper";
     ViewData["HideMainHeader"] = true;
+    var submission = ViewData["Submission"] as SciSubmit.Models.Submission.Submission;
     var submissionId = ViewData["SubmissionId"] ?? 0;
 }
 @await Html.PartialAsync("_AuthorNavHeader")
@@ -28,7 +29,7 @@
                             <h6 class="mb-1">
                                 <i class="fas fa-clock me-2 text-warning"></i>Full Paper Submission Deadline
                             </h6>
-                            <p class="mb-0 text-muted">Deadline: <strong id="deadlineDate">30/01/2025 23:59</strong></p>
+                            <p class="mb-0 text-muted">Deadline: <strong id="deadlineDate">@(ViewData["FullPaperDeadline"] != null ? ((DateTime)ViewData["FullPaperDeadline"]).ToString("dd/MM/yyyy HH:mm") : "Not set")</strong></p>
                         </div>
                         <div class="text-end">
                             <div class="h4 mb-0 text-primary" id="countdown">
@@ -155,20 +156,114 @@
             </div>
 
             <!-- Instructions -->
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Hướng dẫn</h6>
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Instructions</h6>
                 </div>
                 <div class="card-body">
                     <ul class="mb-0">
-                        <li>File phải là DOC hoặc DOCX</li>
-                        <li>Kích thước tối đa: 10MB</li>
-                        <li>Bạn có thể upload lại nhiều lần trước deadline</li>
-                        <li>Hệ thống sẽ chỉ lấy phiên bản cuối cùng để đưa vào phản biện</li>
-                        <li>Sau khi nộp, trạng thái sẽ chuyển thành "Đã nộp bài đầy đủ"</li>
+                        <li>File must be DOC or DOCX format</li>
+                        <li>Maximum file size: 10MB</li>
+                        <li>You can upload multiple times before the deadline</li>
+                        <li>The system will only use the latest version for review</li>
+                        <li>After submission, status will change to "Full Paper Submitted"</li>
                     </ul>
                 </div>
             </div>
+
+            <!-- Approved Abstract Details Section -->
+            @if (submission != null)
+            {
+                <div class="card shadow-sm border-0 border-info">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-alt me-2"></i>Approved Abstract Details
+                        </h5>
+                        <small class="text-white-50">This information is attached to help Admin and Reviewers identify your paper</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-muted">Paper Title</label>
+                                <h6 class="mb-0">@submission.Title</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-muted">Submission ID</label>
+                                <p class="mb-0"><strong>#@submission.Id</strong></p>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted">Abstract</label>
+                            <div class="p-3 bg-light rounded" style="max-height: 300px; overflow-y: auto;">
+                                <p class="mb-0">@submission.Abstract</p>
+                            </div>
+                        </div>
+
+                        @if (submission.SubmissionTopics.Any())
+                        {
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold text-muted">Topics</label>
+                                <div>
+                                    @foreach (var topic in submission.SubmissionTopics.Select(st => st.Topic))
+                                    {
+                                        <span class="badge bg-info me-1">@topic?.Name</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        @if (submission.SubmissionKeywords.Any())
+                        {
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold text-muted">Keywords</label>
+                                <div>
+                                    @foreach (var keyword in submission.SubmissionKeywords.Select(sk => sk.Keyword))
+                                    {
+                                        <span class="badge bg-primary me-1">@keyword?.Name</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        @if (submission.SubmissionAuthors.Any())
+                        {
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold text-muted">Authors</label>
+                                <ul class="list-unstyled mb-0">
+                                    @foreach (var author in submission.SubmissionAuthors.OrderBy(a => a.OrderIndex))
+                                    {
+                                        <li class="mb-1">
+                                            <i class="fas fa-user me-2 text-primary"></i>
+                                            <strong>@author.FullName</strong>
+                                            @if (author.IsCorrespondingAuthor)
+                                            {
+                                                <span class="badge bg-success ms-2">Corresponding Author</span>
+                                            }
+                                            <br>
+                                            <small class="text-muted ms-4">
+                                                @author.Email
+                                                @if (!string.IsNullOrEmpty(author.Affiliation))
+                                                {
+                                                    <text> | @author.Affiliation</text>
+                                                }
+                                            </small>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+
+                        @if (submission.AbstractReviewedAt.HasValue)
+                        {
+                            <div class="alert alert-success mb-0">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <strong>Abstract Approved:</strong> @submission.AbstractReviewedAt.Value.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -177,7 +272,12 @@
     <script>
         // Countdown timer
         function updateCountdown() {
-            const deadline = new Date('2025-01-30T23:59:59');
+            @{
+                var deadlineJs = ViewData["FullPaperDeadline"] != null 
+                    ? ((DateTime)ViewData["FullPaperDeadline"]).ToString("yyyy-MM-ddTHH:mm:ss") 
+                    : "2025-12-31T23:59:59"; // Default fallback
+            }
+            const deadline = new Date('@deadlineJs');
             const now = new Date();
             const diff = deadline - now;
 

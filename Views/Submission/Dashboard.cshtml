@@ -1,3 +1,4 @@
+@model SciSubmit.Models.Submission.AuthorDashboardViewModel
 @{
     ViewData["Title"] = "Author Dashboard";
     ViewData["HideMainHeader"] = true; // Hide main layout header, use dashboard's own header
@@ -49,6 +50,24 @@
         <div class="container position-relative" style="z-index: 1;">
             <div class="progress-card card animate-slide-up">
                 <div class="card-body p-5">
+                    @if (Model.TrackedSubmission != null)
+                    {
+                        <div class="mb-4 p-3 bg-light rounded">
+                            <p class="mb-0">
+                                <i class="fas fa-eye me-2 text-primary"></i>
+                                <strong>Tracking:</strong> #@Model.TrackedSubmission.Id - @(Model.TrackedSubmission.Title.Length > 60 ? Model.TrackedSubmission.Title.Substring(0, 60) + "..." : Model.TrackedSubmission.Title)
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mb-4 p-3 bg-light rounded text-muted">
+                            <p class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                No submission is being tracked. Go to a submission's details page and check "Track Progress" to start tracking.
+                            </p>
+                        </div>
+                    }
                     <div class="progress-steps" id="progressSteps">
                         <div class="progress-line" id="progressLine" style="width: 0%;"></div>
                         <div class="progress-line-glow" id="progressLineGlow" style="width: 0%;"></div>
@@ -81,9 +100,9 @@
                         
                         <div class="progress-step" data-step="4">
                             <div class="progress-step-circle">
-                                <i class="fas fa-credit-card progress-step-icon"></i>
+                                <i class="fas fa-check-circle progress-step-icon"></i>
                             </div>
-                            <div class="progress-step-label">Payment</div>
+                            <div class="progress-step-label">Accepted</div>
                         </div>
                     </div>
                 </div>
@@ -101,7 +120,7 @@
                         <div class="stat-card-icon bg-primary text-white">
                             <i class="fas fa-file-upload"></i>
                         </div>
-                        <div class="stat-card-value text-primary" id="statSubmissions" data-target="0">0</div>
+                        <div class="stat-card-value text-primary" id="statSubmissions" data-target="@Model.TotalSubmissions">@Model.TotalSubmissions</div>
                         <div class="stat-card-label">SUBMISSIONS</div>
                     </div>
                 </div>
@@ -111,7 +130,7 @@
                         <div class="stat-card-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);">
                             <i class="fas fa-clock text-white"></i>
                         </div>
-                        <div class="stat-card-value" style="color: #f59e0b;" id="statUnderReview" data-target="0">0</div>
+                        <div class="stat-card-value" style="color: #f59e0b;" id="statUnderReview" data-target="@Model.UnderReview">@Model.UnderReview</div>
                         <div class="stat-card-label">UNDER REVIEW</div>
                     </div>
                 </div>
@@ -121,7 +140,7 @@
                         <div class="stat-card-icon" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">
                             <i class="fas fa-check-circle text-white"></i>
                         </div>
-                        <div class="stat-card-value" style="color: #10b981;" id="statAccepted" data-target="0">0</div>
+                        <div class="stat-card-value" style="color: #10b981;" id="statAccepted" data-target="@Model.Accepted">@Model.Accepted</div>
                         <div class="stat-card-label">ACCEPTED</div>
                     </div>
                 </div>
@@ -131,7 +150,7 @@
                         <div class="stat-card-icon" style="background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);">
                             <i class="fas fa-times-circle text-white"></i>
                         </div>
-                        <div class="stat-card-value" style="color: #ef4444;" id="statRejected" data-target="0">0</div>
+                        <div class="stat-card-value" style="color: #ef4444;" id="statRejected" data-target="@Model.Rejected">@Model.Rejected</div>
                         <div class="stat-card-label">REJECTED</div>
                     </div>
                 </div>
@@ -142,24 +161,66 @@
     <!-- Recent Submissions Section -->
     <section class="section submissions-section position-relative bg-light">
         <div class="container position-relative" style="z-index: 1;">
-            <div class="section-title animate-fade-in-up">
-                <h2>
+            <div class="section-title animate-fade-in-up" style="text-align: center;">
+                <h2 style="text-align: center;">
                     <span class="title-primary">Recent</span> <span class="title-secondary">Submissions</span>
                 </h2>
-                <p>List of your most recently submitted papers</p>
+                <p style="text-align: center; margin: 0 auto;">List of your most recently submitted papers</p>
             </div>
             <div class="submissions-card card animate-slide-up-delay">
                 <div class="card-body p-4">
-                    <div id="recentSubmissionsContainer">
-                        <div class="text-center py-5">
-                            <div class="loading-spinner">
-                                <div class="spinner-ring"></div>
-                                <div class="spinner-ring"></div>
-                                <div class="spinner-ring"></div>
-                            </div>
-                            <p class="text-muted mt-4">Loading recent submissions...</p>
+                    @if (Model.RecentSubmissions != null && Model.RecentSubmissions.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50%; min-width: 300px;">Title</th>
+                                        <th style="width: 15%;">Submitted</th>
+                                        <th style="width: 10%;">Action</th>
+                                        <th style="width: 15%;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var submission in Model.RecentSubmissions)
+                                    {
+                                        var statusBadge = submission.Status switch
+                                        {
+                                            SciSubmit.Models.Enums.SubmissionStatus.Draft => "<span class=\"badge bg-secondary\">Draft</span>",
+                                            SciSubmit.Models.Enums.SubmissionStatus.PendingAbstractReview => "<span class=\"badge bg-info\">Pending Review</span>",
+                                            SciSubmit.Models.Enums.SubmissionStatus.AbstractRejected => "<span class=\"badge bg-danger\">Rejected</span>",
+                                            SciSubmit.Models.Enums.SubmissionStatus.AbstractApproved => "<span class=\"badge bg-success\">Approved</span>",
+                                            SciSubmit.Models.Enums.SubmissionStatus.FullPaperSubmitted => "<span class=\"badge bg-primary\">Full Paper Submitted</span>",
+                                            SciSubmit.Models.Enums.SubmissionStatus.UnderReview => "<span class=\"badge bg-warning\">Under Review</span>",
+                                            SciSubmit.Models.Enums.SubmissionStatus.RevisionRequired => "<span class=\"badge bg-warning\">Revision Required</span>",
+                                            SciSubmit.Models.Enums.SubmissionStatus.Accepted => "<span class=\"badge bg-success\">Accepted</span>",
+                                            SciSubmit.Models.Enums.SubmissionStatus.Rejected => "<span class=\"badge bg-danger\">Rejected</span>",
+                                            SciSubmit.Models.Enums.SubmissionStatus.Withdrawn => "<span class=\"badge bg-secondary\">Withdrawn</span>",
+                                            _ => "<span class=\"badge bg-secondary\">Unknown</span>"
+                                        };
+                                        <tr style="cursor: pointer;" onclick="window.location.href='@Url.Action("Details", new { id = submission.Id })'">
+                                            <td style="word-wrap: break-word; word-break: break-word; max-width: 0;"><strong>@submission.Title</strong></td>
+                                            <td>@(submission.SubmittedAt?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                            <td style="white-space: nowrap;">
+                                                <a href="@Url.Action("Details", new { id = submission.Id })" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">View</a>
+                                            </td>
+                                            <td style="white-space: nowrap;">@Html.Raw(statusBadge)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
-                    </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No submissions yet. Create your first submission to get started!</p>
+                            <a href="@Url.Action("Create")" class="btn btn-primary mt-3">
+                                <i class="fas fa-plus-circle me-2"></i>Create New Submission
+                            </a>
+                        </div>
+                    }
                     <div class="d-flex justify-content-center mt-4">
                         <a href="@Url.Action("Index")" class="btn btn-view-all">
                             <i class="fas fa-list me-2"></i>View All Submissions
@@ -216,16 +277,42 @@
 </div>
 
 @section Scripts {
+    <style>
+        /* Table column width adjustments */
+        .submissions-card table thead th:first-child {
+            width: 50% !important;
+            min-width: 300px;
+        }
+        .submissions-card table tbody td:first-child {
+            word-wrap: break-word;
+            word-break: break-word;
+            max-width: 0;
+            padding-right: 15px;
+        }
+        .submissions-card table thead th:nth-child(2) {
+            width: 15% !important;
+        }
+        .submissions-card table thead th:nth-child(3) {
+            width: 10% !important;
+        }
+        .submissions-card table thead th:nth-child(4) {
+            width: 15% !important;
+        }
+        .submissions-card table tbody td:nth-child(3),
+        .submissions-card table tbody td:nth-child(4) {
+            white-space: nowrap;
+        }
+    </style>
     <script>
         // Initialize progress bar based on submission status
         document.addEventListener('DOMContentLoaded', function() {
-            // This should be set based on actual submission data
-            // For now, defaulting to step 1 (Abstract)
-            const currentStep = 1; // 1: Abstract, 2: Full Paper, 3: Review, 4: Payment
+            // Get current step from server-side model
+            const currentStep = @Model.CurrentProgressStep; // 1: Abstract, 2: Full Paper, 3: Review, 4: Accepted
             updateProgressBar(currentStep);
             
-            // Load statistics
-            loadStatistics();
+            // Statistics are already loaded from server
+            // Animate the numbers on scroll
+            animateStatisticsOnScroll();
             
             // Load recent submissions
             loadRecentSubmissions();
@@ -259,31 +346,30 @@
             }
         }
 
-        function loadStatistics() {
-            // TODO: Load actual statistics from API
-            // For now, using placeholder values
-            document.getElementById('statSubmissions').textContent = '0';
-            document.getElementById('statUnderReview').textContent = '0';
-            document.getElementById('statAccepted').textContent = '0';
-            document.getElementById('statRejected').textContent = '0';
+        function animateStatisticsOnScroll() {
+            // Statistics are already loaded from server, just animate them on scroll
+            const statsSection = document.querySelector('.stats-section');
+            if (statsSection) {
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const cards = entry.target.querySelectorAll('.stat-card-value');
+                            cards.forEach(card => {
+                                const target = parseInt(card.getAttribute('data-target') || '0');
+                                const current = parseInt(card.textContent) || 0;
+                                animateValue(card, current, target, 2000);
+                            });
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                observer.observe(statsSection);
+            }
         }
 
         function loadRecentSubmissions() {
-            const container = document.getElementById('recentSubmissionsContainer');
-            
-            // TODO: Load actual submissions from API
-            // For now, showing empty state
-            setTimeout(() => {
-                container.innerHTML = `
-                    <div class="text-center py-5">
-                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">No submissions yet. Create your first submission to get started!</p>
-                        <a href="@Url.Action("Create")" class="btn btn-primary mt-3">
-                            <i class="fas fa-plus-circle me-2"></i>Create New Submission
-                        </a>
-                    </div>
-                `;
-            }, 1000);
+            // Recent submissions are already rendered server-side
+            // This function is kept for potential future AJAX updates
         }
 
         // Contact Editor functionality

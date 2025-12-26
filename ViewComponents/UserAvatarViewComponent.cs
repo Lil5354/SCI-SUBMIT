@@ -16,7 +16,7 @@ namespace SciSubmit.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var userIdClaim = ViewContext.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = ViewContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
