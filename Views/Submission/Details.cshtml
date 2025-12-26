@@ -6,6 +6,8 @@
 }
 @await Html.PartialAsync("_AuthorNavHeader")
 
+@Html.AntiForgeryToken()
+
 <div class="container my-5">
     <!-- Header -->
     <div class="mb-4">
@@ -172,7 +174,7 @@
             </div>
 
             <!-- Files Card -->
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-light">
                     <h5 class="mb-0"><i class="fas fa-file me-2"></i>Uploaded Files</h5>
                 </div>
@@ -203,6 +205,95 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Review Results Card -->
+            @{
+                var reviewResults = ViewData["ReviewResults"] as IEnumerable<SciSubmit.Models.Review.Review>;
+                var reviewCriterias = ViewData["ReviewCriterias"] as Dictionary<string, int> ?? new Dictionary<string, int>();
+            }
+            @if (submission != null && reviewResults != null && reviewResults.Any())
+            {
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Review Results</h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var review in reviewResults)
+                        {
+                            <div class="review-result-card mb-4 p-4 border rounded" style="background-color: #f8f9fa;">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <i class="fas fa-user-tie me-2 text-primary"></i>
+                                            <strong>Reviewer: @(review.Reviewer?.FullName ?? "N/A")</strong>
+                                        </h6>
+                                        <small class="text-muted">@(review.Reviewer?.Email ?? "N/A")</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="mb-1">
+                                            <span class="badge bg-primary fs-6">
+                                                Average Score: @(review.AverageScore?.ToString("F2") ?? "N/A")
+                                            </span>
+                                        </div>
+                                        <small class="text-muted">
+                                            Submitted: @review.SubmittedAt.ToString("dd/MM/yyyy HH:mm")
+                                        </small>
+                                    </div>
+                                </div>
+
+                                @if (review.ReviewScores.Any())
+                                {
+                                    <div class="mb-3">
+                                        <h6 class="mb-2"><i class="fas fa-chart-bar me-2"></i>Detailed Scores:</h6>
+                                        <div class="row g-2">
+                                            @foreach (var score in review.ReviewScores)
+                                            {
+                                                var maxScore = reviewCriterias.GetValueOrDefault(score.CriteriaName, 5);
+                                                <div class="col-md-6">
+                                                    <div class="d-flex justify-content-between align-items-center p-2 bg-white rounded">
+                                                        <span class="small">@score.CriteriaName:</span>
+                                                        <span class="badge bg-info">
+                                                            @score.Score / @maxScore
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrEmpty(review.Recommendation))
+                                {
+                                    <div class="mb-3">
+                                        <h6 class="mb-2"><i class="fas fa-gavel me-2"></i>Recommendation:</h6>
+                                        @{
+                                            var recommendationBadgeClass = review.Recommendation switch
+                                            {
+                                                "Accept" => "bg-success",
+                                                "MinorRevision" => "bg-warning",
+                                                "MajorRevision" => "bg-warning",
+                                                "Reject" => "bg-danger",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @recommendationBadgeClass fs-6 px-3 py-2">@review.Recommendation</span>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrEmpty(review.CommentsForAuthor))
+                                {
+                                    <div class="mb-3">
+                                        <h6 class="mb-2"><i class="fas fa-comment-dots me-2 text-info"></i>Reviewer Comments:</h6>
+                                        <div class="p-3 bg-white rounded border">
+                                            <p class="mb-0">@review.CommentsForAuthor</p>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
         </div>
 
         <!-- Sidebar -->
@@ -254,13 +345,13 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="/Submission/FullPaper/@submissionId" class="btn btn-primary">
-                            <i class="fas fa-file-pdf me-2"></i>Nộp bài đầy đủ
+                            <i class="fas fa-file-pdf me-2"></i>Submit Full Paper
                         </a>
                         <button class="btn btn-outline-secondary" onclick="downloadSubmission()">
-                            <i class="fas fa-download me-2"></i>Tải xuống
+                            <i class="fas fa-download me-2"></i>Download
                         </button>
                         <button class="btn btn-outline-danger" onclick="withdrawSubmission()">
-                            <i class="fas fa-times me-2"></i>Rút bài
+                            <i class="fas fa-times me-2"></i>Withdraw
                         </button>
                     </div>
                 </div>
@@ -291,15 +382,80 @@
 
 @section Scripts {
     <script>
+        function getToken() {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            return token ? token.value : '';
+        }
+        
         function downloadSubmission() {
-            // TODO: Implement download
-            alert('Download feature is under development');
+            // Get submission ID from view data
+            const submissionId = @submissionId;
+            
+            // Show loading
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Downloading...';
+            
+            // Redirect to download endpoint
+            window.location.href = '/Submission/Download/' + submissionId;
+            
+            // Re-enable button after a short delay (in case download fails)
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }, 2000);
         }
 
         function withdrawSubmission() {
-            if (confirm('Are you sure you want to withdraw this submission?')) {
-                // TODO: Implement withdraw
-                alert('Withdrawal feature is under development');
+            if (confirm('Are you sure you want to withdraw this submission? This action cannot be undone.')) {
+                // Get submission ID from view data
+                const submissionId = @submissionId;
+                
+                // Show loading
+                const btn = event.target.closest('button');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+                
+                // Get antiforgery token
+                const token = getToken();
+                
+                // Create form data
+                const formData = new FormData();
+                formData.append('id', submissionId);
+                formData.append('__RequestVerificationToken', token);
+                
+                // Send POST request
+                fetch('/Submission/Withdraw', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'RequestVerificationToken': token
+                    }
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        // Redirect to index page (success)
+                        window.location.href = response.url;
+                    } else {
+                        return response.text();
+                    }
+                })
+                .then(data => {
+                    if (data) {
+                        // If there's an error, show it
+                        alert('Error: ' + data);
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while withdrawing the submission. Please try again.');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
             }
         }
     </script>

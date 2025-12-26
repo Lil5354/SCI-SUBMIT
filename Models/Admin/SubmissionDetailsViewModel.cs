@@ -23,6 +23,7 @@ namespace SciSubmit.Models.Admin
         public bool CanAssignReviewer { get; set; }
         public bool CanMakeFinalDecision { get; set; }
         public List<ReviewAssignmentInfoViewModel> ReviewAssignments { get; set; } = new();
+        public List<ReviewResultViewModel> ReviewResults { get; set; } = new();
     }
 
     public class ReviewAssignmentInfoViewModel
@@ -37,6 +38,27 @@ namespace SciSubmit.Models.Admin
         public DateTime? RejectedAt { get; set; }
         public DateTime? CompletedAt { get; set; }
         public string? RejectionReason { get; set; }
+    }
+
+    public class ReviewResultViewModel
+    {
+        public int ReviewId { get; set; }
+        public int ReviewAssignmentId { get; set; }
+        public string ReviewerName { get; set; } = string.Empty;
+        public string ReviewerEmail { get; set; } = string.Empty;
+        public decimal? AverageScore { get; set; }
+        public string? Recommendation { get; set; }
+        public string? CommentsForAuthor { get; set; }
+        public string? CommentsForAdmin { get; set; }
+        public DateTime SubmittedAt { get; set; }
+        public List<ReviewScoreViewModel> Scores { get; set; } = new();
+    }
+
+    public class ReviewScoreViewModel
+    {
+        public string CriterionName { get; set; } = string.Empty;
+        public int Score { get; set; }
+        public int MaxScore { get; set; }
     }
 
     public class AuthorInfoViewModel

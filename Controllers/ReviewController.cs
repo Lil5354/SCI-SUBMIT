@@ -66,22 +66,52 @@ namespace SciSubmit.Controllers
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult AcceptInvitation(int id)
+        [HttpGet]
+        public async Task<IActionResult> AcceptInvitation(int id)
         {
-            // TODO: Implement accept invitation logic
-            TempData["SuccessMessage"] = "Đã chấp nhận lời mời phản biện!";
-            return RedirectToAction(nameof(Details), new { id });
+            var reviewerId = GetCurrentUserId();
+            if (reviewerId == 0)
+            {
+                TempData["ErrorMessage"] = "You must be logged in to accept the invitation.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var result = await _reviewService.AcceptInvitationAsync(id, reviewerId);
+            
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Review invitation accepted successfully! You can now access the paper for review.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Unable to accept invitation. The invitation may have already been accepted or rejected, or you may not have permission.";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult RejectInvitation(int id, string reason)
+        [HttpGet]
+        public async Task<IActionResult> RejectInvitation(int id, string? reason = null)
         {
-            // TODO: Implement reject invitation logic
-            TempData["SuccessMessage"] = "Đã từ chối lời mời phản biện.";
-            return RedirectToAction(nameof(Index));
+            var reviewerId = GetCurrentUserId();
+            if (reviewerId == 0)
+            {
+                TempData["ErrorMessage"] = "You must be logged in to reject the invitation.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var result = await _reviewService.RejectInvitationAsync(id, reviewerId, reason);
+            
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Review invitation declined. Thank you for your response.";
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Unable to decline invitation. The invitation may have already been accepted or rejected, or you may not have permission.";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpPost]

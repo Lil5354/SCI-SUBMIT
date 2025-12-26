@@ -100,19 +100,36 @@ namespace SciSubmit.Services
         {
             try
             {
+                Console.WriteLine($"[EMAIL DEBUG] Starting SendEmailAsync to: {toEmail}");
                 var settings = await GetSmtpSettingsAsync();
+                
+                Console.WriteLine($"[EMAIL DEBUG] SMTP Settings:");
+                Console.WriteLine($"[EMAIL DEBUG]   Server: {settings.Server}");
+                Console.WriteLine($"[EMAIL DEBUG]   Port: {settings.Port}");
+                Console.WriteLine($"[EMAIL DEBUG]   Username: {settings.Username}");
+                Console.WriteLine($"[EMAIL DEBUG]   Password: {(string.IsNullOrEmpty(settings.Password) ? "EMPTY" : "***CONFIGURED***")}");
+                Console.WriteLine($"[EMAIL DEBUG]   FromEmail: {settings.FromEmail}");
+                Console.WriteLine($"[EMAIL DEBUG]   FromName: {settings.FromName}");
 
                 // Kiểm tra nếu không có cấu hình email
                 if (string.IsNullOrEmpty(settings.Username) || string.IsNullOrEmpty(settings.Password))
                 {
-                    _logger.LogWarning("SMTP credentials not configured. Email will not be sent.");
+                    var warningMessage = "SMTP credentials not configured. Email will not be sent.";
+                    _logger.LogWarning(warningMessage);
+                    Console.WriteLine($"[EMAIL WARNING] {warningMessage}");
+                    Console.WriteLine($"[EMAIL WARNING] Username: {(string.IsNullOrEmpty(settings.Username) ? "EMPTY" : settings.Username)}");
+                    Console.WriteLine($"[EMAIL WARNING] Password: {(string.IsNullOrEmpty(settings.Password) ? "EMPTY" : "***")}");
                     return false;
                 }
 
+                Console.WriteLine($"[EMAIL DEBUG] Creating MimeMessage...");
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress(settings.FromName, settings.FromEmail));
                 message.To.Add(new MailboxAddress("", toEmail));
                 message.Subject = subject;
+                Console.WriteLine($"[EMAIL DEBUG] From: {settings.FromEmail} ({settings.FromName})");
+                Console.WriteLine($"[EMAIL DEBUG] To: {toEmail}");
+                Console.WriteLine($"[EMAIL DEBUG] Subject: {subject}");
 
                 var bodyBuilder = new BodyBuilder();
                 if (isHtml)
@@ -125,26 +142,90 @@ namespace SciSubmit.Services
                 }
                 message.Body = bodyBuilder.ToMessageBody();
 
+                Console.WriteLine($"[EMAIL DEBUG] Connecting to SMTP server {settings.Server}:{settings.Port}...");
                 using (var client = new SmtpClient())
                 {
-                    await client.ConnectAsync(settings.Server, settings.Port, 
-                        settings.UseSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None);
+                    // Bypass SSL certificate validation (for development/testing only)
+                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
                     
-                    if (!string.IsNullOrEmpty(settings.Username))
+                    try
                     {
-                        await client.AuthenticateAsync(settings.Username, settings.Password);
-                    }
+                        Console.WriteLine($"[EMAIL DEBUG] Attempting to connect to {settings.Server}:{settings.Port} with SSL: {settings.UseSsl}");
+                        await client.ConnectAsync(settings.Server, settings.Port, 
+                            settings.UseSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None);
+                        Console.WriteLine($"[EMAIL DEBUG] Connected to SMTP server successfully");
+                        
+                        if (!string.IsNullOrEmpty(settings.Username))
+                        {
+                            Console.WriteLine($"[EMAIL DEBUG] Authenticating with username: {settings.Username}...");
+                            try
+                            {
+                                await client.AuthenticateAsync(settings.Username, settings.Password);
+                                Console.WriteLine($"[EMAIL DEBUG] Authentication successful");
+                            }
+                            catch (Exception authEx)
+                            {
+                                Console.WriteLine($"[EMAIL ERROR] Authentication failed!");
+                                Console.WriteLine($"[EMAIL ERROR] Auth Error: {authEx.Message}");
+                                Console.WriteLine($"[EMAIL ERROR] Auth Stack Trace: {authEx.StackTrace}");
+                                if (authEx.InnerException != null)
+                                {
+                                    Console.WriteLine($"[EMAIL ERROR] Auth Inner Exception: {authEx.InnerException.Message}");
+                                }
+                                throw;
+                            }
+                        }
 
-                    await client.SendAsync(message);
-                    await client.DisconnectAsync(true);
+                        Console.WriteLine($"[EMAIL DEBUG] Sending email from {settings.FromEmail} to {toEmail}...");
+                        try
+                        {
+                            await client.SendAsync(message);
+                            Console.WriteLine($"[EMAIL DEBUG] Email sent successfully to SMTP server");
+                        }
+                        catch (Exception sendEx)
+                        {
+                            Console.WriteLine($"[EMAIL ERROR] Failed to send email!");
+                            Console.WriteLine($"[EMAIL ERROR] Send Error: {sendEx.Message}");
+                            Console.WriteLine($"[EMAIL ERROR] Send Stack Trace: {sendEx.StackTrace}");
+                            if (sendEx.InnerException != null)
+                            {
+                                Console.WriteLine($"[EMAIL ERROR] Send Inner Exception: {sendEx.InnerException.Message}");
+                            }
+                            throw;
+                        }
+                        
+                        await client.DisconnectAsync(true);
+                        Console.WriteLine($"[EMAIL DEBUG] Disconnected from SMTP server");
+                    }
+                    catch (Exception smtpEx)
+                    {
+                        Console.WriteLine($"[EMAIL ERROR] SMTP Operation failed!");
+                        Console.WriteLine($"[EMAIL ERROR] SMTP Error: {smtpEx.Message}");
+                        Console.WriteLine($"[EMAIL ERROR] SMTP Error Type: {smtpEx.GetType().Name}");
+                        Console.WriteLine($"[EMAIL ERROR] SMTP Stack Trace: {smtpEx.StackTrace}");
+                        if (smtpEx.InnerException != null)
+                        {
+                            Console.WriteLine($"[EMAIL ERROR] SMTP Inner Exception: {smtpEx.InnerException.Message}");
+                            Console.WriteLine($"[EMAIL ERROR] SMTP Inner Exception Type: {smtpEx.InnerException.GetType().Name}");
+                        }
+                        throw;
+                    }
                 }
 
                 _logger.LogInformation($"Email sent successfully to {toEmail}");
+                Console.WriteLine($"[EMAIL SUCCESS] Email sent successfully to {toEmail}");
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to send email to {toEmail}: {ex.Message}");
+                var errorMessage = $"Failed to send email to {toEmail}: {ex.Message}";
+                _logger.LogError(ex, errorMessage);
+                Console.WriteLine($"[EMAIL ERROR] {errorMessage}");
+                Console.WriteLine($"[EMAIL ERROR] Stack Trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"[EMAIL ERROR] Inner Exception: {ex.InnerException.Message}");
+                }
                 return false;
             }
         }
@@ -183,7 +264,14 @@ namespace SciSubmit.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to send email notification {notification.Id}: {ex.Message}");
+                var errorMessage = $"Failed to send email notification {notification.Id}: {ex.Message}";
+                _logger.LogError(ex, errorMessage);
+                Console.WriteLine($"[EMAIL ERROR] {errorMessage}");
+                Console.WriteLine($"[EMAIL ERROR] Stack Trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"[EMAIL ERROR] Inner Exception: {ex.InnerException.Message}");
+                }
                 
                 // Update status to failed
                 notification.Status = EmailNotificationStatus.Failed;

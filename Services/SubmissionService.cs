@@ -15,17 +15,23 @@ namespace SciSubmit.Services
         Task<AbstractSubmissionViewModel?> GetDraftAsync(int submissionId, int authorId);
         Task<List<Topic>> GetActiveTopicsAsync(int conferenceId);
         Task<List<Keyword>> GetOrCreateKeywordsAsync(List<string> keywordNames, int conferenceId);
+        Task<bool> WithdrawSubmissionAsync(int submissionId, int authorId, string? reason = null);
     }
 
     public class SubmissionService : ISubmissionService
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<SubmissionService> _logger;
+        private readonly IEmailService _emailService;
 
-        public SubmissionService(ApplicationDbContext context, ILogger<SubmissionService> logger)
+        public SubmissionService(
+            ApplicationDbContext context, 
+            ILogger<SubmissionService> logger,
+            IEmailService emailService)
         {
             _context = context;
             _logger = logger;
+            _emailService = emailService;
         }
 
         public async Task<Submission?> SaveDraftAsync(AbstractSubmissionViewModel model, int authorId, int conferenceId, string? fileUrl = null)
@@ -280,17 +286,34 @@ namespace SciSubmit.Services
                 });
                 _logger.LogInformation($"Added topic {model.TopicId} ({topic.Name}) for Conference {conferenceId}");
 
-                // Create email notification
+                await _context.SaveChangesAsync();
+
+                // Create and send email notification
+                Console.WriteLine($"[EMAIL DEBUG] Getting author user with ID: {authorId}");
                 var authorUser = await _context.Users.FindAsync(authorId);
-                if (authorUser != null)
+                if (authorUser == null)
                 {
+                    Console.WriteLine($"[EMAIL ERROR] Author user with ID {authorId} not found in database!");
+                    _logger.LogError($"Author user with ID {authorId} not found in database. Cannot send email notification.");
+                }
+                else if (string.IsNullOrWhiteSpace(authorUser.Email))
+                {
+                    Console.WriteLine($"[EMAIL ERROR] Author {authorUser.FullName} (ID: {authorId}) has no email address!");
+                    _logger.LogError($"Author {authorUser.FullName} (ID: {authorId}) has no email address. Cannot send email notification.");
+                }
+                else
+                {
+                    Console.WriteLine($"[EMAIL DEBUG] Author found: {authorUser.FullName}, Email: {authorUser.Email}");
                     var emailNotification = new EmailNotification
                     {
                         ToEmail = authorUser.Email,
-                        Subject = "Xác nhận nhận được tóm tắt bài báo",
-                        Body = $"Chúng tôi đã nhận được tóm tắt bài báo của bạn: \"{submission.Title}\". " +
-                               $"Trạng thái hiện tại: Chờ duyệt tóm tắt. " +
-                               $"Chúng tôi sẽ thông báo kết quả trong thời gian sớm nhất.",
+                        Subject = "Abstract Submission Confirmation",
+                        Body = $"<p>Dear {authorUser.FullName},</p>" +
+                               $"<p>We have received your abstract submission: <strong>\"{submission.Title}\"</strong>.</p>" +
+                               $"<p>Current status: <strong>Pending Abstract Review</strong>.</p>" +
+                               $"<p>We will notify you of the result as soon as possible.</p>" +
+                               $"<p>Thank you for your submission.</p>" +
+                               $"<p>Best regards,<br/>SciSubmit Team</p>",
                         Type = "AbstractSubmitted",
                         Status = EmailNotificationStatus.Pending,
                         RelatedSubmissionId = submission.Id,
@@ -298,10 +321,41 @@ namespace SciSubmit.Services
                         CreatedAt = DateTime.UtcNow
                     };
                     _context.EmailNotifications.Add(emailNotification);
-                    _logger.LogInformation($"Email notification created for {authorUser.Email}");
+                    await _context.SaveChangesAsync();
+                    
+                    // Send email immediately
+                    try
+                    {
+                        var emailSent = await _emailService.SendEmailNotificationAsync(emailNotification);
+                        if (emailSent)
+                        {
+                            _logger.LogInformation($"Email sent successfully to {authorUser.Email} for submission {submission.Id}");
+                            Console.WriteLine($"[EMAIL SUCCESS] Email sent successfully to {authorUser.Email} for submission {submission.Id}");
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Failed to send email to {authorUser.Email} for submission {submission.Id}");
+                            Console.WriteLine($"[EMAIL WARNING] Failed to send email to {authorUser.Email} for submission {submission.Id}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Error sending email to {authorUser.Email} for submission {submission.Id}");
+                        Console.WriteLine($"[EMAIL ERROR] Error sending email to {authorUser.Email} for submission {submission.Id}: {ex.Message}");
+                        Console.WriteLine($"[EMAIL ERROR] Stack Trace: {ex.StackTrace}");
+                        if (ex.InnerException != null)
+                        {
+                            Console.WriteLine($"[EMAIL ERROR] Inner Exception: {ex.InnerException.Message}");
+                        }
+                        // Don't throw - email failure shouldn't break submission
+                    }
                 }
-
-                await _context.SaveChangesAsync();
+                
+                // Log warning if email notification was skipped
+                if (authorUser == null || string.IsNullOrWhiteSpace(authorUser?.Email))
+                {
+                    Console.WriteLine($"[EMAIL WARNING] Email notification skipped - Author user not found or has no email");
+                }
                 _logger.LogInformation($"=== SUBMIT ABSTRACT SUCCESS - SubmissionId: {submission.Id} ===");
                 
                 return submission;
@@ -384,6 +438,120 @@ namespace SciSubmit.Services
             }
 
             return keywords;
+        }
+
+        public async Task<bool> WithdrawSubmissionAsync(int submissionId, int authorId, string? reason = null)
+        {
+            try
+            {
+                _logger.LogInformation($"=== WITHDRAW SUBMISSION START ===");
+                _logger.LogInformation($"SubmissionId: {submissionId}, AuthorId: {authorId}");
+
+                // Get submission with author check
+                var submission = await _context.Submissions
+                    .Include(s => s.Author)
+                    .FirstOrDefaultAsync(s => s.Id == submissionId && s.AuthorId == authorId);
+
+                if (submission == null)
+                {
+                    _logger.LogWarning($"Submission {submissionId} not found or not owned by author {authorId}");
+                    return false;
+                }
+
+                // Check if submission can be withdrawn
+                // Cannot withdraw if already withdrawn, accepted, or rejected
+                if (submission.Status == Models.Enums.SubmissionStatus.Withdrawn)
+                {
+                    _logger.LogWarning($"Submission {submissionId} is already withdrawn");
+                    return false;
+                }
+
+                if (submission.Status == Models.Enums.SubmissionStatus.Accepted)
+                {
+                    _logger.LogWarning($"Submission {submissionId} cannot be withdrawn because it is already accepted");
+                    return false;
+                }
+
+                if (submission.Status == Models.Enums.SubmissionStatus.Rejected)
+                {
+                    _logger.LogWarning($"Submission {submissionId} cannot be withdrawn because it is already rejected");
+                    return false;
+                }
+
+                // Update submission status
+                submission.Status = Models.Enums.SubmissionStatus.Withdrawn;
+                submission.UpdatedAt = DateTime.UtcNow;
+                
+                // Store withdrawal reason if provided
+                if (!string.IsNullOrWhiteSpace(reason))
+                {
+                    // You might want to add a WithdrawalReason field to Submission model
+                    // For now, we'll log it
+                    _logger.LogInformation($"Withdrawal reason: {reason}");
+                }
+
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"Submission {submissionId} withdrawn successfully");
+
+                // Send email notification to author
+                if (submission.Author != null && !string.IsNullOrWhiteSpace(submission.Author.Email))
+                {
+                    Console.WriteLine($"[EMAIL DEBUG] Sending withdrawal confirmation to {submission.Author.Email}");
+                    
+                    var emailNotification = new EmailNotification
+                    {
+                        ToEmail = submission.Author.Email,
+                        Subject = "Submission Withdrawn Confirmation",
+                        Body = $"<p>Dear {submission.Author.FullName},</p>" +
+                               $"<p>Your submission <strong>\"{submission.Title}\"</strong> has been successfully withdrawn.</p>" +
+                               (!string.IsNullOrWhiteSpace(reason) 
+                                   ? $"<p>Reason: {reason}</p>" 
+                                   : "") +
+                               $"<p>If you have any questions, please contact the conference organizers.</p>" +
+                               $"<p>Best regards,<br/>SciSubmit Team</p>",
+                        Type = "SubmissionWithdrawn",
+                        Status = EmailNotificationStatus.Pending,
+                        RelatedSubmissionId = submission.Id,
+                        RelatedUserId = authorId,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    _context.EmailNotifications.Add(emailNotification);
+                    await _context.SaveChangesAsync();
+
+                    // Send email immediately
+                    try
+                    {
+                        var emailSent = await _emailService.SendEmailNotificationAsync(emailNotification);
+                        if (emailSent)
+                        {
+                            _logger.LogInformation($"Withdrawal confirmation email sent successfully to {submission.Author.Email}");
+                            Console.WriteLine($"[EMAIL SUCCESS] Withdrawal confirmation email sent to {submission.Author.Email}");
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Failed to send withdrawal confirmation email to {submission.Author.Email}");
+                            Console.WriteLine($"[EMAIL WARNING] Failed to send withdrawal confirmation email to {submission.Author.Email}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Error sending withdrawal confirmation email to {submission.Author.Email}");
+                        Console.WriteLine($"[EMAIL ERROR] Error sending withdrawal confirmation email: {ex.Message}");
+                        // Don't throw - email failure shouldn't break withdrawal
+                    }
+                }
+
+                _logger.LogInformation($"=== WITHDRAW SUBMISSION SUCCESS - SubmissionId: {submission.Id} ===");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"=== WITHDRAW SUBMISSION ERROR ===");
+                _logger.LogError($"Error: {ex.Message}");
+                _logger.LogError($"Stack: {ex.StackTrace}");
+                throw;
+            }
         }
     }
 }

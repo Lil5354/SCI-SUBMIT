@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 using SciSubmit.Data;
 using SciSubmit.Models.Submission;
 using SciSubmit.Services;
 using System.Security.Claims;
+using System.IO;
 
 namespace SciSubmit.Controllers
 {
@@ -15,17 +17,20 @@ namespace SciSubmit.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ISubmissionService _submissionService;
         private readonly IFileStorageService _fileStorageService;
+        private readonly IWebHostEnvironment _environment;
 
         public SubmissionController(
             ILogger<SubmissionController> logger,
             ApplicationDbContext context,
             ISubmissionService submissionService,
-            IFileStorageService fileStorageService)
+            IFileStorageService fileStorageService,
+            IWebHostEnvironment environment)
         {
             _logger = logger;
             _context = context;
             _submissionService = submissionService;
             _fileStorageService = fileStorageService;
+            _environment = environment;
         }
 
         private async Task<int> GetCurrentUserIdAsync()
@@ -483,6 +488,14 @@ namespace SciSubmit.Controllers
                     .ThenInclude(st => st.Topic)
                 .Include(s => s.SubmissionKeywords)
                     .ThenInclude(sk => sk.Keyword)
+                .Include(s => s.ReviewAssignments)
+                    .ThenInclude(ra => ra.Review)
+                        .ThenInclude(r => r.ReviewScores)
+                .Include(s => s.ReviewAssignments)
+                    .ThenInclude(ra => ra.Reviewer)
+                .Include(s => s.ReviewAssignments)
+                    .ThenInclude(ra => ra.Review)
+                        .ThenInclude(r => r.Reviewer)
                 .FirstOrDefaultAsync(s => s.Id == id && s.AuthorId == authorId);
 
             if (submission == null)
@@ -493,8 +506,24 @@ namespace SciSubmit.Controllers
             }
 
             _logger.LogInformation($"Details: Loading submission {id} for author {authorId}");
+            
+            // Get review criteria for MaxScore
+            var conferenceId = submission.ConferenceId;
+            var reviewCriterias = await _context.ReviewCriterias
+                .Where(rc => rc.ConferenceId == conferenceId && rc.IsActive)
+                .ToDictionaryAsync(rc => rc.Name, rc => rc.MaxScore);
+            
+            // Get completed reviews for this submission
+            var completedReviews = submission.ReviewAssignments
+                .Where(ra => ra.Review != null && ra.Status == Models.Enums.ReviewAssignmentStatus.Completed)
+                .Select(ra => ra.Review!)
+                .OrderByDescending(r => r.SubmittedAt)
+                .ToList();
+
             ViewData["Submission"] = submission;
             ViewData["SubmissionId"] = id;
+            ViewData["ReviewResults"] = completedReviews;
+            ViewData["ReviewCriterias"] = reviewCriterias;
             return View();
         }
 
@@ -546,17 +575,139 @@ namespace SciSubmit.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Withdraw(int id)
+        public async Task<IActionResult> Withdraw(int id, string? reason = null)
         {
-            // TODO: Implement withdraw logic
-            TempData["SuccessMessage"] = "Đã rút bài nộp thành công!";
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                _logger.LogInformation($"=== WITHDRAW REQUEST ===");
+                _logger.LogInformation($"SubmissionId: {id}");
+
+                var authorId = await GetCurrentUserIdAsync();
+                if (authorId == 0)
+                {
+                    _logger.LogWarning("User not authenticated");
+                    TempData["ErrorMessage"] = "You must be logged in to withdraw a submission.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var success = await _submissionService.WithdrawSubmissionAsync(id, authorId, reason);
+                
+                if (success)
+                {
+                    _logger.LogInformation($"Submission {id} withdrawn successfully by author {authorId}");
+                    TempData["SuccessMessage"] = "Your submission has been withdrawn successfully. A confirmation email has been sent.";
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    _logger.LogWarning($"Failed to withdraw submission {id} for author {authorId}");
+                    TempData["ErrorMessage"] = "Failed to withdraw submission. The submission may not exist, may not belong to you, or cannot be withdrawn in its current status.";
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error withdrawing submission {id}");
+                TempData["ErrorMessage"] = "An error occurred while withdrawing the submission. Please try again.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
         }
 
-        public IActionResult Download(int id)
+        public async Task<IActionResult> Download(int id)
         {
-            // TODO: Implement download logic
-            return NotFound();
+            try
+            {
+                _logger.LogInformation($"=== DOWNLOAD REQUEST ===");
+                _logger.LogInformation($"SubmissionId: {id}");
+
+                var authorId = await GetCurrentUserIdAsync();
+                if (authorId == 0)
+                {
+                    _logger.LogWarning("User not authenticated");
+                    TempData["ErrorMessage"] = "You must be logged in to download files.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Get submission with file URL
+                var submission = await _context.Submissions
+                    .FirstOrDefaultAsync(s => s.Id == id && s.AuthorId == authorId);
+
+                if (submission == null)
+                {
+                    _logger.LogWarning($"Submission {id} not found or not owned by author {authorId}");
+                    TempData["ErrorMessage"] = "Submission not found or you don't have permission to download this file.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Check if file exists
+                if (string.IsNullOrWhiteSpace(submission.AbstractFileUrl))
+                {
+                    _logger.LogWarning($"Submission {id} has no file URL");
+                    TempData["ErrorMessage"] = "No file available for download.";
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+
+                _logger.LogInformation($"Downloading file: {submission.AbstractFileUrl}");
+
+                // If file URL is a full URL (http/https), redirect to it
+                if (submission.AbstractFileUrl.StartsWith("http://") || submission.AbstractFileUrl.StartsWith("https://"))
+                {
+                    _logger.LogInformation($"Redirecting to external URL: {submission.AbstractFileUrl}");
+                    return Redirect(submission.AbstractFileUrl);
+                }
+
+                // If file is stored locally, download it
+                try
+                {
+                    var fileUrl = submission.AbstractFileUrl;
+                    
+                    // File URL is relative path like "/abstracts/guid_filename.doc"
+                    // Need to combine with WebRootPath
+                    var filePath = Path.Combine(_environment.WebRootPath, fileUrl.TrimStart('/'));
+                    
+                    _logger.LogInformation($"Looking for file at: {filePath}");
+                    
+                    // Check if file exists
+                    if (!System.IO.File.Exists(filePath))
+                    {
+                        _logger.LogWarning($"File not found at path: {filePath}");
+                        TempData["ErrorMessage"] = "File not found on server.";
+                        return RedirectToAction(nameof(Details), new { id });
+                    }
+
+                    var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+                    var fileName = System.IO.Path.GetFileName(filePath);
+                    var contentType = "application/octet-stream";
+
+                    // Determine content type based on file extension
+                    var extension = System.IO.Path.GetExtension(fileName).ToLowerInvariant();
+                    contentType = extension switch
+                    {
+                        ".doc" => "application/msword",
+                        ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        ".pdf" => "application/pdf",
+                        ".txt" => "text/plain",
+                        _ => "application/octet-stream"
+                    };
+
+                    _logger.LogInformation($"File downloaded successfully: {fileName} ({fileBytes.Length} bytes)");
+                    return File(fileBytes, contentType, fileName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Error downloading file: {submission.AbstractFileUrl}");
+                    _logger.LogError($"Exception: {ex.Message}");
+                    _logger.LogError($"Stack: {ex.StackTrace}");
+                    TempData["ErrorMessage"] = "An error occurred while downloading the file.";
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in Download action for submission {id}");
+                TempData["ErrorMessage"] = "An error occurred while processing your download request.";
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }

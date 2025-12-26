@@ -14,10 +14,14 @@ namespace SciSubmit.Services
     public class AdminService : IAdminService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
 
-        public AdminService(ApplicationDbContext context)
+        public AdminService(ApplicationDbContext context, IEmailService emailService, IConfiguration configuration)
         {
             _context = context;
+            _emailService = emailService;
+            _configuration = configuration;
         }
 
         public async Task<DashboardStatsViewModel> GetDashboardStatsAsync()
@@ -198,6 +202,9 @@ namespace SciSubmit.Services
                 .Include(s => s.FullPaperVersions)
                 .Include(s => s.ReviewAssignments)
                     .ThenInclude(ra => ra.Reviewer)
+                .Include(s => s.ReviewAssignments)
+                    .ThenInclude(ra => ra.Review)
+                        .ThenInclude(r => r.ReviewScores)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (submission == null)
@@ -279,6 +286,40 @@ namespace SciSubmit.Services
                     RejectedAt = ra.RejectedAt,
                     CompletedAt = ra.CompletedAt,
                     RejectionReason = ra.RejectionReason
+                }).ToList();
+
+            // Load review results (completed reviews)
+            var completedReviews = submission.ReviewAssignments
+                .Where(ra => ra.Review != null && ra.Status == Models.Enums.ReviewAssignmentStatus.Completed)
+                .Select(ra => ra.Review!)
+                .ToList();
+
+            // Get review criteria for MaxScore
+            var conferenceId = submission.ConferenceId;
+            var reviewCriterias = await _context.ReviewCriterias
+                .Where(rc => rc.ConferenceId == conferenceId && rc.IsActive)
+                .ToDictionaryAsync(rc => rc.Name, rc => rc.MaxScore);
+
+            viewModel.ReviewResults = completedReviews
+                .OrderByDescending(r => r.SubmittedAt)
+                .Select(r => new ReviewResultViewModel
+                {
+                    ReviewId = r.Id,
+                    ReviewAssignmentId = r.ReviewAssignmentId,
+                    ReviewerName = r.Reviewer != null ? r.Reviewer.FullName : "N/A",
+                    ReviewerEmail = r.Reviewer != null ? r.Reviewer.Email : "N/A",
+                    AverageScore = r.AverageScore,
+                    Recommendation = r.Recommendation,
+                    CommentsForAuthor = r.CommentsForAuthor,
+                    CommentsForAdmin = r.CommentsForAdmin,
+                    SubmittedAt = r.SubmittedAt,
+                    Scores = r.ReviewScores
+                        .Select(rs => new ReviewScoreViewModel
+                        {
+                            CriterionName = rs.CriteriaName,
+                            Score = rs.Score,
+                            MaxScore = reviewCriterias.GetValueOrDefault(rs.CriteriaName, 5) // Default to 5 if not found
+                        }).ToList()
                 }).ToList();
 
             return viewModel;
@@ -601,12 +642,39 @@ namespace SciSubmit.Services
             }
             // Note: If status is PendingAbstractReview, we keep it as is so admin can still see it needs abstract review
 
+            // Save assignment first to get the ID
+            await _context.SaveChangesAsync();
+            
+            // Generate URLs for Accept/Reject buttons
+            // Get base URL from configuration or default to localhost
+            var baseUrl = _configuration["AppSettings:BaseUrl"] ?? "http://localhost:5234";
+            var acceptUrl = $"{baseUrl}/Review/AcceptInvitation/{assignment.Id}";
+            var rejectUrl = $"{baseUrl}/Review/RejectInvitation/{assignment.Id}";
+            
+            // Get paper abstract (truncate if too long)
+            var abstractText = submission.Abstract ?? "No abstract available.";
+            if (abstractText.Length > 500)
+            {
+                abstractText = abstractText.Substring(0, 497) + "...";
+            }
+            
+            // Generate email body using template
+            var emailBody = EmailTemplates.GetReviewInvitationEmail(
+                reviewerName: reviewer.FullName ?? "Reviewer",
+                paperTitle: submission.Title,
+                paperAbstract: abstractText,
+                deadline: deadline,
+                acceptUrl: acceptUrl,
+                rejectUrl: rejectUrl,
+                baseUrl: baseUrl
+            );
+            
             // Create email notification
             var emailNotification = new Models.Notification.EmailNotification
             {
-                ToEmail = reviewer.Email,
-                Subject = $"Lời mời phản biện bài báo: {submission.Title}",
-                Body = $"Bạn đã được mời phản biện bài báo \"{submission.Title}\". Deadline: {deadline:dd/MM/yyyy HH:mm}",
+                ToEmail = reviewer.Email ?? "",
+                Subject = $"Review Invitation: {submission.Title}",
+                Body = emailBody,
                 Type = "ReviewInvitation",
                 Status = Models.Enums.EmailNotificationStatus.Pending,
                 RelatedSubmissionId = submissionId,
@@ -619,6 +687,19 @@ namespace SciSubmit.Services
             try
             {
                 await _context.SaveChangesAsync();
+                
+                // Send email immediately
+                if (!string.IsNullOrEmpty(reviewer.Email))
+                {
+                    var emailSent = await _emailService.SendEmailNotificationAsync(emailNotification);
+                    if (emailSent)
+                    {
+                        emailNotification.Status = Models.Enums.EmailNotificationStatus.Sent;
+                        emailNotification.SentAt = DateTime.UtcNow;
+                        await _context.SaveChangesAsync();
+                    }
+                }
+                
                 return true;
             }
             catch (Exception ex)

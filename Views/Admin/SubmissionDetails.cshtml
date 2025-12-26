@@ -195,6 +195,100 @@
                 </div>
             }
 
+            <!-- Review Results -->
+            @if (Model.ReviewResults.Any())
+            {
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Review Results</h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var review in Model.ReviewResults)
+                        {
+                            <div class="review-result-card mb-4 p-4 border rounded" style="background-color: #f8f9fa;">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <i class="fas fa-user-tie me-2 text-primary"></i>
+                                            <strong>@review.ReviewerName</strong>
+                                        </h6>
+                                        <small class="text-muted">@review.ReviewerEmail</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="mb-1">
+                                            <span class="badge bg-primary fs-6">
+                                                Average Score: @(review.AverageScore?.ToString("F2") ?? "N/A")
+                                            </span>
+                                        </div>
+                                        <small class="text-muted">
+                                            Submitted: @review.SubmittedAt.ToString("dd/MM/yyyy HH:mm")
+                                        </small>
+                                    </div>
+                                </div>
+
+                                @if (review.Scores.Any())
+                                {
+                                    <div class="mb-3">
+                                        <h6 class="mb-2"><i class="fas fa-chart-bar me-2"></i>Detailed Scores:</h6>
+                                        <div class="row g-2">
+                                            @foreach (var score in review.Scores)
+                                            {
+                                                <div class="col-md-6">
+                                                    <div class="d-flex justify-content-between align-items-center p-2 bg-white rounded">
+                                                        <span class="small">@score.CriterionName:</span>
+                                                        <span class="badge bg-info">
+                                                            @score.Score / @score.MaxScore
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrEmpty(review.Recommendation))
+                                {
+                                    <div class="mb-3">
+                                        <h6 class="mb-2"><i class="fas fa-gavel me-2"></i>Recommendation:</h6>
+                                        @{
+                                            var recommendationBadgeClass = review.Recommendation switch
+                                            {
+                                                "Accept" => "bg-success",
+                                                "MinorRevision" => "bg-warning",
+                                                "MajorRevision" => "bg-warning",
+                                                "Reject" => "bg-danger",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @recommendationBadgeClass fs-6 px-3 py-2">@review.Recommendation</span>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrEmpty(review.CommentsForAuthor))
+                                {
+                                    <div class="mb-3">
+                                        <h6 class="mb-2"><i class="fas fa-comment-dots me-2 text-info"></i>Comments for Author:</h6>
+                                        <div class="p-3 bg-white rounded border">
+                                            <p class="mb-0">@review.CommentsForAuthor</p>
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrEmpty(review.CommentsForAdmin))
+                                {
+                                    <div class="mb-3">
+                                        <h6 class="mb-2"><i class="fas fa-comment-dots me-2 text-warning"></i>Comments for Admin:</h6>
+                                        <div class="p-3 bg-white rounded border border-warning">
+                                            <p class="mb-0">@review.CommentsForAdmin</p>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
             <!-- Review Assignments -->
             @if (Model.ReviewAssignments.Any())
             {

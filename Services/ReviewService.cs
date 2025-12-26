@@ -8,10 +8,12 @@ namespace SciSubmit.Services
     public class ReviewService : IReviewService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public ReviewService(ApplicationDbContext context)
+        public ReviewService(ApplicationDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<ReviewerDashboardViewModel> GetReviewerDashboardAsync(int reviewerId)
@@ -232,6 +234,68 @@ namespace SciSubmit.Services
             };
         }
 
+        public async Task<bool> AcceptInvitationAsync(int assignmentId, int reviewerId)
+        {
+            var assignment = await _context.ReviewAssignments
+                .Include(ra => ra.Submission)
+                .FirstOrDefaultAsync(ra => ra.Id == assignmentId && ra.ReviewerId == reviewerId);
+
+            if (assignment == null)
+            {
+                return false; // Assignment not found or not owned by reviewer
+            }
+
+            if (assignment.Status != ReviewAssignmentStatus.Pending)
+            {
+                return false; // Already accepted or rejected
+            }
+
+            // Update assignment status
+            assignment.Status = ReviewAssignmentStatus.Accepted;
+            assignment.AcceptedAt = DateTime.UtcNow;
+            assignment.UpdatedAt = DateTime.UtcNow;
+
+            // Update submission status if needed
+            if (assignment.Submission.Status == SubmissionStatus.PendingAbstractReview)
+            {
+                // Keep as PendingAbstractReview until review is completed
+            }
+            else if (assignment.Submission.Status == SubmissionStatus.AbstractApproved ||
+                     assignment.Submission.Status == SubmissionStatus.FullPaperSubmitted)
+            {
+                assignment.Submission.Status = SubmissionStatus.UnderReview;
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> RejectInvitationAsync(int assignmentId, int reviewerId, string? reason = null)
+        {
+            var assignment = await _context.ReviewAssignments
+                .Include(ra => ra.Submission)
+                .FirstOrDefaultAsync(ra => ra.Id == assignmentId && ra.ReviewerId == reviewerId);
+
+            if (assignment == null)
+            {
+                return false; // Assignment not found or not owned by reviewer
+            }
+
+            if (assignment.Status != ReviewAssignmentStatus.Pending)
+            {
+                return false; // Already accepted or rejected
+            }
+
+            // Update assignment status
+            assignment.Status = ReviewAssignmentStatus.Rejected;
+            assignment.RejectedAt = DateTime.UtcNow;
+            assignment.RejectionReason = reason;
+            assignment.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<bool> SubmitReviewAsync(int assignmentId, int reviewerId, SubmitReviewViewModel model)
         {
             var assignment = await _context.ReviewAssignments
@@ -323,6 +387,77 @@ namespace SciSubmit.Services
             assignment.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+            
+            // Send email notifications to admin and author
+            try
+            {
+                // Get submission with author
+                var submissionWithAuthor = await _context.Submissions
+                    .Include(s => s.Author)
+                    .FirstOrDefaultAsync(s => s.Id == assignment.SubmissionId);
+
+                if (submissionWithAuthor != null && submissionWithAuthor.Author != null)
+                {
+                    // Email to Author
+                    var authorEmailNotification = new Models.Notification.EmailNotification
+                    {
+                        ToEmail = submissionWithAuthor.Author.Email ?? "",
+                        Subject = $"Review Completed for Your Submission: {submissionWithAuthor.Title}",
+                        Body = $"A review has been completed for your submission \"{submissionWithAuthor.Title}\". " +
+                               $"Average Score: {review.AverageScore:F2}. " +
+                               $"Recommendation: {review.Recommendation}. " +
+                               $"Please check the submission details page for full review comments.",
+                        Type = "ReviewCompleted",
+                        Status = Models.Enums.EmailNotificationStatus.Pending,
+                        RelatedSubmissionId = assignment.SubmissionId,
+                        RelatedUserId = submissionWithAuthor.AuthorId,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.EmailNotifications.Add(authorEmailNotification);
+
+                    // Email to Admin (get first admin email)
+                    var admin = await _context.Users
+                        .Where(u => u.Role == Models.Enums.UserRole.Admin && u.IsActive)
+                        .FirstOrDefaultAsync();
+
+                    Models.Notification.EmailNotification? adminEmailNotification = null;
+                    if (admin != null && !string.IsNullOrEmpty(admin.Email))
+                    {
+                        adminEmailNotification = new Models.Notification.EmailNotification
+                        {
+                            ToEmail = admin.Email,
+                            Subject = $"Review Completed: {submissionWithAuthor.Title}",
+                            Body = $"Reviewer {review.Reviewer?.FullName ?? "N/A"} has completed the review for submission \"{submissionWithAuthor.Title}\". " +
+                                   $"Average Score: {review.AverageScore:F2}. " +
+                                   $"Recommendation: {review.Recommendation}.",
+                            Type = "ReviewCompleted",
+                            Status = Models.Enums.EmailNotificationStatus.Pending,
+                            RelatedSubmissionId = assignment.SubmissionId,
+                            RelatedUserId = admin.Id,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                        _context.EmailNotifications.Add(adminEmailNotification);
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                    // Send emails
+                    if (!string.IsNullOrEmpty(submissionWithAuthor.Author.Email))
+                    {
+                        await _emailService.SendEmailNotificationAsync(authorEmailNotification);
+                    }
+                    if (adminEmailNotification != null)
+                    {
+                        await _emailService.SendEmailNotificationAsync(adminEmailNotification);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't fail the review submission
+                System.Diagnostics.Debug.WriteLine($"Error sending review completion emails: {ex.Message}");
+            }
+            
             return true;
         }
     }
