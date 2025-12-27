@@ -1,0 +1,74 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=SciSubmit;Trusted_Connection=True;TrustServerCertificate=True;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "Hangfire": "Information"
+    }
+  },
+  "AllowedHosts": "*",
+  "Email": {
+    "SmtpServer": "smtp.gmail.com",
+    "SmtpPort": "587",
+    "SmtpUsername": "your-email@gmail.com",
+    "SmtpPassword": "your-app-password",
+    "SmtpUseSsl": "true",
+    "FromEmail": "your-email@gmail.com",
+    "FromName": "SciSubmit System"
+  },
+  "Authentication": {
+    "Google": {
+      "ClientId": "your-google-client-id.apps.googleusercontent.com",
+      "ClientSecret": "your-google-client-secret"
+    }
+  },
+  "_comment_GoogleOAuth": {
+    "Instructions": "To enable Google OAuth login:",
+    "Step1": "1. Go to https://console.cloud.google.com/",
+    "Step2": "2. Create a new project or select existing one",
+    "Step3": "3. Enable Google+ API",
+    "Step4": "4. Go to Credentials > Create Credentials > OAuth 2.0 Client ID",
+    "Step5": "5. Set Application type to 'Web application'",
+    "Step6": "6. Add Authorized redirect URIs: http://localhost:5234/Account/GoogleCallback (for development)",
+    "Step7": "7. Copy Client ID and Client Secret to the fields above"
+  },
+  "Payment": {
+    "VNPAY": {
+      "Url": "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
+      "TmnCode": "your-vnpay-tmn-code",
+      "HashSecret": "your-vnpay-hash-secret"
+    },
+    "Momo": {
+      "PartnerCode": "your-momo-partner-code",
+      "AccessKey": "your-momo-access-key",
+      "SecretKey": "your-momo-secret-key",
+      "ApiEndpoint": "https://test-payment.momo.vn/v2/gateway/api/create"
+    }
+  },
+  "Storage": {
+    "UseS3": false,
+    "AWS": {
+      "AccessKey": "your-aws-access-key",
+      "SecretKey": "your-aws-secret-key",
+      "Region": "us-east-1",
+      "BucketName": "your-bucket-name"
+    }
+  },
+  "SMS": {
+    "Twilio": {
+      "AccountSid": "your-twilio-account-sid",
+      "AuthToken": "your-twilio-auth-token",
+      "FromPhoneNumber": "your-twilio-phone-number"
+    }
+  },
+  "GoogleMaps": {
+    "ApiKey": "your-google-maps-api-key"
+  },
+  "AppSettings": {
+    "BaseUrl": "http://localhost:5234"
+  }
+}
+

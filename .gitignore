@@ -322,3 +322,8 @@ MigrationBackup/
 !README.md
 *.txt
 *.pdf
+
+# App settings - exclude actual config but keep example
+appsettings.json
+!appsettings.json.example
+appsettings.Development.json
