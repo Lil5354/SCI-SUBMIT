@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SciSubmit.Data;
 using SciSubmit.Models.Review;
 using SciSubmit.Models.Enums;
+using SciSubmit.Models.Notification;
 
 namespace SciSubmit.Services
 {
@@ -9,11 +10,13 @@ namespace SciSubmit.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IEmailService _emailService;
+        private readonly INotificationService _notificationService;
 
-        public ReviewService(ApplicationDbContext context, IEmailService emailService)
+        public ReviewService(ApplicationDbContext context, IEmailService emailService, INotificationService notificationService)
         {
             _context = context;
             _emailService = emailService;
+            _notificationService = notificationService;
         }
 
         public async Task<ReviewerDashboardViewModel> GetReviewerDashboardAsync(int reviewerId)
@@ -440,6 +443,43 @@ namespace SciSubmit.Services
                     }
 
                     await _context.SaveChangesAsync();
+
+                    // Create in-app notifications
+                    try
+                    {
+                        // Notification for author
+                        var authorNotification = new Models.Notification.UserNotification
+                        {
+                            UserId = submissionWithAuthor.AuthorId,
+                            Type = Models.Enums.NotificationType.ReviewCompleted,
+                            Title = "Review Completed",
+                            Message = $"A review has been completed for your submission \"{submissionWithAuthor.Title}\". Average Score: {review.AverageScore:F2}. Recommendation: {review.Recommendation}.",
+                            Status = Models.Enums.NotificationStatus.Unread,
+                            RelatedSubmissionId = assignment.SubmissionId,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                        await _notificationService.CreateNotificationAsync(authorNotification);
+
+                        // Notification for admin
+                        if (admin != null)
+                        {
+                            var adminNotification = new Models.Notification.UserNotification
+                            {
+                                UserId = admin.Id,
+                                Type = Models.Enums.NotificationType.ReviewCompleted,
+                                Title = "Review Completed",
+                                Message = $"Reviewer {review.Reviewer?.FullName ?? "N/A"} has completed the review for submission \"{submissionWithAuthor.Title}\".",
+                                Status = Models.Enums.NotificationStatus.Unread,
+                                RelatedSubmissionId = assignment.SubmissionId,
+                                CreatedAt = DateTime.UtcNow
+                            };
+                            await _notificationService.CreateNotificationAsync(adminNotification);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error creating review completion notifications: {ex.Message}");
+                    }
 
                     // Send emails
                     if (!string.IsNullOrEmpty(submissionWithAuthor.Author.Email))

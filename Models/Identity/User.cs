@@ -63,6 +63,7 @@ namespace SciSubmit.Models.Identity
         public virtual ICollection<Models.Content.Keyword> ApprovedKeywords { get; set; } = new List<Models.Content.Keyword>();
         public virtual ICollection<Models.Review.FinalDecision> FinalDecisions { get; set; } = new List<Models.Review.FinalDecision>();
         public virtual ICollection<Models.Payment.Payment> Payments { get; set; } = new List<Models.Payment.Payment>();
+        public virtual ICollection<Models.Notification.UserNotification> UserNotifications { get; set; } = new List<Models.Notification.UserNotification>();
     }
 }
 

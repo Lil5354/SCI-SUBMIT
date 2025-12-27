@@ -44,6 +44,7 @@ namespace SciSubmit.Data
         public DbSet<PaymentConfiguration> PaymentConfigurations { get; set; }
         public DbSet<EmailNotification> EmailNotifications { get; set; }
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
+        public DbSet<UserNotification> UserNotifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -86,6 +87,11 @@ namespace SciSubmit.Data
                     .OnDelete(DeleteBehavior.Restrict);
                 
                 entity.HasMany(e => e.Payments)
+                    .WithOne(e => e.User)
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                
+                entity.HasMany(e => e.UserNotifications)
                     .WithOne(e => e.User)
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
@@ -371,6 +377,26 @@ namespace SciSubmit.Data
             modelBuilder.Entity<SystemSetting>(entity =>
             {
                 entity.HasIndex(e => new { e.ConferenceId, e.Key }).IsUnique();
+            });
+
+            // UserNotification Configuration
+            modelBuilder.Entity<UserNotification>(entity =>
+            {
+                entity.HasIndex(e => e.UserId);
+                entity.HasIndex(e => e.Status);
+                entity.HasIndex(e => e.CreatedAt);
+                entity.Property(e => e.Type).HasConversion<int>();
+                entity.Property(e => e.Status).HasConversion<int>();
+                
+                entity.HasOne(e => e.RelatedSubmission)
+                    .WithMany()
+                    .HasForeignKey(e => e.RelatedSubmissionId)
+                    .OnDelete(DeleteBehavior.SetNull);
+                
+                entity.HasOne(e => e.RelatedUser)
+                    .WithMany()
+                    .HasForeignKey(e => e.RelatedUserId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
         }
     }
