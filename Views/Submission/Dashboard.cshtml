@@ -172,13 +172,13 @@
                     @if (Model.RecentSubmissions != null && Model.RecentSubmissions.Any())
                     {
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover" style="table-layout: fixed; width: 100%;">
                                 <thead>
                                     <tr>
-                                        <th style="width: 50%; min-width: 300px;">Title</th>
-                                        <th style="width: 15%;">Submitted</th>
-                                        <th style="width: 10%;">Action</th>
-                                        <th style="width: 15%;">Status</th>
+                                        <th style="width: 45%; max-width: 0; white-space: normal; word-wrap: break-word; overflow: hidden; vertical-align: middle; padding-right: 15px;">Title</th>
+                                        <th style="width: 15%; white-space: nowrap; vertical-align: middle;">Submitted</th>
+                                        <th style="width: 10%; white-space: nowrap; vertical-align: middle;">Action</th>
+                                        <th style="width: 15%; white-space: nowrap; vertical-align: middle;">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -199,7 +199,7 @@
                                             _ => "<span class=\"badge bg-secondary\">Unknown</span>"
                                         };
                                         <tr style="cursor: pointer;" onclick="window.location.href='@Url.Action("Details", new { id = submission.Id })'">
-                                            <td style="word-wrap: break-word; word-break: break-word; max-width: 0;"><strong>@submission.Title</strong></td>
+                                            <td style="width: 45%; max-width: 0; white-space: normal; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; overflow: hidden; vertical-align: middle; padding-right: 15px;"><strong>@submission.Title</strong></td>
                                             <td>@(submission.SubmittedAt?.ToString("dd/MM/yyyy") ?? "N/A")</td>
                                             <td style="white-space: nowrap;">
                                                 <a href="@Url.Action("Details", new { id = submission.Id })" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">View</a>

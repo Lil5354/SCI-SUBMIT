@@ -498,6 +498,63 @@
     margin: 2rem 0;
 }
 
+/* ========================================
+   SUBMISSION DASHBOARD TABLE FIX
+   Fix table title column wrapping issue with table-layout: fixed
+   ======================================== */
+
+/* 1. Thiết lập quy tắc cho toàn bộ bảng trong dashboard để tuân thủ kích thước cố định */
+.submissions-card table.table,
+.submissions-section table.table {
+    table-layout: fixed !important; /* Rất quan trọng: Ép các cột tuân theo % width */
+    width: 100% !important;
+}
+
+/* 2. Cấu hình riêng cho cột Title (cột đầu tiên) */
+.submissions-card table.table td:first-child,
+.submissions-card table.table th:first-child,
+.submissions-section table.table td:first-child,
+.submissions-section table.table th:first-child {
+    width: 45% !important;        /* Chiếm 45% bảng */
+    max-width: 0 !important;      /* Mẹo CSS: Cần thiết để kích hoạt word-wrap trong table-layout: fixed */
+    
+    /* Xử lý xuống dòng */
+    white-space: normal !important; 
+    overflow: hidden !important;
+    word-wrap: break-word !important;        /* Ngắt từ để xuống dòng */
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    
+    /* Căn chỉnh đẹp hơn */
+    vertical-align: middle !important;
+    padding-right: 15px !important;          /* Tạo khoảng cách với cột bên cạnh */
+}
+
+/* 3. Đảm bảo các cột khác không bị ép quá nhỏ */
+.submissions-card table.table th:nth-child(2),
+.submissions-card table.table td:nth-child(2),
+.submissions-section table.table th:nth-child(2),
+.submissions-section table.table td:nth-child(2) {
+    width: 15% !important; /* Submitted */
+    white-space: nowrap !important;
+}
+
+.submissions-card table.table th:nth-child(3),
+.submissions-card table.table td:nth-child(3),
+.submissions-section table.table th:nth-child(3),
+.submissions-section table.table td:nth-child(3) {
+    width: 10% !important; /* Action */
+    white-space: nowrap !important;
+}
+
+.submissions-card table.table th:nth-child(4),
+.submissions-card table.table td:nth-child(4),
+.submissions-section table.table th:nth-child(4),
+.submissions-section table.table td:nth-child(4) {
+    width: 15% !important; /* Status */
+    white-space: nowrap !important;
+}
+
 .progress-steps::before {
     content: '';
     position: absolute;
