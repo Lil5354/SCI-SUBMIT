@@ -16,14 +16,12 @@ namespace SciSubmit.Services
         private readonly ApplicationDbContext _context;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
-        private readonly INotificationService _notificationService;
 
-        public AdminService(ApplicationDbContext context, IEmailService emailService, IConfiguration configuration, INotificationService notificationService)
+        public AdminService(ApplicationDbContext context, IEmailService emailService, IConfiguration configuration)
         {
             _context = context;
             _emailService = emailService;
             _configuration = configuration;
-            _notificationService = notificationService;
         }
 
         public async Task<DashboardStatsViewModel> GetDashboardStatsAsync()
@@ -689,26 +687,6 @@ namespace SciSubmit.Services
             try
             {
                 await _context.SaveChangesAsync();
-                
-                // Create in-app notification for reviewer
-                try
-                {
-                    var userNotification = new UserNotification
-                    {
-                        UserId = reviewerId,
-                        Type = NotificationType.ReviewAssigned,
-                        Title = "Review Assignment",
-                        Message = $"You have been assigned to review submission \"{submission.Title}\". Deadline: {deadline:dd/MM/yyyy HH:mm}.",
-                        Status = NotificationStatus.Unread,
-                        RelatedSubmissionId = submissionId,
-                        CreatedAt = DateTime.UtcNow
-                    };
-                    await _notificationService.CreateNotificationAsync(userNotification);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error creating review assignment notification: {ex.Message}");
-                }
                 
                 // Send email immediately
                 if (!string.IsNullOrEmpty(reviewer.Email))
@@ -1384,26 +1362,6 @@ namespace SciSubmit.Services
 
             _context.EmailNotifications.Add(emailNotification);
             await _context.SaveChangesAsync();
-
-            // Create in-app notification
-            try
-            {
-                var userNotification = new UserNotification
-                {
-                    UserId = submission.AuthorId,
-                    Type = NotificationType.FinalDecision,
-                    Title = "Final Decision Made",
-                    Message = $"A final decision has been made for your submission \"{submission.Title}\": {decisionText}. Average Score: {averageScore:F2}/5.0.",
-                    Status = NotificationStatus.Unread,
-                    RelatedSubmissionId = submissionId,
-                    CreatedAt = DateTime.UtcNow
-                };
-                await _notificationService.CreateNotificationAsync(userNotification);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error creating final decision notification: {ex.Message}");
-            }
 
             // Send email notification
             try

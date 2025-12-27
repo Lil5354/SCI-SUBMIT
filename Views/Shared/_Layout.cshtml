@@ -143,7 +143,14 @@
                                 </li>
                             </ul>
                         </li>
-                        @await Component.InvokeAsync("NotificationBell")
+                        <li class="nav-item position-relative">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    3
+                                </span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -190,7 +197,6 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- CRITICAL: Load table-fix.js FIRST to inject CSS immediately -->
     <script src="~/js/table-fix.js" asp-append-version="true"></script>
-    <script src="~/js/notifications.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

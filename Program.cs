@@ -132,7 +132,6 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<ISmsService, SmsService>();
 builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // Configure role-based authorization
 builder.Services.AddAuthorization(options =>

@@ -73,46 +73,104 @@
     text-decoration: underline !important;
 }
 
-/* Notification Item Styling */
-.notification-item {
+/* Notification Item Styling - Override ui-enhancements.css hover */
+.notification-dropdown .notification-item {
     padding: 0.75rem 1rem !important;
     border-radius: 8px !important;
     margin-bottom: 0.25rem;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
+    transition: all 0.2s ease !important;
+    border: 1px solid transparent !important;
     cursor: pointer;
+    background-color: transparent !important;
+    background: transparent !important; /* Override gradient */
+    transform: none !important;
+    color: inherit !important; /* Keep original text color */
 }
 
-.notification-item:hover {
+/* Override ui-enhancements.css .dropdown-item:hover for notification items */
+.notification-dropdown .notification-item:hover {
     background-color: #f8fafc !important;
-    border-color: #e2e8f0;
-    transform: translateX(4px);
+    background: #f8fafc !important; /* Override gradient background */
+    border-color: #e2e8f0 !important;
+    transform: none !important; /* Remove translateX from ui-enhancements.css */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    color: inherit !important; /* Keep original text color, not white */
 }
 
-.notification-item.unread {
-    background-color: #eff6ff;
-    border-left: 3px solid #3b82f6;
+.notification-dropdown .notification-item.unread {
+    background-color: #eff6ff !important;
+    background: #eff6ff !important;
+    border-left: 3px solid #3b82f6 !important;
     font-weight: 500;
+    color: inherit !important;
 }
 
-.notification-item.unread:hover {
+.notification-dropdown .notification-item.unread:hover {
     background-color: #dbeafe !important;
+    background: #dbeafe !important; /* Override gradient for unread */
+    border-left-color: #2563eb !important;
+    color: inherit !important; /* Keep original text color */
 }
 
-.notification-item .fa-circle {
-    animation: none;
+/* Ensure text colors are preserved */
+.notification-dropdown .notification-item .fw-semibold {
+    color: #1f2937 !important; /* Dark gray for title */
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* Title should be single line */
+}
+
+.notification-dropdown .notification-item:hover .fw-semibold {
+    color: #1f2937 !important; /* Keep dark on hover */
+}
+
+/* Message text with 3-line ellipsis */
+.notification-dropdown .notification-item .text-muted {
+    color: #6b7280 !important; /* Gray for message */
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit to 3 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    max-height: calc(1.4em * 3); /* 3 lines with line-height 1.4 */
+}
+
+.notification-dropdown .notification-item:hover .text-muted {
+    color: #6b7280 !important; /* Keep gray on hover */
 }
 
 /* Notification Icon Styles */
-.notification-item i[class^="fas"],
-.notification-item i[class^="far"] {
+.notification-dropdown .notification-item i[class^="fas"],
+.notification-dropdown .notification-item i[class^="far"] {
     margin-top: 0.125rem;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+/* Layout improvements for notification items */
+.notification-dropdown .notification-item > .d-flex {
+    align-items: flex-start;
+}
+
+.notification-dropdown .notification-item .flex-grow-1 {
+    min-width: 0; /* Allow text truncation */
+    overflow: hidden; /* Ensure text truncation works */
 }
 
 /* Time Ago Styling */
-.time-ago {
+.notification-dropdown .time-ago {
     color: #64748b;
     font-size: 0.75rem;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 /* Empty State */
@@ -131,11 +189,13 @@
     font-weight: 600;
     transition: all 0.2s ease;
     padding: 0.75rem 1rem !important;
+    background: transparent !important;
 }
 
 .notification-dropdown .dropdown-item.text-center.fw-semibold:hover {
     background-color: #eff6ff !important;
     color: #2563eb !important;
+    transform: none !important; /* Remove translateX */
 }
 
 /* Notification List Loading State */
@@ -183,12 +243,37 @@
     }
 }
 
-.notification-item.new-notification {
+.notification-dropdown .notification-item.new-notification {
     animation: slideInRight 0.3s ease-out;
 }
 
 /* Smooth transitions */
 .notification-dropdown {
     transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Ensure notification items don't get the gradient hover from ui-enhancements.css */
+.notification-dropdown .dropdown-item:not(.notification-item) {
+    /* Keep default behavior for non-notification items in notification dropdown */
+}
+
+/* Maximum specificity override for ui-enhancements.css hover effect */
+.notification-dropdown.dropdown-menu .dropdown-item.notification-item:hover,
+ul.notification-dropdown.dropdown-menu li a.dropdown-item.notification-item:hover {
+    background: #f8fafc !important;
+    background-color: #f8fafc !important;
+    background-image: none !important;
+    color: #1f2937 !important;
+    transform: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.notification-dropdown.dropdown-menu .dropdown-item.notification-item.unread:hover,
+ul.notification-dropdown.dropdown-menu li a.dropdown-item.notification-item.unread:hover {
+    background: #dbeafe !important;
+    background-color: #dbeafe !important;
+    background-image: none !important;
+    color: #1f2937 !important;
+    transform: none !important;
 }
 

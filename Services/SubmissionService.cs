@@ -24,18 +24,15 @@ namespace SciSubmit.Services
         private readonly ApplicationDbContext _context;
         private readonly ILogger<SubmissionService> _logger;
         private readonly IEmailService _emailService;
-        private readonly INotificationService _notificationService;
 
         public SubmissionService(
             ApplicationDbContext context, 
             ILogger<SubmissionService> logger,
-            IEmailService emailService,
-            INotificationService notificationService)
+            IEmailService emailService)
         {
             _context = context;
             _logger = logger;
             _emailService = emailService;
-            _notificationService = notificationService;
         }
 
         public async Task<Submission?> SaveDraftAsync(AbstractSubmissionViewModel model, int authorId, int conferenceId, string? fileUrl = null)
@@ -327,27 +324,6 @@ namespace SciSubmit.Services
                     _context.EmailNotifications.Add(emailNotification);
                     await _context.SaveChangesAsync();
                     
-                    // Create in-app notification
-                    try
-                    {
-                        var userNotification = new UserNotification
-                        {
-                            UserId = authorId,
-                            Type = NotificationType.AbstractSubmitted,
-                            Title = "Abstract Submitted Successfully",
-                            Message = $"Your abstract \"{submission.Title}\" has been submitted successfully and is now pending review.",
-                            Status = NotificationStatus.Unread,
-                            RelatedSubmissionId = submission.Id,
-                            CreatedAt = DateTime.UtcNow
-                        };
-                        await _notificationService.CreateNotificationAsync(userNotification);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"Error creating user notification for submission {submission.Id}");
-                        // Don't throw - notification failure shouldn't break submission
-                    }
-                    
                     // Send email immediately
                     try
                     {
@@ -544,26 +520,6 @@ namespace SciSubmit.Services
                     _context.EmailNotifications.Add(emailNotification);
                     await _context.SaveChangesAsync();
 
-                    // Create in-app notification
-                    try
-                    {
-                        var userNotification = new UserNotification
-                        {
-                            UserId = authorId,
-                            Type = NotificationType.SubmissionStatusChanged,
-                            Title = "Submission Withdrawn",
-                            Message = $"Your submission \"{submission.Title}\" has been withdrawn successfully.",
-                            Status = NotificationStatus.Unread,
-                            RelatedSubmissionId = submission.Id,
-                            CreatedAt = DateTime.UtcNow
-                        };
-                        await _notificationService.CreateNotificationAsync(userNotification);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"Error creating user notification for withdrawn submission {submission.Id}");
-                    }
-
                     // Send email immediately
                     try
                     {
@@ -695,26 +651,6 @@ namespace SciSubmit.Services
                     };
                     _context.EmailNotifications.Add(emailNotification);
                     await _context.SaveChangesAsync();
-
-                    // Create in-app notification
-                    try
-                    {
-                        var userNotification = new UserNotification
-                        {
-                            UserId = authorId,
-                            Type = NotificationType.FullPaperSubmitted,
-                            Title = "Full Paper Submitted Successfully",
-                            Message = $"Your full paper \"{submission.Title}\" (Version {nextVersion}) has been submitted successfully.",
-                            Status = NotificationStatus.Unread,
-                            RelatedSubmissionId = submissionId,
-                            CreatedAt = DateTime.UtcNow
-                        };
-                        await _notificationService.CreateNotificationAsync(userNotification);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"Error creating user notification for full paper submission {submissionId}");
-                    }
 
                     try
                     {
