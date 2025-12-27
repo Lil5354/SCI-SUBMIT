@@ -94,7 +94,7 @@ namespace SciSubmit.Data
                 entity.HasMany(e => e.UserNotifications)
                     .WithOne(e => e.User)
                     .HasForeignKey(e => e.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Conference Configuration
