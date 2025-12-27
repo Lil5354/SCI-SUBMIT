@@ -1,0 +1,159 @@
+@model SciSubmit.ViewComponents.NotificationBellViewModel
+
+<li class="nav-item dropdown position-relative">
+    <a class="nav-link position-relative" href="#" id="notificationDropdown" role="button" 
+       data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+        <i class="fas fa-bell"></i>
+        @if (Model.UnreadCount > 0)
+        {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge" 
+                  style="font-size: 0.65rem; padding: 0.25em 0.5em; animation: pulse 2s infinite;">
+                @(Model.UnreadCount > 99 ? "99+" : Model.UnreadCount.ToString())
+            </span>
+        }
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end notification-dropdown shadow-lg" 
+        aria-labelledby="notificationDropdown" style="min-width: 380px; max-width: 420px; max-height: 500px; overflow-y: auto;">
+        <li class="dropdown-header d-flex justify-content-between align-items-center">
+            <strong>Notifications</strong>
+            @if (Model.UnreadCount > 0)
+            {
+                <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 mark-all-read-btn" 
+                        style="font-size: 0.85rem;">
+                    Mark all as read
+                </button>
+            }
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        @if (Model.RecentNotifications.Any())
+        {
+            <div id="notification-list">
+                @foreach (var notification in Model.RecentNotifications)
+                {
+                    <li>
+                        <a class="dropdown-item notification-item @(notification.Status == SciSubmit.Models.Enums.NotificationStatus.Unread ? "unread" : "")" 
+                           href="@GetNotificationUrl(notification)" data-notification-id="@notification.Id"
+                           style="padding: 0.75rem 1rem; white-space: normal; cursor: pointer;">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-shrink-0 me-3">
+                                    <i class="@GetNotificationIcon(notification.Type)" 
+                                       style="font-size: 1.25rem; color: @GetNotificationIconColor(notification.Type);"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold mb-1" style="font-size: 0.9rem;">@notification.Title</div>
+                                    <div class="text-muted mb-1" style="font-size: 0.85rem; line-height: 1.4;">
+                                        @notification.Message
+                                    </div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">
+                                        <i class="far fa-clock me-1"></i>
+                                        <span class="time-ago" data-time="@notification.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ssZ")">
+                                            @GetTimeAgo(notification.CreatedAt)
+                                        </span>
+                                    </div>
+                                </div>
+                                @if (notification.Status == SciSubmit.Models.Enums.NotificationStatus.Unread)
+                                {
+                                    <div class="flex-shrink-0 ms-2">
+                                        <span class="badge bg-primary rounded-circle" style="width: 8px; height: 8px; padding: 0;"></span>
+                                    </div>
+                                }
+                            </div>
+                        </a>
+                    </li>
+                }
+            </div>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <a class="dropdown-item text-center fw-semibold" asp-controller="Notification" asp-action="Index" 
+                   style="color: var(--bs-primary);">
+                    View all notifications
+                    <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </li>
+        }
+        else
+        {
+            <li>
+                <div class="dropdown-item text-center text-muted py-4">
+                    <i class="far fa-bell-slash fa-2x mb-2 d-block" style="opacity: 0.5;"></i>
+                    <div>No notifications</div>
+                </div>
+            </li>
+        }
+    </ul>
+</li>
+
+@functions {
+    private string GetNotificationIcon(SciSubmit.Models.Enums.NotificationType type)
+    {
+        return type switch
+        {
+            SciSubmit.Models.Enums.NotificationType.AbstractSubmitted => "fas fa-file-upload",
+            SciSubmit.Models.Enums.NotificationType.FullPaperSubmitted => "fas fa-file-pdf",
+            SciSubmit.Models.Enums.NotificationType.ReviewAssigned => "fas fa-user-check",
+            SciSubmit.Models.Enums.NotificationType.ReviewCompleted => "fas fa-check-circle",
+            SciSubmit.Models.Enums.NotificationType.ReviewAccepted => "fas fa-thumbs-up",
+            SciSubmit.Models.Enums.NotificationType.ReviewRejected => "fas fa-thumbs-down",
+            SciSubmit.Models.Enums.NotificationType.FinalDecision => "fas fa-gavel",
+            SciSubmit.Models.Enums.NotificationType.DeadlineReminder => "fas fa-clock",
+            SciSubmit.Models.Enums.NotificationType.SubmissionStatusChanged => "fas fa-sync-alt",
+            SciSubmit.Models.Enums.NotificationType.PaymentReceived => "fas fa-credit-card",
+            SciSubmit.Models.Enums.NotificationType.SystemAnnouncement => "fas fa-bullhorn",
+            _ => "fas fa-bell"
+        };
+    }
+
+    private string GetNotificationIconColor(SciSubmit.Models.Enums.NotificationType type)
+    {
+        return type switch
+        {
+            SciSubmit.Models.Enums.NotificationType.AbstractSubmitted => "#2563eb",
+            SciSubmit.Models.Enums.NotificationType.FullPaperSubmitted => "#dc2626",
+            SciSubmit.Models.Enums.NotificationType.ReviewAssigned => "#16a34a",
+            SciSubmit.Models.Enums.NotificationType.ReviewCompleted => "#059669",
+            SciSubmit.Models.Enums.NotificationType.ReviewAccepted => "#10b981",
+            SciSubmit.Models.Enums.NotificationType.ReviewRejected => "#ef4444",
+            SciSubmit.Models.Enums.NotificationType.FinalDecision => "#7c3aed",
+            SciSubmit.Models.Enums.NotificationType.DeadlineReminder => "#f59e0b",
+            SciSubmit.Models.Enums.NotificationType.SubmissionStatusChanged => "#6366f1",
+            SciSubmit.Models.Enums.NotificationType.PaymentReceived => "#14b8a6",
+            SciSubmit.Models.Enums.NotificationType.SystemAnnouncement => "#ec4899",
+            _ => "#6b7280"
+        };
+    }
+
+    private string GetNotificationUrl(SciSubmit.ViewComponents.NotificationBellItemViewModel notification)
+    {
+        if (notification.RelatedSubmissionId.HasValue)
+        {
+            return Url.Action("Details", "Submission", new { id = notification.RelatedSubmissionId });
+        }
+        return Url.Action("Index", "Notification");
+    }
+
+    private string GetTimeAgo(DateTime dateTime)
+    {
+        var timeSpan = DateTime.UtcNow - dateTime;
+        
+        if (timeSpan.TotalSeconds < 60)
+            return "Just now";
+        
+        if (timeSpan.TotalMinutes < 60)
+            return $"{(int)timeSpan.TotalMinutes} minute{((int)timeSpan.TotalMinutes != 1 ? "s" : "")} ago";
+        
+        if (timeSpan.TotalHours < 24)
+            return $"{(int)timeSpan.TotalHours} hour{((int)timeSpan.TotalHours != 1 ? "s" : "")} ago";
+        
+        if (timeSpan.TotalDays < 7)
+            return $"{(int)timeSpan.TotalDays} day{((int)timeSpan.TotalDays != 1 ? "s" : "")} ago";
+        
+        if (timeSpan.TotalDays < 30)
+            return $"{(int)(timeSpan.TotalDays / 7)} week{((int)(timeSpan.TotalDays / 7) != 1 ? "s" : "")} ago";
+        
+        if (timeSpan.TotalDays < 365)
+            return $"{(int)(timeSpan.TotalDays / 30)} month{((int)(timeSpan.TotalDays / 30) != 1 ? "s" : "")} ago";
+        
+        return $"{(int)(timeSpan.TotalDays / 365)} year{((int)(timeSpan.TotalDays / 365) != 1 ? "s" : "")} ago";
+    }
+}
+

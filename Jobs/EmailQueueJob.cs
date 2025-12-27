@@ -137,6 +137,28 @@ namespace SciSubmit.Jobs
                         assignment.UpdatedAt = DateTime.UtcNow;
 
                         await context.SaveChangesAsync();
+
+                        // Create in-app notification
+                        try
+                        {
+                            var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+                            var userNotification = new Models.Notification.UserNotification
+                            {
+                                UserId = assignment.ReviewerId,
+                                Type = Models.Enums.NotificationType.DeadlineReminder,
+                                Title = "Deadline Reminder",
+                                Message = $"You have a review deadline approaching in 3 days for submission \"{assignment.Submission.Title}\". Deadline: {assignment.Deadline:dd/MM/yyyy HH:mm}.",
+                                Status = Models.Enums.NotificationStatus.Unread,
+                                RelatedSubmissionId = assignment.SubmissionId,
+                                CreatedAt = DateTime.UtcNow
+                            };
+                            await notificationService.CreateNotificationAsync(userNotification);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, $"Error creating deadline reminder notification for assignment {assignment.Id}");
+                        }
+
                         await emailService.SendEmailNotificationAsync(emailNotification);
 
                         _logger.LogInformation($"Reminder sent for review assignment {assignment.Id}");

@@ -1,0 +1,364 @@
+@model List<SciSubmit.Models.Notification.UserNotification>
+@{
+    ViewData["Title"] = "Notifications";
+    var filter = ViewBag.Filter as string ?? "all";
+    var page = (int)(ViewBag.Page ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+    var totalCount = (int)(ViewBag.TotalCount ?? 0);
+    var unreadCount = (int)(ViewBag.UnreadCount ?? 0);
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">
+                    <i class="fas fa-bell me-2"></i>Notifications
+                </h2>
+                @if (unreadCount > 0)
+                {
+                    <button type="button" class="btn btn-primary mark-all-read-btn-page" id="markAllReadBtn">
+                        <i class="fas fa-check-double me-2"></i>Mark all as read
+                    </button>
+                }
+            </div>
+
+            <!-- Filter Tabs -->
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link @(filter == "all" ? "active" : "")" 
+                       asp-action="Index" asp-route-filter="all">
+                        All (@totalCount)
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link @(filter == "unread" ? "active" : "")" 
+                       asp-action="Index" asp-route-filter="unread">
+                        Unread (@unreadCount)
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link @(filter == "read" ? "active" : "")" 
+                       asp-action="Index" asp-route-filter="read">
+                        Read (@(totalCount - unreadCount))
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Notifications List -->
+            @if (Model != null && Model.Any())
+            {
+                <div class="list-group">
+                    @foreach (var notification in Model)
+                    {
+                        <div class="list-group-item list-group-item-action notification-item-page @(notification.Status == SciSubmit.Models.Enums.NotificationStatus.Unread ? "unread" : "")"
+                             data-notification-id="@notification.Id"
+                             style="border-left: @(notification.Status == SciSubmit.Models.Enums.NotificationStatus.Unread ? "4px solid #3b82f6" : "none"); cursor: pointer;">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-shrink-0 me-3">
+                                    <i class="@GetNotificationIcon(notification.Type)" 
+                                       style="font-size: 1.5rem; color: @GetNotificationIconColor(notification.Type);"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="mb-1 fw-semibold">@notification.Title</h5>
+                                        @if (notification.Status == SciSubmit.Models.Enums.NotificationStatus.Unread)
+                                        {
+                                            <span class="badge bg-primary">New</span>
+                                        }
+                                    </div>
+                                    <p class="mb-2 text-muted">@notification.Message</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="far fa-clock me-1"></i>
+                                            <span class="time-ago" data-time="@notification.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ssZ")">
+                                                @GetTimeAgo(notification.CreatedAt)
+                                            </span>
+                                        </small>
+                                        <div>
+                                            @if (notification.RelatedSubmissionId.HasValue)
+                                            {
+                                                <a href="@Url.Action("Details", "Submission", new { id = notification.RelatedSubmissionId })" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    View Submission
+                                                </a>
+                                            }
+                                            <button type="button" class="btn btn-sm btn-outline-danger delete-notification-btn" 
+                                                    data-notification-id="@notification.Id">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (totalPages > 1)
+                {
+                    <nav aria-label="Notifications pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            @if (page > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" asp-action="Index" asp-route-filter="@filter" asp-route-page="@(page - 1)">
+                                        <i class="fas fa-chevron-left"></i> Previous
+                                    </a>
+                                </li>
+                            }
+                            
+                            @for (int i = Math.Max(1, page - 2); i <= Math.Min(totalPages, page + 2); i++)
+                            {
+                                <li class="page-item @(i == page ? "active" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-filter="@filter" asp-route-page="@i">@i</a>
+                                </li>
+                            }
+                            
+                            @if (page < totalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" asp-action="Index" asp-route-filter="@filter" asp-route-page="@(page + 1)">
+                                        Next <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="far fa-bell-slash fa-4x text-muted mb-3" style="opacity: 0.3;"></i>
+                    <h5 class="text-muted">No notifications</h5>
+                    <p class="text-muted">You're all caught up!</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Mark notification as read when clicked
+            $('.notification-item-page').on('click', function(e) {
+                if (!$(e.target).closest('a, button').length) {
+                    const notificationId = $(this).data('notification-id');
+                    if (notificationId) {
+                        markNotificationAsRead(notificationId);
+                    }
+                }
+            });
+
+            // Mark all as read
+            $('#markAllReadBtn').on('click', function() {
+                markAllNotificationsAsRead();
+            });
+
+            // Delete notification
+            $('.delete-notification-btn').on('click', function(e) {
+                e.stopPropagation();
+                const notificationId = $(this).data('notification-id');
+                if (confirm('Are you sure you want to delete this notification?')) {
+                    deleteNotification(notificationId);
+                }
+            });
+
+            // Update time ago labels
+            updateTimeAgoLabels();
+            setInterval(updateTimeAgoLabels, 60000);
+        });
+
+        function markNotificationAsRead(notificationId) {
+            const token = $('input[name="__RequestVerificationToken"]').val();
+            
+            $.ajax({
+                url: '/Notification/MarkAsRead/' + notificationId,
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                success: function(data) {
+                    if (data.success) {
+                        const item = $(`.notification-item-page[data-notification-id="${notificationId}"]`);
+                        item.removeClass('unread');
+                        item.css('border-left', 'none');
+                        item.find('.badge.bg-primary').remove();
+                        
+                        // Reload page to update counts
+                        setTimeout(() => location.reload(), 500);
+                    }
+                },
+                error: function() {
+                    alert('Error marking notification as read');
+                }
+            });
+        }
+
+        function markAllNotificationsAsRead() {
+            const token = $('input[name="__RequestVerificationToken"]').val();
+            
+            $.ajax({
+                url: '/Notification/MarkAllAsRead',
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                success: function(data) {
+                    if (data.success) {
+                        location.reload();
+                    }
+                },
+                error: function() {
+                    alert('Error marking all notifications as read');
+                }
+            });
+        }
+
+        function deleteNotification(notificationId) {
+            const token = $('input[name="__RequestVerificationToken"]').val();
+            
+            $.ajax({
+                url: '/Notification/Delete/' + notificationId,
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                success: function(data) {
+                    if (data.success) {
+                        $(`.notification-item-page[data-notification-id="${notificationId}"]`).fadeOut(300, function() {
+                            $(this).remove();
+                            if ($('.notification-item-page').length === 0) {
+                                location.reload();
+                            }
+                        });
+                    }
+                },
+                error: function() {
+                    alert('Error deleting notification');
+                }
+            });
+        }
+
+        function updateTimeAgoLabels() {
+            $('.time-ago[data-time]').each(function() {
+                const timeString = $(this).data('time');
+                if (timeString) {
+                    try {
+                        const time = new Date(timeString);
+                        const timeAgo = getTimeAgo(time);
+                        $(this).text(timeAgo);
+                    } catch (e) {
+                        console.error('Error parsing time:', e);
+                    }
+                }
+            });
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffSecs = Math.floor(diffMs / 1000);
+            const diffMins = Math.floor(diffSecs / 60);
+            const diffHours = Math.floor(diffMins / 60);
+            const diffDays = Math.floor(diffHours / 24);
+            const diffWeeks = Math.floor(diffDays / 7);
+            const diffMonths = Math.floor(diffDays / 30);
+            const diffYears = Math.floor(diffDays / 365);
+
+            if (diffSecs < 60) return 'Just now';
+            if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+            if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+            if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+            if (diffWeeks < 4) return `${diffWeeks} week${diffWeeks !== 1 ? 's' : ''} ago`;
+            if (diffMonths < 12) return `${diffMonths} month${diffMonths !== 1 ? 's' : ''} ago`;
+            return `${diffYears} year${diffYears !== 1 ? 's' : ''} ago`;
+        }
+    </script>
+}
+
+@functions {
+    private string GetNotificationIcon(SciSubmit.Models.Enums.NotificationType type)
+    {
+        return type switch
+        {
+            SciSubmit.Models.Enums.NotificationType.AbstractSubmitted => "fas fa-file-upload",
+            SciSubmit.Models.Enums.NotificationType.FullPaperSubmitted => "fas fa-file-pdf",
+            SciSubmit.Models.Enums.NotificationType.ReviewAssigned => "fas fa-user-check",
+            SciSubmit.Models.Enums.NotificationType.ReviewCompleted => "fas fa-check-circle",
+            SciSubmit.Models.Enums.NotificationType.ReviewAccepted => "fas fa-thumbs-up",
+            SciSubmit.Models.Enums.NotificationType.ReviewRejected => "fas fa-thumbs-down",
+            SciSubmit.Models.Enums.NotificationType.FinalDecision => "fas fa-gavel",
+            SciSubmit.Models.Enums.NotificationType.DeadlineReminder => "fas fa-clock",
+            SciSubmit.Models.Enums.NotificationType.SubmissionStatusChanged => "fas fa-sync-alt",
+            SciSubmit.Models.Enums.NotificationType.PaymentReceived => "fas fa-credit-card",
+            SciSubmit.Models.Enums.NotificationType.SystemAnnouncement => "fas fa-bullhorn",
+            _ => "fas fa-bell"
+        };
+    }
+
+    private string GetNotificationIconColor(SciSubmit.Models.Enums.NotificationType type)
+    {
+        return type switch
+        {
+            SciSubmit.Models.Enums.NotificationType.AbstractSubmitted => "#2563eb",
+            SciSubmit.Models.Enums.NotificationType.FullPaperSubmitted => "#dc2626",
+            SciSubmit.Models.Enums.NotificationType.ReviewAssigned => "#16a34a",
+            SciSubmit.Models.Enums.NotificationType.ReviewCompleted => "#059669",
+            SciSubmit.Models.Enums.NotificationType.ReviewAccepted => "#10b981",
+            SciSubmit.Models.Enums.NotificationType.ReviewRejected => "#ef4444",
+            SciSubmit.Models.Enums.NotificationType.FinalDecision => "#7c3aed",
+            SciSubmit.Models.Enums.NotificationType.DeadlineReminder => "#f59e0b",
+            SciSubmit.Models.Enums.NotificationType.SubmissionStatusChanged => "#6366f1",
+            SciSubmit.Models.Enums.NotificationType.PaymentReceived => "#14b8a6",
+            SciSubmit.Models.Enums.NotificationType.SystemAnnouncement => "#ec4899",
+            _ => "#6b7280"
+        };
+    }
+
+    private string GetTimeAgo(DateTime dateTime)
+    {
+        var timeSpan = DateTime.UtcNow - dateTime;
+        
+        if (timeSpan.TotalSeconds < 60)
+            return "Just now";
+        
+        if (timeSpan.TotalMinutes < 60)
+            return $"{(int)timeSpan.TotalMinutes} minute{((int)timeSpan.TotalMinutes != 1 ? "s" : "")} ago";
+        
+        if (timeSpan.TotalHours < 24)
+            return $"{(int)timeSpan.TotalHours} hour{((int)timeSpan.TotalHours != 1 ? "s" : "")} ago";
+        
+        if (timeSpan.TotalDays < 7)
+            return $"{(int)timeSpan.TotalDays} day{((int)timeSpan.TotalDays != 1 ? "s" : "")} ago";
+        
+        if (timeSpan.TotalDays < 30)
+            return $"{(int)(timeSpan.TotalDays / 7)} week{((int)(timeSpan.TotalDays / 7) != 1 ? "s" : "")} ago";
+        
+        if (timeSpan.TotalDays < 365)
+            return $"{(int)(timeSpan.TotalDays / 30)} month{((int)(timeSpan.TotalDays / 30) != 1 ? "s" : "")} ago";
+        
+        return $"{(int)(timeSpan.TotalDays / 365)} year{((int)(timeSpan.TotalDays / 365) != 1 ? "s" : "")} ago";
+    }
+}
+
+<style>
+    .notification-item-page {
+        transition: all 0.2s ease;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+    }
+
+    .notification-item-page:hover {
+        background-color: #f8fafc;
+        transform: translateX(4px);
+    }
+
+    .notification-item-page.unread {
+        background-color: #eff6ff;
+    }
+</style>
+
